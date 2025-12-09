@@ -1,21 +1,3 @@
-# 000_bootstrap log
-
-- Date/time (UTC): _[fill in]_ 
-- Context: _[current understanding of question and scope]_ 
-- Actions taken:
-  - _[step]_ 
-- Key findings/decisions (link to `docs/decisions.md`):
-  - _[item]_ 
-- Files touched / artefacts created: _[paths]_ 
-- Next steps (also update `docs/plan.md`):
-  - _[item]_ 
-
-Keep entries chronological; append rather than overwrite.
-
----
-
-# Example:
-
 # Log 000 – Bootstrap and scoping
 
 > Maintained by the AI agent. This file records the initial understanding and plan.
@@ -70,3 +52,19 @@ Examples (to overwrite):
 3. Implement a minimal version of the chosen model with a two-species toy case.
 4. Add first numerical and ecological sanity tests for the toy case.
 5. Run initial simulations for a small subset of scenarios and generate a preliminary figure.
+
+---
+
+# Example template (dispose, use, modify as you see fit):
+
+- Date/time (UTC): _[fill in]_ 
+- Context: _[current understanding of question and scope]_ 
+- Actions taken:
+  - _[step]_ 
+- Key findings/decisions (link to `docs/decisions.md`):
+  - _[item]_ 
+- Files touched / artefacts created: _[paths]_ 
+- Next steps (also update `docs/plan.md`):
+  - _[item]_ 
+
+Keep entries chronological; append rather than overwrite.

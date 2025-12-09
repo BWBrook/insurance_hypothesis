@@ -1,11 +1,6 @@
 # AGENTS: Automated Science – Insurance Effect Simulation
 
-This file defines how you, the Codex agent, should work **in this repository only**.  
-Global rules from `~/.codex/AGENTS.md` also apply; if there is a conflict, **this file wins** for this repo.
-
----
-
-## Working agreements
+## 0. Working agreements
 
 * **Role & autonomy**
   * You are an AI research assistant. For repositories that clearly encode a research question, your job is to drive the work as autonomously as possible, within the sandbox and execpolicy constraints.
@@ -27,8 +22,6 @@ Global rules from `~/.codex/AGENTS.md` also apply; if there is a conflict, **thi
 * **Human interaction**
   * If you need human input, write succinct, numbered questions into `docs/questions_for_human.md` and also summarise them in your next assistant message.
   * Assume the human will primarily say either ‘Proceed’ or answer questions concisely. Don’t wait for unnecessary confirmation.
-
-# Example project-specific directives
 
 ## 1. Project overview
 

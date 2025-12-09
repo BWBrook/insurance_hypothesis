@@ -1,50 +1,4 @@
-# Project Plan (living document)
-
-## Research question & scope
-- Question: _[fill in]_
-- System / focal taxa / region: _[fill in]_
-- Hypotheses to test: _[bullet list]_ 
-
-## Data sources
-- Primary datasets (with URLs, versions, expected size):
-  - _[fill in]_ 
-- Supplementary covariates / metadata: _[fill in]_ 
-- Access constraints / licenses: _[fill in]_ 
-
-## Analysis plan (outline)
-| Phase                    | Goal                                | Key actions | Owner | Status  |
-| ------------------------ | ----------------------------------- | ----------- | ----- | ------- |
-| 000_bootstrap            | Define question, scope, plan        | _[fill in]_ | Codex | pending |
-| 010_data_acquisition     | Acquire & document data             | _[fill in]_ | Codex | pending |
-| 020_exploratory_analysis | EDA & feature engineering           | _[fill in]_ | Codex | pending |
-| 030_modelling            | Fit models, diagnostics, robustness | _[fill in]_ | Codex | pending |
-| 040_reporting            | Figures, tables, manuscript draft   | _[fill in]_ | Codex | pending |
-| 050_release              | Repro checks, packaging, archive    | _[fill in]_ | Codex | pending |
-
-## Milestones & deliverables
-- M1: _[e.g., cleaned dataset ready]_ — target date: _[date]_
-- M2: _[e.g., preliminary figures]_ — target date: _[date]_
-- M3: _[e.g., validated model results]_ — target date: _[date]_
-- M4: _[e.g., manuscript draft]_ — target date: _[date]_
-
-## Risks, assumptions, and contingencies
-- Data availability risks: _[fill in]_ 
-- Methodological risks: _[fill in]_ 
-- Operational risks (compute, runtime): _[fill in]_ 
-- Contingency ideas: _[fill in]_ 
-
-## Next actions (short horizon)
-- [ ] _[next concrete task]_ 
-- [ ] _[next concrete task]_ 
-- [ ] _[next concrete task]_ 
-
-_Update this file whenever plans change; keep it succinct and current._
-
----
-
-# Example starting plan:
-
-# Project plan – Insurance Effect Simulation
+# Project Plan (living document) – Insurance Effect Simulation
 
 > This file is maintained by the AI agent. It should always reflect the current understanding of the project and the next concrete steps.
 
@@ -131,3 +85,48 @@ _The agent must keep this up to date._
   1.
   2.
   3.
+
+---
+
+## Example template (dispose, use, modify as you see fit)
+
+## Research question & scope
+- Question: _[fill in]_
+- System / focal taxa / region: _[fill in]_
+- Hypotheses to test: _[bullet list]_ 
+
+## Data sources
+- Primary datasets (with URLs, versions, expected size):
+  - _[fill in]_ 
+- Supplementary covariates / metadata: _[fill in]_ 
+- Access constraints / licenses: _[fill in]_ 
+
+## Analysis plan (outline)
+| Phase                    | Goal                                | Key actions | Owner | Status  |
+| ------------------------ | ----------------------------------- | ----------- | ----- | ------- |
+| 000_bootstrap            | Define question, scope, plan        | _[fill in]_ | Codex | pending |
+| 010_data_acquisition     | Acquire & document data             | _[fill in]_ | Codex | pending |
+| 020_exploratory_analysis | EDA & feature engineering           | _[fill in]_ | Codex | pending |
+| 030_modelling            | Fit models, diagnostics, robustness | _[fill in]_ | Codex | pending |
+| 040_reporting            | Figures, tables, manuscript draft   | _[fill in]_ | Codex | pending |
+| 050_release              | Repro checks, packaging, archive    | _[fill in]_ | Codex | pending |
+
+## Milestones & deliverables
+- M1: _[e.g., cleaned dataset ready]_ — target date: _[date]_
+- M2: _[e.g., preliminary figures]_ — target date: _[date]_
+- M3: _[e.g., validated model results]_ — target date: _[date]_
+- M4: _[e.g., manuscript draft]_ — target date: _[date]_
+
+## Risks, assumptions, and contingencies
+- Data availability risks: _[fill in]_ 
+- Methodological risks: _[fill in]_ 
+- Operational risks (compute, runtime): _[fill in]_ 
+- Contingency ideas: _[fill in]_ 
+
+## Next actions (short horizon)
+- [ ] _[next concrete task]_ 
+- [ ] _[next concrete task]_ 
+- [ ] _[next concrete task]_ 
+
+_Update this file whenever plans change; keep it succinct and current._
+
