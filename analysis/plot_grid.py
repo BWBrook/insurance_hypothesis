@@ -1,0 +1,78 @@
+"""Plot summaries of simulation grid outputs.
+
+Usage:
+  uv run python analysis/plot_grid.py --input data/sim/grid/run1/summaries.parquet --out-prefix analysis/reports/run1
+
+Produces:
+  <out-prefix>_cv.png, <out-prefix>_phi.png, and <out-prefix>_summary.csv
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Plot grid summaries")
+    parser.add_argument("--input", required=True, help="Path to summaries.parquet")
+    parser.add_argument(
+        "--out-prefix",
+        default="analysis/reports/run1",
+        help="Output prefix for figures/summary",
+    )
+    return parser.parse_args()
+
+
+def pivot_metric(df: pd.DataFrame, metric: str, s: int) -> pd.DataFrame:
+    sub = df[df["n_species"] == s]
+    return sub.pivot_table(index="rho_env", columns="sigma_env", values=metric, aggfunc="mean")
+
+
+def plot_heatmaps(df: pd.DataFrame, metric: str, out_path: Path) -> None:
+    richness = sorted(df["n_species"].unique())
+    ncols = len(richness)
+    fig, axes = plt.subplots(1, ncols, figsize=(4 * ncols, 4), constrained_layout=True)
+    if ncols == 1:
+        axes = [axes]
+    for ax, s in zip(axes, richness):
+        table = pivot_metric(df, metric, s)
+        im = ax.imshow(table.values, origin="lower", aspect="auto", cmap="viridis")
+        ax.set_title(f"{metric} (S={s})")
+        ax.set_xlabel("sigma_env")
+        ax.set_ylabel("rho_env")
+        ax.set_xticks(range(len(table.columns)))
+        ax.set_xticklabels([f"{c:.1f}" for c in table.columns])
+        ax.set_yticks(range(len(table.index)))
+        ax.set_yticklabels([f"{r:.1f}" for r in table.index])
+        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
+
+
+def main() -> None:
+    args = parse_args()
+    df = pd.read_parquet(args.input)
+
+    out_prefix = Path(args.out_prefix)
+    out_prefix.parent.mkdir(parents=True, exist_ok=True)
+
+    summary_path = Path(f"{out_prefix}_summary.csv")
+    summary = (
+        df.groupby(["slope_mode", "n_species", "sigma_env", "rho_env"])
+        [["cv_total", "phi_ldm", "mean_pairwise_corr"]]
+        .mean()
+        .reset_index()
+    )
+    summary.to_csv(summary_path, index=False)
+
+    plot_heatmaps(summary, "cv_total", Path(f"{out_prefix}_cv.png"))
+    plot_heatmaps(summary, "phi_ldm", Path(f"{out_prefix}_phi.png"))
+    print(f"Wrote summary CSV and figures to {out_prefix.parent}")
+
+
+if __name__ == "__main__":
+    main()

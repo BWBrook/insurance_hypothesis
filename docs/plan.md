@@ -1,132 +1,67 @@
 # Project Plan (living document) – Insurance Effect Simulation
 
-> This file is maintained by the AI agent. It should always reflect the current understanding of the project and the next concrete steps.
+> Maintained by the AI agent. Reflects current understanding and near-term actions.
 
-## 1. Working hypothesis
+## 1. Working hypothesis (refined)
 
-_Initial stub – the agent should overwrite this with its own wording and refinement._
+- Environmental variability can stabilise total community biomass (lower temporal variance or CV) when species respond asynchronously to environmental fluctuations, but the same variability destabilises biomass when responses are synchronous.
+- **Stabilisation metric**: reduction in variance and coefficient of variation (CV) of total biomass relative to a low-variance baseline.
+- **Asynchrony**: low or negative correlations among species’ environmentally driven growth rates; operationalised via the correlation (ρ) among species-specific environmental anomalies and the Loreau–de Mazancourt synchrony index.
 
-- Starting point:
-  - In multispecies communities with differing environmental responses, increased environmental variance may stabilise total community biomass when species respond asynchronously, but destabilise it when responses are synchronous.
+## 2. Model design (planned)
 
-The agent must:
-- Clarify what “stabilise” means (e.g. reduced variance or coefficient of variation of total biomass).
-- Clarify what “asynchronous responses” means (e.g. correlation structure of species’ environmental response).
+- **Core model**: discrete-time stochastic Ricker with competition  
+  `N_i(t+1) = N_i(t) * exp( r0 + b_i * z_i(t) - (N_i(t) + Σ_j α_ij N_j(t)) / K_i )`, truncated at a small floor to prevent negative values.
+- **Environmental driver**: multivariate AR(1) process `z_t = φ z_{t-1} + ε_t`, with `ε_t ~ MVN(0, Σ)`; variance scaled by `σ_env^2`, synchrony controlled by off-diagonal correlation `ρ` in Σ. Initial φ planned at 0.4 to allow persistence without long memory.
+- **Species differences**: slopes `b_i` arrayed along a gradient (e.g., linearly spaced from negative to positive) so species peak under different environmental anomalies; carrying capacities `K_i` near 100; intra- vs interspecific competition ratio set via `α_inter = c_comp * α_intra` with `c_comp ≈ 0.3`.
+- **Numerical safeguards**: floor abundance at `1e-9`; cap exponent to avoid overflow; check for NaN/Inf each step.
+- **Tooling choice**: core simulations in **Python 3.12** (uv-managed), with potential R/Python plotting later.
 
-## 2. Model design
+## 3. Experimental grid (initial)
 
-_The agent should fill this in with specifics._
-
-- Core model type (e.g. stochastic Ricker / Gompertz / LV).
-- Environmental driver process (e.g. AR(1) with tunable variance).
-- Species parameters:
-  - number of species,
-  - environmental optima / niches,
-  - competition structure.
-
-## 3. Experimental grid
-
-_Describe the set of simulation scenarios._
-
-- Axes to vary:
-  - environmental variance,
-  - synchrony / correlation among species responses,
-  - number of species.
-- Values or ranges for each axis.
-- Number of replicates per scenario.
-- Length of time series (burn-in + observed).
+- **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5}.
+- **Response synchrony (ρ)**: {-0.5, 0, 0.5, 0.9, 1.0} via correlation matrix of ε_t.
+- **Species richness (S)**: {2, 4, 8}; slope gradients rescaled for each S.
+- **AR(1) persistence (φ)**: default 0.4; sensitivity check at 0 and 0.7 in a secondary sweep.
+- **Simulation length**: 600 time steps; discard first 300 as burn-in.
+- **Replicates per scenario**: 200 (adjust if runtime dictates); random seeds stored for reproducibility.
+- **Outputs stored**: community time series summaries and per-scenario aggregate statistics saved under `data/sim/` as compressed parquet/feather.
 
 ## 4. Response metrics
 
-_List the main metrics to compute from simulations._
+- Community mean, variance, and CV of total biomass (post burn-in).
+- Loreau–de Mazancourt community synchrony index (φ_LdM) and average pairwise growth-rate correlations.
+- Species-level extinction frequency and mean biomass.
+- Stability ratio: variance at given σ_env, ρ relative to baseline σ_env = 0 case.
+- Optional: temporal β-diversity/turnover (if informative).
 
-- For each scenario:
-  - mean and variance (or CV) of total biomass,
-  - species-level variances,
-  - temporal β-diversity or turnover metrics (if used),
-  - synchrony indices.
+## 5. Sanity checks & validation (to be encoded in tests)
 
-## 5. Sanity checks and validation
+- **Deterministic baseline**: with σ_env = 0, trajectories approach equilibrium near K_i; no extinctions under default parameters.
+- **Perfect synchrony**: ρ = 1 should yield community CV close to species-level CV (little insurance effect).
+- **Negative/low synchrony**: ρ ≤ 0 should reduce community CV relative to species-level CV.
+- **Richness effect**: holding parameters constant, higher S with low ρ should further reduce community variance.
+- **Numerical**: no NaN/Inf; abundances non-negative; statistics converge as replicates increase.
+- Cross-check small toy case against an independent vectorised implementation or analytic approximation of equilibrium at σ_env = 0.
 
-_This section should summarise the key sanity and validation strategies._
+## 6. Result Review Cycle (pointer)
 
-- Toy analytic cases (e.g. 2 species, simple environment) and expected behaviour.
-- Numerical invariants (non-negativity, boundedness conditions, etc.).
-- Cross-validation or alternative implementations (e.g. same model in two languages, or two independent implementations).
+- Follow `docs/workflow.md`: for each key figure/table → run sanity checks → record interpretation bullets in `docs/interpretation_notes.md` → queue follow-ups → iterate until coherent.
 
-## 6. Result Review Cycle
+## 7. Manuscript plan (outline)
 
-_Short summary pointing to `docs/workflow.md`._
+- Target: short theoretical ecology note (Ecology Letters–style).
+- Sections: Introduction (insurance hypothesis framing); Methods (model, grid, metrics); Results (figures: variance vs σ_env by ρ and S); Discussion (conditions for stabilisation, limitations, robustness); Methods appendix with parameter tables.
 
-- Sequence of:
-  - sanity checks,
-  - interpretation notes,
-  - iterations,
-  - convergence criteria (when to stop iterating).
+## 8. Current status & next steps
 
-## 7. Manuscript plan
+- **Current phase**: 010_model_design (early experimentation).
+- **Recently completed**: Full mixed-slope grid (reps=150), positive-slope subset run, covariance PD fix, synchrony metrics/tests, plotting and summary generation.
+- **Immediate next steps** (ordered):
+  1) Produce comparative figures (mixed vs positive slopes; richness-scaling; φ sensitivity overlays) for manuscript-ready visuals and add corresponding interpretation bullets.  
+  2) Quantify realised vs imposed synchrony across grids (e.g., scatter of imposed ρ vs mean growth corr) and summarise divergence by slope mode and richness.  
+  3) If needed, extend φ to 0.9 and rerun reduced grid to test high persistence; monitor extinction/variance.  
+  4) Begin drafting concise findings-to-date summary in `docs/interpretation_notes.md` and consider promoting to Result Review Cycle.  
+  5) Add any additional numerical sanity tests prompted by new figures (e.g., bounds on φ_LdM, extinction under high σ_env).
 
-_Outline the eventual paper structure._
-
-- Target journal type (theoretical ecology / ecology letters–style short communication, etc.).
-- Draft section outlines:
-  - Introduction,
-  - Methods,
-  - Results,
-  - Discussion.
-
-## 8. Current status and next steps
-
-_The agent must keep this up to date._
-
-- **Current phase**:
-- **Recently completed**:
-- **Immediate next steps** (ordered list of small, concrete tasks):
-  1.
-  2.
-  3.
-
----
-
-## Example template (dispose, use, modify as you see fit)
-
-## Research question & scope
-- Question: _[fill in]_
-- System / focal taxa / region: _[fill in]_
-- Hypotheses to test: _[bullet list]_ 
-
-## Data sources
-- Primary datasets (with URLs, versions, expected size):
-  - _[fill in]_ 
-- Supplementary covariates / metadata: _[fill in]_ 
-- Access constraints / licenses: _[fill in]_ 
-
-## Analysis plan (outline)
-| Phase                    | Goal                                | Key actions | Owner | Status  |
-| ------------------------ | ----------------------------------- | ----------- | ----- | ------- |
-| 000_bootstrap            | Define question, scope, plan        | _[fill in]_ | Codex | pending |
-| 010_data_acquisition     | Acquire & document data             | _[fill in]_ | Codex | pending |
-| 020_exploratory_analysis | EDA & feature engineering           | _[fill in]_ | Codex | pending |
-| 030_modelling            | Fit models, diagnostics, robustness | _[fill in]_ | Codex | pending |
-| 040_reporting            | Figures, tables, manuscript draft   | _[fill in]_ | Codex | pending |
-| 050_release              | Repro checks, packaging, archive    | _[fill in]_ | Codex | pending |
-
-## Milestones & deliverables
-- M1: _[e.g., cleaned dataset ready]_ — target date: _[date]_
-- M2: _[e.g., preliminary figures]_ — target date: _[date]_
-- M3: _[e.g., validated model results]_ — target date: _[date]_
-- M4: _[e.g., manuscript draft]_ — target date: _[date]_
-
-## Risks, assumptions, and contingencies
-- Data availability risks: _[fill in]_ 
-- Methodological risks: _[fill in]_ 
-- Operational risks (compute, runtime): _[fill in]_ 
-- Contingency ideas: _[fill in]_ 
-
-## Next actions (short horizon)
-- [ ] _[next concrete task]_ 
-- [ ] _[next concrete task]_ 
-- [ ] _[next concrete task]_ 
-
-_Update this file whenever plans change; keep it succinct and current._
-
+_This plan should be updated as design choices are made or adjusted._

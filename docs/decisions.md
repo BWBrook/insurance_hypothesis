@@ -16,23 +16,23 @@ For each entry, include:
 
 ### DEC-001 – Language choice
 
-- **Date**: _TO BE FILLED_
-- **Decision**: _Python 3.12_ / _Julia 1.12.2_ for core simulations.  
-- **Rationale**: _TO BE FILLED – e.g. library availability, agent familiarity._
+- **Date**: 2025-12-09
+- **Decision**: Python 3.12 for core simulations.  
+- **Rationale**: Python offers sufficient performance for the planned grid, strong ecosystem for testing/plotting (numpy/pandas/pytest), and uv makes reproducible environments straightforward; Julia not needed for anticipated scales.
 - **Status**: active
 
 ### DEC-002 – Core model form
 
-- **Date**: _TO BE FILLED_
-- **Decision**: _e.g. stochastic Ricker model with density dependence and competition._
-- **Rationale**: _TO BE FILLED – e.g. balance of realism vs simplicity._
+- **Date**: 2025-12-09
+- **Decision**: Discrete-time stochastic Ricker model with intra/interspecific competition; per-capita growth modulated by species-specific slopes on a correlated multivariate AR(1) environmental driver.
+- **Rationale**: Captures density dependence and competitive interactions while remaining simple and fast for large scenario grids; AR(1) allows tunable environmental variance and persistence aligned with hypothesis needs.
 - **Status**: active
 
 ### DEC-003 – Synchrony metric
 
-- **Date**: _TO BE FILLED_
-- **Decision**: _e.g. correlation of species’ environmental response functions; or a specific synchrony index._
-- **Rationale**: _TO BE FILLED._
+- **Date**: 2025-12-09
+- **Decision**: Manipulate synchrony via equicorrelated environmental innovations (parameter ρ); quantify realised synchrony using pairwise growth-rate correlations and the Loreau–de Mazancourt community synchrony index in analyses.
+- **Rationale**: Directly links the experimental control parameter (ρ) to both imposed and realised synchrony, with established ecological index for interpretation.
 - **Status**: active
 
 _(The agent should add more entries as needed.)_

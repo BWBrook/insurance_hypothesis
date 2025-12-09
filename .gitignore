@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environments
+.venv/
+
+# Test artifacts
+.pytest_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Data previews (regenerated)
+data/sim/preview/
+data/sim/grid/
+
+# Packaging artefacts
+*.egg-info/
+
+# OS junk
+.DS_Store
+
+# Image and output files (these will end up in Zenodo)
+*.png
+*.csv
