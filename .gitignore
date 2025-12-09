@@ -27,3 +27,10 @@ data/sim/grid/
 *.csv
 *.pdf
 
+# Allow checked-in key outputs for review (overrides above)
+!analysis/reports/*.png
+!analysis/reports/*.pdf
+!analysis/reports/*summary.csv
+!analysis/reports/*panels*.png
+!manuscript/figures/*.png
+!manuscript/figures/*.pdf

@@ -198,7 +198,12 @@ def summarise_timeseries(
     # Loreau–de Mazancourt synchrony (abundance-based)
     std_species = np.sqrt(var_species)
     denom = np.sum(std_species) ** 2
-    phi_ldm = float(var_total / denom) if denom > 0 else np.nan
+    phi_ldm_raw = float(var_total / denom) if denom > 0 else np.nan
+    # Numerical guard: theoretical bounds [0,1]; clip small overshoots
+    if np.isnan(phi_ldm_raw):
+        phi_ldm = np.nan
+    else:
+        phi_ldm = float(np.clip(phi_ldm_raw, 0.0, 1.0))
 
     # Mean pairwise correlation of per-capita growth rates
     growth = np.diff(np.log(obs + floor), axis=0)  # log change; floor avoids -inf

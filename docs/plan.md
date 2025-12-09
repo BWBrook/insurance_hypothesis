@@ -8,24 +8,24 @@
 - **Stabilisation metric**: reduction in variance and coefficient of variation (CV) of total biomass relative to a low-variance baseline.
 - **Asynchrony**: low or negative correlations among species’ environmentally driven growth rates; operationalised via the correlation (ρ) among species-specific environmental anomalies and the Loreau–de Mazancourt synchrony index.
 
-## 2. Model design (planned)
+## 2. Model design (implemented)
 
 - **Core model**: discrete-time stochastic Ricker with competition  
   `N_i(t+1) = N_i(t) * exp( r0 + b_i * z_i(t) - (N_i(t) + Σ_j α_ij N_j(t)) / K_i )`, truncated at a small floor to prevent negative values.
-- **Environmental driver**: multivariate AR(1) process `z_t = φ z_{t-1} + ε_t`, with `ε_t ~ MVN(0, Σ)`; variance scaled by `σ_env^2`, synchrony controlled by off-diagonal correlation `ρ` in Σ. Initial φ planned at 0.4 to allow persistence without long memory.
-- **Species differences**: slopes `b_i` arrayed along a gradient (e.g., linearly spaced from negative to positive) so species peak under different environmental anomalies; carrying capacities `K_i` near 100; intra- vs interspecific competition ratio set via `α_inter = c_comp * α_intra` with `c_comp ≈ 0.3`.
-- **Numerical safeguards**: floor abundance at `1e-9`; cap exponent to avoid overflow; check for NaN/Inf each step.
-- **Tooling choice**: core simulations in **Python 3.12** (uv-managed), with potential R/Python plotting later.
+- **Environmental driver**: multivariate AR(1) process `z_t = φ z_{t-1} + ε_t`, with `ε_t ~ MVN(0, Σ)`; variance scaled by `σ_env^2`, synchrony controlled by off-diagonal correlation `ρ` in Σ. Default φ=0.4; sensitivity runs at φ ∈ {0, 0.7, 0.9, 0.95}. Covariance clipped to keep ρ<1 for PD.
+- **Species differences**: two slope modes: mixed slopes linearly spaced -0.5..0.5 (heterogeneous responses) and all-positive slopes 0.1..1.0 (aligned responses). K_i=100; intra- vs interspecific competition ratio `α_inter = 0.3 * α_intra`.
+- **Numerical safeguards**: floor abundance at `1e-9`; cap exponent; φ_LdM clipped to [0,1]; checks for NaN/Inf each step.
+- **Tooling choice**: core simulations in **Python 3.12** (uv-managed); plotting with matplotlib.
 
-## 3. Experimental grid (initial)
+## 3. Experimental grid (completed)
 
-- **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5}.
-- **Response synchrony (ρ)**: {-0.5, 0, 0.5, 0.9, 1.0} via correlation matrix of ε_t.
-- **Species richness (S)**: {2, 4, 8}; slope gradients rescaled for each S.
-- **AR(1) persistence (φ)**: default 0.4; sensitivity check at 0 and 0.7 in a secondary sweep.
-- **Simulation length**: 600 time steps; discard first 300 as burn-in.
-- **Replicates per scenario**: 200 (adjust if runtime dictates); random seeds stored for reproducibility.
-- **Outputs stored**: community time series summaries and per-scenario aggregate statistics saved under `data/sim/` as compressed parquet/feather.
+- **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5} (reduced to {0,0.5,1.0} for φ sensitivity).
+- **Response synchrony (ρ)**: {-0.5, 0, 0.5, 0.9, 1.0}.
+- **Species richness (S)**: {2, 4, 8} for mixed slopes; {4, 8} for positive slopes (S=2 subset at σ=0.5,1.0).
+- **AR(1) persistence (φ)**: 0.4 main; sensitivity {0, 0.7, 0.9, 0.95}.
+- **Simulation length**: 600 steps (burn 300) for main/positive grids; 400 (burn 200) for φ sweeps.
+- **Replicates per scenario**: mixed 150; positive 100; φ sweeps 80.
+- **Outputs stored**: parquet summaries under `data/sim/grid/<run_name>/summaries.parquet`.
 
 ## 4. Response metrics
 
@@ -55,13 +55,12 @@
 
 ## 8. Current status & next steps
 
-- **Current phase**: 010_model_design (early experimentation).
-- **Recently completed**: Full mixed-slope grid (reps=150), positive-slope subset run, covariance PD fix, synchrony metrics/tests, plotting and summary generation.
+- **Current phase**: 010_model_design → transitioning to reporting.
+- **Recently completed**: Full mixed and positive grids, φ sensitivity to 0.95, combined panels, manuscript scaffolding, φ_LdM bound tests.
 - **Immediate next steps** (ordered):
-  1) Build combined panel figure (heatmaps + key line plots) for manuscript use; ensure assets saved in `analysis/reports/` and referenced.  
-  2) Consider φ=0.9 sensitivity run on reduced grid if time permits; otherwise document current φ robustness.  
-  3) Add a short findings-to-date summary section in `docs/interpretation_notes.md` and initiate Result Review Cycle checklist.  
-  4) Add numerical sanity checks if panels suggest anomalies (e.g., enforce |phi_ldm| ≤ 1, monitor extinction under φ=0.9/σ_env high).  
-  5) Begin sketching manuscript Methods/Results bullet points in `manuscript/text/` after panel figure complete.
+  1) Finalise manuscript text (Methods/Results/Discussion) in `manuscript/text/draft.md` using current figures/captions.  
+  2) Minor figure polish if needed; keep `analysis/reports/manuscript_panels.pdf` as bundle for reviewers.  
+  3) Maintain sanity tests (φ_LdM bound) and rerun `uv run pytest` after edits.  
+  4) Prep for external review: ensure README/docs point to key runs/figures; package zip when ready.  
 
 _This plan should be updated as design choices are made or adjusted._

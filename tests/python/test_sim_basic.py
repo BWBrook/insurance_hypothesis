@@ -93,3 +93,11 @@ def test_synchrony_metrics_deterministic_cases():
     stats_async = summarise_timeseries(obs_async, burn_in=0)
     assert stats_async["phi_ldm"] < 0.05
     assert np.isclose(stats_async["mean_pairwise_corr"], -1.0, atol=1e-6)
+
+
+def test_phi_ldm_bound():
+    # Random trajectory should yield phi_ldm within [0,1]
+    rng = np.random.default_rng(0)
+    traj = np.abs(rng.normal(size=(50, 5))) + 0.1
+    stats = summarise_timeseries(traj, burn_in=0)
+    assert 0.0 <= stats["phi_ldm"] <= 1.0 + 1e-9

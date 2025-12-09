@@ -35,6 +35,13 @@ For each entry, include:
 - **Rationale**: Directly links the experimental control parameter (ρ) to both imposed and realised synchrony, with established ecological index for interpretation.
 - **Status**: active
 
+### DEC-004 – Persistence range and stability safeguards
+
+- **Date**: 2025-12-09
+- **Decision**: Environmental persistence φ explored over [0, 0.95]; covariance clipped to keep ρ < 1 for PD; φ_LdM clipped to [0,1] to avoid numerical overshoot.
+- **Rationale**: Ensures numerical stability while probing high persistence; prevents artefactual synchrony values outside theoretical bounds.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

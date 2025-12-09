@@ -71,14 +71,14 @@
 
 - **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `phi07_reduced/summaries.parquet`, `phi09_reduced/summaries.parquet`; reports `analysis/reports/phi{0,07,09}_reduced_*`, overlay `analysis/reports/cv_phi_sensitivity_sigma0.5_extended.png`.
 - **Summary (plain language)**:
-  - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9) increases CV modestly; qualitative pattern (CV decreases with richness and with ρ under mixed slopes) is unchanged.
-  - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9); S=4 is 0.074, 0.084, 0.114, 0.125 respectively.
+  - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9, 0.95) increases CV, with amplification noticeable by φ=0.95 but qualitative pattern (CV decreases with richness and with ρ under mixed slopes) unchanged.
+  - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9), 0.585 (φ=0.95); S=4 is 0.074, 0.084, 0.114, 0.125, 0.354.
 - **Relation to hypothesis**:
-  - Insurance patterns persist across φ ∈ [0, 0.9]; autocorrelation modulates magnitude but not direction of stabilisation.
+  - Insurance patterns persist across φ ∈ [0, 0.95]; autocorrelation modulates magnitude but not direction of stabilisation, though very high φ inflates variability substantially.
 - **Surprises / concerns**:
-  - None notable; even near φ=0.9 outcomes stay consistent.
+  - φ=0.95 shows larger CV inflation, especially for S=2; worth noting in discussion but does not reverse stabilisation ranking between mixed vs aligned slopes.
 - **Follow-up tasks**:
-  - [ ] Decide if φ ≥ 0.95 exploration is necessary; likely low priority.
+  - [ ] None immediate; document φ sensitivity in manuscript.
 
 ### Comparative figures (new)
 
@@ -102,4 +102,8 @@ _(Add new sections for subsequent artefacts.)_
 
 ## Summary
 
-_When the agent believes the results are coherent enough for manuscript drafting, it should add a short summary here of what the overall story is._
+- **Headline**: Environmental variability stabilises community biomass when species responses are diverse (mixed slopes) by inducing compensatory dynamics, but the same variability destabilises communities when responses are aligned (positive slopes); richness amplifies stabilisation but cannot overcome aligned synchrony.
+- **Mechanism evidence**: Imposed driver synchrony (ρ) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and tracks CV patterns.
+- **Robustness**: Patterns persist across σ_env up to 1.5, ρ up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95; extinctions are negligible.
+- **Key numbers** (mixed slopes, σ=0.5, ρ=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
+- **Next focus**: Translate results into manuscript text/figures, ensure final panel clarity, and keep sanity tests aligned (φ_LdM bounds enforced).
