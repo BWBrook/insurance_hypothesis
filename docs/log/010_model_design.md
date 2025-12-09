@@ -19,6 +19,8 @@
 - Extended positive-slope runs to S=4,8 over full σ_env–ρ grid (reps=100) → `data/sim/grid/pos_full/summaries.parquet` + reports.
 - Ran φ sensitivity sweeps (φ=0, 0.7) on reduced σ_env–ρ grid (S=2,4; reps=80) → `data/sim/grid/phi0_reduced/`, `phi07_reduced/` + reports.
 - Generated comparison line plots (`analysis/reports/run1_cv_lines_sigma0.5.png`, `run1_driver_vs_realised_sigma0.5.png`, `cv_mixed_vs_positive_sigma0.5_S4.png`) and confirmed extinction frequencies remain near zero in main grid.
+- Built combined panel figure `analysis/reports/panel_insurance_mixed_vs_positive.png`.
+- Added φ=0.9 sensitivity run (reduced grid) and extended overlay figure `cv_phi_sensitivity_sigma0.5_extended.png`; reports at `data/sim/grid/phi09_reduced/` and `analysis/reports/phi09_reduced_*`.
 
 ## Next steps
 - Run tests locally (`uv run pytest`) and fix any issues.

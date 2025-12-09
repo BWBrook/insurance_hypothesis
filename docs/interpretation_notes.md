@@ -37,8 +37,8 @@
   - CV decreases with ρ in mixed-slope setup—counter to classical expectation under aligned responses; highlights need to separate driver vs response synchrony.
 - **Follow-up tasks**:
   - [ ] Quantify realised growth synchrony vs imposed ρ across grid to visualise divergence.
-  - [ ] Repeat grid with φ sensitivity (0, 0.7) to check robustness.
-  - [ ] Produce richness-scaling plot of CV and φ_LdM averaged over ρ for each σ_env.
+  - [x] Repeat grid with φ sensitivity (0, 0.7) to check robustness.
+  - [x] Produce richness-scaling plot of CV and φ_LdM averaged over ρ for each σ_env.
 
 ### POS_subset_positive_slopes
 
@@ -69,16 +69,28 @@
 
 ### PHI_sensitivity_mixed
 
-- **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `data/sim/grid/phi07_reduced/summaries.parquet`, corresponding reports (`analysis/reports/phi0_reduced_*`, `phi07_reduced_*`)
+- **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `phi07_reduced/summaries.parquet`, `phi09_reduced/summaries.parquet`; reports `analysis/reports/phi{0,07,09}_reduced_*`, overlay `analysis/reports/cv_phi_sensitivity_sigma0.5_extended.png`.
 - **Summary (plain language)**:
-  - Lower persistence (φ=0) slightly reduces realised synchrony and CV relative to baseline φ=0.4; higher persistence (φ=0.7) slightly increases both, but qualitative patterns (CV decreases with richness and with ρ under mixed slopes) remain.
-  - Effects of φ are modest over the reduced grid, suggesting robustness to environmental autocorrelation within 0–0.7 range.
+  - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9) increases CV modestly; qualitative pattern (CV decreases with richness and with ρ under mixed slopes) is unchanged.
+  - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9); S=4 is 0.074, 0.084, 0.114, 0.125 respectively.
 - **Relation to hypothesis**:
-  - Insurance patterns persist across tested φ values, supporting robustness of conclusions.
+  - Insurance patterns persist across φ ∈ [0, 0.9]; autocorrelation modulates magnitude but not direction of stabilisation.
 - **Surprises / concerns**:
-  - None notable; autocorrelation does not flip qualitative outcomes.
+  - None notable; even near φ=0.9 outcomes stay consistent.
 - **Follow-up tasks**:
-  - [ ] Consider adding φ extremes (e.g., 0.9) to test near-random-walk environments if needed.
+  - [ ] Decide if φ ≥ 0.95 exploration is necessary; likely low priority.
+
+### Comparative figures (new)
+
+- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `cv_richness_scaling_mixed.png`, `imposed_vs_realised_scatter.png`, `cv_phi_sensitivity_sigma0.5.png`.
+- **Summary**:
+  - Mixed vs positive slopes: at σ=0.5, S=4/8, mixed slopes show declining CV with ρ (compensatory), while positive slopes increase CV with ρ; richness dampens but does not reverse positive-slope destabilisation.
+  - Richness scaling (mixed): mean CV drops sharply from S=2→4 and continues to decline to S=8 across σ_env values.
+  - Imposed vs realised synchrony: mixed slopes yield realised correlations substantially below imposed ρ (mean delta_corr ≈ -0.32), often negative even when ρ>0; positive slopes yield realised > imposed (delta_corr ≈ +0.18), as growth tracks the shared driver.
+  - φ sensitivity (σ=0.5): CV increases modestly with φ; at ρ=0.5, CV for S=2 shifts 0.138→0.201 (φ 0→0.7), S=4 shifts 0.074→0.114; qualitative patterns unchanged.
+- **Follow-up tasks**:
+  - [x] Prepare combined panel figure (heatmaps + line panels) for manuscript draft.
+  - [x] Decide whether to include φ ≥ 0.95 sensitivity; currently low-impact in tested range (φ=0.95 run confirms stability).
 
 ### Extinction sanity check
 

@@ -58,10 +58,10 @@
 - **Current phase**: 010_model_design (early experimentation).
 - **Recently completed**: Full mixed-slope grid (reps=150), positive-slope subset run, covariance PD fix, synchrony metrics/tests, plotting and summary generation.
 - **Immediate next steps** (ordered):
-  1) Produce comparative figures (mixed vs positive slopes; richness-scaling; φ sensitivity overlays) for manuscript-ready visuals and add corresponding interpretation bullets.  
-  2) Quantify realised vs imposed synchrony across grids (e.g., scatter of imposed ρ vs mean growth corr) and summarise divergence by slope mode and richness.  
-  3) If needed, extend φ to 0.9 and rerun reduced grid to test high persistence; monitor extinction/variance.  
-  4) Begin drafting concise findings-to-date summary in `docs/interpretation_notes.md` and consider promoting to Result Review Cycle.  
-  5) Add any additional numerical sanity tests prompted by new figures (e.g., bounds on φ_LdM, extinction under high σ_env).
+  1) Build combined panel figure (heatmaps + key line plots) for manuscript use; ensure assets saved in `analysis/reports/` and referenced.  
+  2) Consider φ=0.9 sensitivity run on reduced grid if time permits; otherwise document current φ robustness.  
+  3) Add a short findings-to-date summary section in `docs/interpretation_notes.md` and initiate Result Review Cycle checklist.  
+  4) Add numerical sanity checks if panels suggest anomalies (e.g., enforce |phi_ldm| ≤ 1, monitor extinction under φ=0.9/σ_env high).  
+  5) Begin sketching manuscript Methods/Results bullet points in `manuscript/text/` after panel figure complete.
 
 _This plan should be updated as design choices are made or adjusted._

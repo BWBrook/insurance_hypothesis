@@ -25,3 +25,5 @@ data/sim/grid/
 # Image and output files (these will end up in Zenodo)
 *.png
 *.csv
+*.pdf
+
