@@ -1,4 +1,4 @@
-# Review Round 1 – PI handoff
+# Review Rounds – PI handoff
 
 ## Plain-language summary
 - **Question**: When does biodiversity buffer the destabilising effect of environmental variability on total community biomass (insurance effect), and when does it fail to do so?
@@ -22,7 +22,16 @@
 - Manuscript draft: `manuscript/text/draft.md` (outline, parameter table, key numbers) and captions in `manuscript/text/figure_captions.md`.
 - Interpretation notes: `docs/interpretation_notes.md` for per-figure takeaways and follow-ups.
 
-## Suggested PI focus / questions
+## Suggested PI focus / questions (Round 1)
 - Is the equicorrelated AR(1) driver sufficient, or should we explore alternative covariance structures to test robustness of the insurance signal?
 - Is the contrast between mixed vs aligned slopes framed clearly enough for publication, or should we include intermediate trait-structure scenarios?
 - Are the current φ explorations (to 0.95) adequate, or should we push closer to φ→1 or add demographic noise?
+
+---
+
+## Round 2 – PI follow-up (accepted content)
+
+- The PI confirms that, with the revised framing (relative insurance), added controls (no competition, mixed_narrow slopes), explicit σ_env/φ conventions, and synchrony/CV analyses, the **scientific content is in good shape**.
+- Current replicate counts (150 mixed, 100 positive, 80 φ and controls) yield **very small Monte Carlo uncertainty** relative to effect sizes; no need to rerun simulations solely to increase replicates.
+- Remaining work is classified as final polishing: small clarifications of Monte Carlo error in the manuscript, consistent notation (σ_env, σ_eff, ρ_env, φ_LdM), and standard reference/citation formatting.
+- Exploration of non-equicorrelated environmental covariance structures is explicitly deferred to future robustness work; this is noted in Discussion and in `docs/questions_for_human.md`.

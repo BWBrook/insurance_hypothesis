@@ -65,6 +65,8 @@ For each replicate trajectory and scenario we compute:
 
 We interpret insurance as present when CV_total is notably lower than in single-species or aligned-response baselines under the same σ_env, ρ_env, S, φ and when synchrony indices indicate reduced or negative co-fluctuations.
 
+Across the grids, Monte Carlo uncertainty in CV_total is small relative to these effects. Using replicate-level summaries, typical standard errors of CV_total are ≲0.003 for the mixed-slope grid (150 replicates per scenario) and ≲0.03 for the positive-slope grid (100 replicates), with relative SEs around 1–3%. For φ-sensitivity and control grids (80 replicates), relative SEs remain mostly below ~5%. These are an order of magnitude smaller than the mixed–positive CV_total differences we highlight (e.g. ~0.18 at σ_env=0.5, ρ_env=0.5, S=4), so stochastic noise does not materially affect our qualitative conclusions.
+
 ### Numerical and ecological checks
 
 We implement several automated sanity checks via pytest:
