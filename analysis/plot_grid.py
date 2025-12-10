@@ -62,11 +62,13 @@ def main() -> None:
 
     summary_path = Path(f"{out_prefix}_summary.csv")
     summary = (
-        df.groupby(["slope_mode", "n_species", "sigma_env", "rho_env"])
+        df.groupby(["slope_mode", "n_species", "sigma_env", "rho_env", "phi"])
         [["cv_total", "phi_ldm", "mean_pairwise_corr"]]
         .mean()
         .reset_index()
     )
+    # Effective stationary environmental SD for AR(1) with innovation SD sigma_env
+    summary["sigma_eff"] = summary["sigma_env"] / (1.0 - summary["phi"] ** 2) ** 0.5
     summary.to_csv(summary_path, index=False)
 
     plot_heatmaps(summary, "cv_total", Path(f"{out_prefix}_cv.png"))

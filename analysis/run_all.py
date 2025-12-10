@@ -150,20 +150,143 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
     plt.close(fig)
 
 
+def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path: Path) -> None:
+    """Panels separating imposed vs realised synchrony by slope mode and delta."""
+    sigma_target = 0.5
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=False)
+
+    # Helper to build mean curves at sigma_target
+    def mean_sync(df: pd.DataFrame) -> pd.DataFrame:
+        sub = df[df["sigma_env"] == sigma_target]
+        grp = (
+            sub.groupby(["n_species", "rho_env"])[["mean_pairwise_corr"]]
+            .mean()
+            .reset_index()
+        )
+        grp["delta_corr"] = grp["mean_pairwise_corr"] - grp["rho_env"]
+        return grp
+
+    mixed_mean = mean_sync(summary_mixed)
+    pos_mean = mean_sync(summary_pos)
+
+    # Panel A: mixed slopes
+    ax = axes[0]
+    for s, group in mixed_mean.groupby("n_species"):
+        ax.plot(
+            group["rho_env"],
+            group["mean_pairwise_corr"],
+            marker="o",
+            label=f"S={s}",
+        )
+    ax.plot([-0.5, 1.0], [-0.5, 1.0], "k--", lw=0.8, label="y=x")
+    ax.set(
+        title="Mixed slopes (σ_env=0.5)",
+        xlabel="Imposed driver correlation ρ_env",
+        ylabel="Realised growth corr",
+    )
+    ax.legend(fontsize=8)
+
+    # Panel B: positive slopes
+    ax = axes[1]
+    for s, group in pos_mean.groupby("n_species"):
+        ax.plot(
+            group["rho_env"],
+            group["mean_pairwise_corr"],
+            marker="s",
+            label=f"S={s}",
+        )
+    ax.plot([-0.5, 1.0], [-0.5, 1.0], "k--", lw=0.8, label="y=x")
+    ax.set(
+        title="Positive slopes (σ_env=0.5)",
+        xlabel="Imposed driver correlation ρ_env",
+        ylabel="Realised growth corr",
+    )
+    ax.legend(fontsize=8)
+
+    # Panel C: delta_corr by rho_env
+    ax = axes[2]
+    for label, df_mean, marker in [
+        ("mixed", mixed_mean, "o"),
+        ("positive", pos_mean, "s"),
+    ]:
+        ax.plot(
+            df_mean["rho_env"],
+            df_mean["delta_corr"],
+            marker=marker,
+            label=label,
+        )
+    ax.axhline(0, color="k", lw=0.8, ls="--")
+    ax.set(
+        title="Realised − imposed correlation",
+        xlabel="ρ_env",
+        ylabel="Δcorr",
+    )
+    ax.legend(fontsize=8)
+
+    fig.suptitle("Imposed vs realised synchrony", fontsize=14)
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
+
+
+def make_cv_vs_synchrony(summary_mixed: pd.DataFrame, out_path: Path) -> None:
+    """Scatter of CV_total vs synchrony metrics for mixed slopes."""
+    # Aggregate by scenario to reduce overplotting
+    grp = (
+        summary_mixed.groupby(["n_species", "sigma_env", "rho_env"])[
+            ["cv_total", "phi_ldm", "mean_pairwise_corr"]
+        ]
+        .mean()
+        .reset_index()
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
+
+    # CV vs phi_LdM
+    ax = axes[0]
+    for s, sub in grp.groupby("n_species"):
+        ax.scatter(sub["phi_ldm"], sub["cv_total"], s=25, alpha=0.6, label=f"S={s}")
+    ax.set_xlabel("Synchrony φ_LdM")
+    ax.set_ylabel("CV_total")
+    ax.set_title("CV vs φ_LdM (mixed slopes)")
+    ax.legend(fontsize=8)
+
+    # CV vs mean pairwise growth corr
+    ax = axes[1]
+    for s, sub in grp.groupby("n_species"):
+        ax.scatter(sub["mean_pairwise_corr"], sub["cv_total"], s=25, alpha=0.6, label=f"S={s}")
+    ax.set_xlabel("Mean pairwise growth corr")
+    ax.set_title("CV vs realised growth corr (mixed slopes)")
+
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
+
+
 def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_target: float = 0.5) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
-    labels = {"phi0_reduced": "phi=0", "phi07_reduced": "phi=0.7", "phi09_reduced": "phi=0.9", "phi095_reduced": "phi=0.95"}
+    labels = {
+        "phi0_reduced": "φ=0",
+        "phi07_reduced": "φ=0.7",
+        "phi09_reduced": "φ=0.9",
+        "phi095_reduced": "φ=0.95",
+    }
     markers = ["s", "^", "v", "d"]
     for idx, s in enumerate([2, 4]):
         ax = axes[idx]
         for (key, df), marker in zip(phi_runs.items(), markers):
             sub = df[(df["sigma_env"] == sigma_target) & (df["n_species"] == s)]
-            ax.plot(sub["rho_env"], sub["cv_total"], marker=marker, label=labels.get(key, key))
+            if sub.empty:
+                continue
+            phi_val = float(sub["phi"].iloc[0])
+            sigma_eff = sigma_target / (1.0 - phi_val**2) ** 0.5
+            label = f"{labels.get(key, key)} (σ_eff≈{sigma_eff:.2f})"
+            ax.plot(sub["rho_env"], sub["cv_total"], marker=marker, label=label)
         ax.set(title=f"S={s}, sigma={sigma_target}", xlabel="rho_env")
         if idx == 0:
             ax.set_ylabel("CV_total")
         ax.legend(fontsize=8)
-    fig.suptitle("CV vs rho across phi (mixed slopes)")
+    fig.suptitle("CV vs rho across φ (mixed slopes)", fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
@@ -208,16 +331,26 @@ def main() -> None:
     panel_path = REPORTS / "manuscript_panels.png"
     make_panel(summary_mixed, summary_pos, panel_path)
 
+    sync_panel_path = REPORTS / "imposed_vs_realised_panels.png"
+    make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
+
     phi_overlay_path = REPORTS / "cv_phi_sensitivity_sigma0.5_extended.png"
     make_phi_overlay(phi_runs, phi_overlay_path)
 
+    cv_sync_path = REPORTS / "cv_vs_synchrony_mixed.png"
+    make_cv_vs_synchrony(summary_mixed, cv_sync_path)
+
     # Copy key panels to manuscript/figures
-    copy_figures([
-        panel_path,
-        phi_overlay_path,
-        REPORTS / "run1_cv_total.png",
-        REPORTS / "run1_phi_ldm.png",
-    ])
+    copy_figures(
+        [
+            panel_path,
+            sync_panel_path,
+            cv_sync_path,
+            phi_overlay_path,
+            REPORTS / "run1_cv_total.png",
+            REPORTS / "run1_phi_ldm.png",
+        ]
+    )
 
     print("Run complete. Figures in analysis/reports and manuscript/figures.")
 

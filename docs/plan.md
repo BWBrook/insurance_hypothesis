@@ -4,9 +4,12 @@
 
 ## 1. Working hypothesis (refined)
 
-- Environmental variability can stabilise total community biomass (lower temporal variance or CV) when species respond asynchronously to environmental fluctuations, but the same variability destabilises biomass when responses are synchronous.
-- **Stabilisation metric**: reduction in variance and coefficient of variation (CV) of total biomass relative to a low-variance baseline.
-- **Asynchrony**: low or negative correlations among species’ environmentally driven growth rates; operationalised via the correlation (ρ) among species-specific environmental anomalies and the Loreau–de Mazancourt synchrony index.
+- Environmental variability tends to increase the temporal variability of individual species, but **biodiversity can buffer this variability at the community level** when species respond asynchronously to the same driver. When responses are strongly aligned, community variability more closely tracks the environment.
+- **Stabilisation / insurance metrics** (all defined **relative**, not absolute):  
+  - Community coefficient of variation (CV_total) compared to a single-species or aligned-response baseline under the same σ_env, ρ_env, S, and φ.  
+  - CV_total relative to an approximate mean species CV, estimated from simulated species-level means and variances.  
+  - Response synchrony indices (Loreau–de Mazancourt φ_LdM and mean pairwise growth-rate correlation), which serve as mechanistic indicators of (a)synchrony that covary with CV_total.
+- **Asynchrony**: low or negative correlations among species’ environmentally driven growth rates; operationalised via φ_LdM and mean pairwise growth-rate correlations. Here **ρ_env is an imposed environmental correlation between species’ drivers**, not a synchrony metric by itself; realised synchrony emerges from ρ_env, slopes, and competition.
 
 ## 2. Model design (implemented)
 

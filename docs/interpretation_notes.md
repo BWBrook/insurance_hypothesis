@@ -80,14 +80,41 @@
 - **Follow-up tasks**:
   - [ ] None immediate; document φ sensitivity in manuscript.
 
+### NO_COMP_alpha0_mixed_vs_positive
+
+- **Artefacts**: `data/sim/grid/no_comp_mixed/summaries.parquet`, `no_comp_positive/summaries.parquet` and corresponding reports (`analysis/reports/no_comp_*`).
+- **Summary (plain language)**:
+  - With α_inter=0 (no interspecific competition), mixed slopes still show community CV decreasing with both richness and ρ_env (e.g. at σ=0.5, CV S=2: 0.24→0.07 as ρ_env -0.5→1.0; S=8: 0.07→0.03).
+  - Positive slopes with α_inter=0 retain the destabilising pattern: CV increases with ρ_env (σ=0.5, S=4: CV ≈0.14→0.32 as ρ_env -0.5→1.0), and φ_LdM rises with ρ_env (often >0.9 at high ρ_env).
+- **Relation to hypothesis**:
+  - Insurance patterns (mixed vs positive contrast, richness effect) persist even without competition, indicating that they arise primarily from response heterogeneity and shared environment rather than competition-driven dynamics.
+- **Surprises / concerns**:
+  - None; removing competition mainly rescales CV but does not alter qualitative patterns.
+- **Follow-up tasks**:
+  - [ ] Mention no-competition control briefly in Methods/Discussion as evidence that competition is not required for insurance in this model.
+
+### SLOPE_magnitude_mixed_narrow
+
+- **Artefacts**: `data/sim/grid/mixed_narrow/summaries.parquet`, `analysis/reports/mixed_narrow_*`.
+- **Summary (plain language)**:
+  - Narrowing mixed slopes to -0.25…0.25 reduces overall CV levels but preserves qualitative patterns: at σ=0.5, CV_total still decreases with both richness and ρ_env (e.g. S=2: CV 0.12→0.02, S=8: 0.03→0.016 from ρ_env -0.5→1.0).
+  - Richness remains strongly stabilising and the contrast with positive-slope grids (higher CV at comparable σ_env and ρ_env) is retained.
+- **Relation to hypothesis**:
+  - Shows that the insurance patterns are not an artefact of “extreme” slope heterogeneity; milder response variation still yields buffering when responses differ in sign.
+- **Surprises / concerns**:
+  - None; narrower slopes mainly reduce magnitude, not pattern.
+- **Follow-up tasks**:
+  - [ ] Briefly note slope-magnitude robustness in Discussion.
+
 ### Comparative figures (new)
 
-- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `cv_richness_scaling_mixed.png`, `imposed_vs_realised_scatter.png`, `cv_phi_sensitivity_sigma0.5.png`.
+- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `cv_richness_scaling_mixed.png`, `imposed_vs_realised_panels.png`, `cv_phi_sensitivity_sigma0.5.png`, `cv_vs_synchrony_mixed.png`.
 - **Summary**:
   - Mixed vs positive slopes: at σ=0.5, S=4/8, mixed slopes show declining CV with ρ (compensatory), while positive slopes increase CV with ρ; richness dampens but does not reverse positive-slope destabilisation.
   - Richness scaling (mixed): mean CV drops sharply from S=2→4 and continues to decline to S=8 across σ_env values.
-  - Imposed vs realised synchrony: mixed slopes yield realised correlations substantially below imposed ρ (mean delta_corr ≈ -0.32), often negative even when ρ>0; positive slopes yield realised > imposed (delta_corr ≈ +0.18), as growth tracks the shared driver.
-  - φ sensitivity (σ=0.5): CV increases modestly with φ; at ρ=0.5, CV for S=2 shifts 0.138→0.201 (φ 0→0.7), S=4 shifts 0.074→0.114; qualitative patterns unchanged.
+  - Imposed vs realised synchrony: mixed slopes yield realised correlations substantially below imposed ρ_env (mean delta_corr ≈ -0.32), often negative even when ρ_env>0; positive slopes yield realised > imposed (delta_corr ≈ +0.18), as growth tracks the shared driver (Figure 2).
+  - CV–synchrony link: in the mixed-slope grid, CV_total is positively related to φ_LdM and mean pairwise growth correlation; scenarios with lower synchrony consistently have lower CV_total, especially at higher richness (Figure 3).
+  - φ sensitivity (σ=0.5): CV increases with φ; at ρ_env=0.5, CV for S=2 shifts 0.138→0.585 (φ 0→0.95), S=4 shifts 0.074→0.354; qualitative patterns unchanged.
 - **Follow-up tasks**:
   - [x] Prepare combined panel figure (heatmaps + line panels) for manuscript draft.
   - [x] Decide whether to include φ ≥ 0.95 sensitivity; currently low-impact in tested range (φ=0.95 run confirms stability).
@@ -102,8 +129,8 @@ _(Add new sections for subsequent artefacts.)_
 
 ## Summary
 
-- **Headline**: Environmental variability stabilises community biomass when species responses are diverse (mixed slopes) by inducing compensatory dynamics, but the same variability destabilises communities when responses are aligned (positive slopes); richness amplifies stabilisation but cannot overcome aligned synchrony.
-- **Mechanism evidence**: Imposed driver synchrony (ρ) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and tracks CV patterns.
-- **Robustness**: Patterns persist across σ_env up to 1.5, ρ up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95; extinctions are negligible.
-- **Key numbers** (mixed slopes, σ=0.5, ρ=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
-- **Next focus**: Translate results into manuscript text/figures, ensure final panel clarity, and keep sanity tests aligned (φ_LdM bounds enforced).
+- **Headline**: Environmental variability tends to destabilise individual species, but heterogeneous responses and higher richness **buffer** this variability at the community level relative to single-species or aligned-response baselines. When responses are aligned (positive slopes), community biomass closely tracks the environment and variability remains high.
+- **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
+- **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95; extinctions are negligible.
+- **Key numbers** (mixed slopes, σ=0.5, ρ_env=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
+- **Next focus**: Refine manuscript narrative around **relative** stabilisation (buffering) and clearly separate imposed environmental correlation from realised synchrony metrics.

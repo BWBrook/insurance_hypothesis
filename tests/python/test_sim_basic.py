@@ -101,3 +101,24 @@ def test_phi_ldm_bound():
     traj = np.abs(rng.normal(size=(50, 5))) + 0.1
     stats = summarise_timeseries(traj, burn_in=0)
     assert 0.0 <= stats["phi_ldm"] <= 1.0 + 1e-9
+
+
+def test_ar1_stationary_variance_matches_formula():
+    # For long series, empirical variance should match sigma_env^2 / (1-phi^2)
+    n_species = 3
+    n_steps = 5000
+    sigma_env = 0.5
+    phi = 0.7
+    rho = 0.2
+    env = generate_environment(
+        n_steps=n_steps,
+        n_species=n_species,
+        phi=phi,
+        sigma_env=sigma_env,
+        rho=rho,
+        rng=123,
+    )
+    # Average variance across species
+    emp_var = env.var(axis=0, ddof=1).mean()
+    expected_var = sigma_env**2 / (1.0 - phi**2)
+    assert np.isclose(emp_var, expected_var, rtol=0.2), (emp_var, expected_var)

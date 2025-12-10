@@ -1,6 +1,6 @@
 # Insurance Hypothesis Simulation Project
 
-This repo implements a fully simulated test of the biodiversity insurance hypothesis: environmental variance can stabilise total community biomass when species respond asynchronously, but destabilises it when responses are aligned.
+This repo implements a fully simulated test of the biodiversity insurance hypothesis: biodiversity can **buffer the destabilising effect of environmental variance** on total community biomass when species respond asynchronously, but offers little protection when responses are strongly aligned.
 
 ## What’s here
 - Core simulator (Python/uv): `src/python/insurance_sim/` (stochastic Ricker + correlated AR(1) environment).

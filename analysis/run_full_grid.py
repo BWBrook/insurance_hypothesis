@@ -61,9 +61,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--slope-mode",
-        choices=["mixed", "positive"],
+        choices=["mixed", "positive", "mixed_narrow"],
         default="mixed",
-        help="Slope configuration: mixed = linear -0.5..0.5; positive = 0.1..1.0",
+        help="Slope configuration: mixed = linear -0.5..0.5; positive = 0.1..1.0; mixed_narrow = -0.25..0.25",
+    )
+    parser.add_argument(
+        "--alpha-inter",
+        type=float,
+        default=0.3,
+        help="Interspecific competition coefficient (relative to alpha_intra=1.0). Use 0 for no competition.",
     )
     parser.add_argument(
         "--run-name",
@@ -85,6 +91,8 @@ def slopes_for_mode(mode: str, n_species: int) -> np.ndarray | None:
         return None  # handled in simulator as default -0.5..0.5
     if mode == "positive":
         return np.linspace(0.1, 1.0, n_species)
+    if mode == "mixed_narrow":
+        return np.linspace(-0.25, 0.25, n_species)
     raise ValueError(f"Unknown slope mode: {mode}")
 
 
@@ -113,7 +121,7 @@ def main() -> None:
             K=100.0,
             b_slopes=b_slopes,
             alpha_intra=1.0,
-            alpha_inter=0.3,
+            alpha_inter=args.alpha_inter,
         )
         df = simulate_replicates(config, n_reps=args.reps, seed=base_seed)
         df["sigma_env"] = sigma_env

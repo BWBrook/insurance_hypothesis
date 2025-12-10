@@ -1,8 +1,8 @@
 # Review Round 1 – PI handoff
 
 ## Plain-language summary
-- **Question**: When does environmental variability stabilise total community biomass (insurance effect) and when does it destabilise it?
-- **Approach**: Simulated communities using a stochastic Ricker model with competition. Species’ environmental response slopes are either heterogeneous (mixed signs) or aligned (all positive). Environmental driver is multivariate AR(1) with controllable variance (σ_env), synchrony (ρ), and persistence (φ). We vary σ_env, ρ, richness (S), and φ.
+- **Question**: When does biodiversity buffer the destabilising effect of environmental variability on total community biomass (insurance effect), and when does it fail to do so?
+- **Approach**: Simulated communities using a stochastic Ricker model with competition. Species’ environmental response slopes are either heterogeneous (mixed signs) or aligned (all positive). Environmental driver is multivariate AR(1) with controllable variance (σ_env), imposed environmental correlation among species’ drivers (ρ_env), and persistence (φ). We vary σ_env, ρ_env, richness (S), and φ.
 
 ## Main results
 - Mixed slopes (heterogeneous responses): community CV decreases with both richness and higher imposed ρ because realised growth correlations become negative (compensatory dynamics). Example at σ=0.5, ρ=0.5: CV S=2 ≈0.15, S=4 ≈0.08, S=8 ≈0.06.
@@ -26,4 +26,3 @@
 - Is the equicorrelated AR(1) driver sufficient, or should we explore alternative covariance structures to test robustness of the insurance signal?
 - Is the contrast between mixed vs aligned slopes framed clearly enough for publication, or should we include intermediate trait-structure scenarios?
 - Are the current φ explorations (to 0.95) adequate, or should we push closer to φ→1 or add demographic noise?
-

@@ -31,15 +31,15 @@ For each entry, include:
 ### DEC-003 – Synchrony metric
 
 - **Date**: 2025-12-09
-- **Decision**: Manipulate synchrony via equicorrelated environmental innovations (parameter ρ); quantify realised synchrony using pairwise growth-rate correlations and the Loreau–de Mazancourt community synchrony index in analyses.
-- **Rationale**: Directly links the experimental control parameter (ρ) to both imposed and realised synchrony, with established ecological index for interpretation.
+- **Decision**: Manipulate **imposed environmental correlation** via equicorrelated environmental innovations (parameter ρ_env); quantify **realised synchrony** using pairwise growth-rate correlations and the Loreau–de Mazancourt community synchrony index in analyses.
+- **Rationale**: Separates the driver parameter (ρ_env) from emergent synchrony and uses established ecological indices for realised synchrony and its link to variance.
 - **Status**: active
 
 ### DEC-004 – Persistence range and stability safeguards
 
 - **Date**: 2025-12-09
-- **Decision**: Environmental persistence φ explored over [0, 0.95]; covariance clipped to keep ρ < 1 for PD; φ_LdM clipped to [0,1] to avoid numerical overshoot.
-- **Rationale**: Ensures numerical stability while probing high persistence; prevents artefactual synchrony values outside theoretical bounds.
+- **Decision**: Environmental persistence φ explored over [0, 0.95]; σ_env interpreted as **innovation** standard deviation in the AR(1) process so that stationary variance is σ_env²/(1−φ²); covariance clipped to keep ρ_env < 1 for PD; φ_LdM clipped to [0,1] to avoid numerical overshoot.
+- **Rationale**: Ensures numerical stability while probing high persistence; makes explicit that φ sweeps change both temporal autocorrelation and effective environmental variance, and prevents artefactual synchrony values outside theoretical bounds.
 - **Status**: active
 
 _(The agent should add more entries as needed.)_
