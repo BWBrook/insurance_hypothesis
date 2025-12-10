@@ -2,22 +2,81 @@
 Insurance effects in simulated communities: when biodiversity buffers environmental variance, and when it does not
 
 ## Introduction
-Environmental variability typically destabilises populations, increasing their temporal variance. However, theory predicts an **insurance effect** of biodiversity: if species respond asynchronously to the same environmental fluctuations, their individual deviations can cancel, stabilising aggregate biomass **relative to what would be expected from a single species or a fully synchronous community**. Here we probe this mechanism in fully simulated communities, contrasting heterogeneous response slopes (mixed signs) with aligned slopes (all positive).
+Environmental variability typically destabilises populations, increasing their temporal variance. However, theory and empirical syntheses have long argued for an **insurance effect** of biodiversity: if species respond asynchronously to environmental fluctuations, their individual deviations can cancel, stabilising aggregate biomass relative to what would be expected from a single species or a perfectly synchronous community [REF insurance theory; REF portfolio effect]. In this view, diversity reduces the risk that all species are simultaneously “hit” by adverse conditions and spreads fluctuations across species.
 
-We define insurance operationally as **reduced community variability and synchrony relative to appropriate baselines**. Quantitatively, we track (i) the coefficient of variation of total biomass (CV_total), (ii) an approximate mean species CV estimated from simulated species-level means and variances, and (iii) response synchrony indices: the Loreau–de Mazancourt synchrony φ_LdM and mean pairwise growth-rate correlations. Insurance is present when CV_total is lower than for a single species or aligned-response community under the same environmental variance and driver correlation, and when synchrony metrics indicate reduced or negative co-fluctuations.
+Formal work has clarified that this insurance effect is closely linked to **synchrony** among species’ responses [REF Loreau & de Mazancourt; REF Ives et al.]. When species’ fluctuations are highly synchronous, community variance scales approximately with typical species variance, whereas when responses are asynchronous or anti-correlated, community variance can be much lower than the sum of its parts. Classical metrics such as the variance ratio and Loreau–de Mazancourt’s synchrony index φ_LdM provide quantitative ways to express this relationship [REF variance ratio]. Yet many formulations remain ambiguous on what exactly is being stabilised (absolute vs relative variability) and what baseline is implied.
 
-We manipulate environmental variance (σ_env), **imposed environmental correlation among species’ drivers (ρ_env)**, species richness (S), and temporal autocorrelation (φ) to map where biodiversity provides buffering and where it does not.
+Here we adopt a deliberately **relative** definition of insurance and stabilisation. We define insurance operationally as **reduced community variability and synchrony relative to appropriate baselines**. Quantitatively, we track (i) the coefficient of variation of total biomass (CV_total), (ii) an approximate mean species CV estimated from simulated species-level means and variances, and (iii) response synchrony indices: the Loreau–de Mazancourt synchrony φ_LdM and mean pairwise growth-rate correlations. Insurance is present when CV_total is lower than for a single species or aligned-response community under the same environmental variance and driver correlation, and when synchrony metrics indicate reduced or negative co-fluctuations.
+
+We probe this mechanism in fully simulated communities, contrasting heterogeneous response slopes (mixed signs) with aligned slopes (all positive) along a single environmental axis. Using a stochastic Ricker model with symmetric competition, we manipulate environmental variance (σ_env), **imposed environmental correlation among species’ drivers (ρ_env)**, species richness (S), and temporal autocorrelation (φ). Our goals are to (i) quantify when and how biodiversity buffers the destabilising effect of environmental variance, (ii) disentangle imposed driver correlation from realised response synchrony, and (iii) assess how richness, competition, and slope magnitudes modulate this insurance. The study is intentionally stylised but designed to align with, and extend, existing insurance theory [REF compare to prior theory]. 
 
 ## Methods
-- **Community dynamics**: discrete-time stochastic Ricker with intra/inter-specific competition, per-capita growth `r0 + b_i z_i(t) - (N_i + Σ_j α_ij N_j)/K_i`; abundance floored at 1e-9.
-- **Environment**: multivariate AR(1) with equicorrelated innovations; **σ_env is the innovation standard deviation**, so the stationary variance of the environmental process is σ_env² / (1−φ²). The parameter ρ_env controls the imposed environmental correlation between species’ drivers. Covariance is clipped to remain PD; σ_env=0 gives deterministic baseline.
-- **Responses**: mixed slopes (linear -0.5..0.5) versus positive slopes (0.1..1.0). Fixed parameters: r0=1, K=100, α_intra=1, α_inter=0.3.
-- **Design**:
-  - Mixed grid: σ_env {0,0.2,0.5,1.0,1.5} × ρ {-0.5,0,0.5,0.9,1.0} × S {2,4,8}, φ=0.4, 600 steps (300 burn), 150 reps.
-  - Positive grid: same σ_env–ρ with S {4,8} (+ small S=2 subset at σ=0.5,1.0), 100 reps.
-  - φ sweeps (mixed): φ ∈ {0,0.4,0.7,0.9,0.95} on σ_env {0,0.5,1.0} × ρ {-0.5,0,0.5,0.9,1.0}, S {2,4}, 80 reps.
-- **Metrics**: CV of total biomass (CV_total); an approximate mean species CV computed from simulated species-level means and variances; Loreau–de Mazancourt synchrony φ_LdM (clipped [0,1]); mean pairwise growth correlation; extinction frequency. Plots via matplotlib; outputs parquet.
-- **Sanity/tests**: PD covariance; σ_env=0 equilibrium; non-negativity; φ_LdM bound; synchrony edge cases. Automated with `uv run pytest`.
+
+### Community dynamics
+
+We model a community of S species using a discrete-time stochastic Ricker model with competition [REF Ricker-style community models]. The abundance of species *i* at time *t* is denoted *N_i(t)*. In the absence of environmental variation, per-capita growth follows
+
+*N_i(t+1) = N_i(t) · exp(r₀ − (N_i(t) + Σⱼ αᵢⱼ Nⱼ(t))/Kᵢ)*,
+
+where *r₀* is a shared intrinsic growth rate, *Kᵢ* are carrying capacities (set to 100 for all species), and αᵢⱼ are competition coefficients. We impose symmetric competition: αᵢᵢ = α_intra = 1, αᵢⱼ = α_inter = 0.3 for *i ≠ j*, unless otherwise stated. Abundances are floored at a small positive constant (10⁻⁹) to avoid numerical issues due to extinction-driven zeros, and the exponential term is capped to prevent overflow.
+
+Environmental variation enters through a species-specific linear response term *b_i z_i(t)* in the per-capita growth rate:
+
+*N_i(t+1) = N_i(t) · exp(r₀ + b_i z_i(t) − (N_i(t) + Σⱼ αᵢⱼ Nⱼ(t))/Kᵢ).*
+
+Species differ only in their slopes *b_i*, which encode how strongly and in which direction they respond to the environmental anomaly *z_i(t)*. We consider two main slope regimes: **mixed slopes**, in which *b_i* are evenly spaced from −0.5 to 0.5, and **positive slopes**, in which *b_i* are evenly spaced from 0.1 to 1.0. For sensitivity, we also explore a **mixed-narrow** case with *b_i* in −0.25…0.25.
+
+### Environmental process
+
+Environmental anomalies *z_t* are generated by a multivariate AR(1) process:
+
+*z_t = φ z_{t−1} + ε_t,*  with  *ε_t ~ MVN(0, Σ).*
+
+We use an equicorrelated covariance structure
+
+*Σ = σ_env² · C(ρ_env)*,
+
+where *σ_env* is the **innovation standard deviation**, ρ_env is the imposed environmental correlation between species’ drivers, and C(ρ_env) is the equicorrelation matrix with ones on the diagonal and ρ_env off-diagonal (clipped slightly below 1 for positive definiteness). Under this convention the stationary variance of each environmental component is σ_env²/(1−φ²), so increasing φ at fixed σ_env increases both persistence and effective variance. When σ_env = 0, the process is deterministically constant and the community dynamics reduce to the standard deterministic Ricker with competition.
+
+A single innovation realisation is drawn per time step and per scenario; species share the same φ and ρ_env but differ in their slopes *b_i* and interact via competition.
+
+### Simulation design
+
+We explore several grids of scenarios:
+
+- **Main mixed-slope grid**: σ_env ∈ {0, 0.2, 0.5, 1.0, 1.5}, ρ_env ∈ {−0.5, 0, 0.5, 0.9, 1.0}, S ∈ {2, 4, 8}, φ = 0.4. Each scenario is simulated for 600 time steps, discarding the first 300 as burn-in, with 150 replicate time series.
+- **Positive-slope grid**: same σ_env–ρ_env grid, S ∈ {4, 8} (plus a smaller subset with S = 2 at σ_env ∈ {0.5, 1.0} for comparison), φ = 0.4, 100 replicates.
+- **φ-sensitivity grids (mixed slopes)**: reduced grid with σ_env ∈ {0, 0.5, 1.0}, ρ_env ∈ {−0.5, 0, 0.5, 0.9, 1.0}, S ∈ {2, 4}, φ ∈ {0, 0.4, 0.7, 0.9, 0.95}, 400 steps (200 burn), 80 replicates.
+- **No-competition control**: reduced grids with α_inter = 0 (α_intra = 1) for both mixed and positive slopes, using σ_env ∈ {0, 0.5, 1.0}, ρ_env ∈ {−0.5, 0, 0.5, 0.9, 1.0}, S ∈ {2, 4, 8}, φ = 0.4.
+- **Slope-magnitude sensitivity**: mixed-narrow slopes (−0.25…0.25) on a reduced grid identical to the φ-sensitivity grid at φ = 0.4.
+
+All simulations are driven by a shared random seed per scenario for reproducibility. Outputs are stored as parquet summaries under `data/sim/grid/<run_name>/summaries.parquet`.
+
+### Metrics and insurance measures
+
+For each replicate trajectory and scenario we compute:
+
+- **Community CV**: CV_total = SD(Σᵢ N_i) / mean(Σᵢ N_i), using post burn-in time points.
+- **Approximate mean species CV**: using species-level means and variances from the same time window, averaged across species.
+- **Synchrony indices**:
+  - Loreau–de Mazancourt community synchrony φ_LdM, computed from species-level standard deviations and the variance of total biomass, and clipped to [0,1].
+  - Mean pairwise correlation of per-capita growth rates (log differences of abundance), averaged across species pairs.
+- **Extinction frequency**: fraction of time steps (post burn-in) in which species abundance is at or below the floor.
+
+We interpret insurance as present when CV_total is notably lower than in single-species or aligned-response baselines under the same σ_env, ρ_env, S, φ and when synchrony indices indicate reduced or negative co-fluctuations.
+
+### Numerical and ecological checks
+
+We implement several automated sanity checks via pytest:
+
+- Covariance positive definiteness for the equicorrelated Σ.
+- Deterministic equilibrium at σ_env = 0 close to the analytical symmetric equilibrium *K/(1 + α_inter (S−1))*.
+- Non-negativity of abundances under stochastic forcing.
+- Correct shapes and basic summaries in `simulate_replicates`.
+- Behaviour of synchrony metrics in toy deterministic cases: perfectly synchronous vs perfectly asynchronous trajectories.
+- Bounds on φ_LdM (0 ≤ φ_LdM ≤ 1) and approximate stationary variance of the AR(1) process matching σ_env²/(1−φ²).
+
+Extinction frequencies are monitored from the simulation summaries and remain very low across grids. All tests pass under the current code and parameter ranges.
 
 ### Parameter summary
 | Parameter | Value(s) |
