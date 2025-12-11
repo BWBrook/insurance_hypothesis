@@ -1,31 +1,416 @@
-# Insurance Hypothesis Simulation Project
+# Insurance Hypothesis Simulation – Reproducible Pipeline
 
-This repo implements a fully simulated test of the biodiversity insurance hypothesis: biodiversity can **buffer the destabilising effect of environmental variance** on total community biomass when species respond asynchronously, but offers little protection when responses are strongly aligned.
+This repository contains the full simulation and analysis pipeline for a theoretical test of the **biodiversity insurance hypothesis**.  
+In this project, multi‑species communities follow a stochastic Ricker model driven by a correlated AR(1) environmental process.  
+We compare scenarios where species have **mixed response slopes** (some benefiting and some suffering from high environment) against **aligned positive slopes**, and quantify how richness and (a)synchrony modulate community‑level variability.
 
-## What’s here
-- Core simulator (Python/uv): `src/python/insurance_sim/` (stochastic Ricker + correlated AR(1) environment).
-- Entry points:
-  - `uv run pytest` — sanity/unit tests (non-negativity, equilibrium, synchrony metrics).
-  - `uv run python analysis/run_small_grid.py` — quick preview run.
-  - `uv run python analysis/run_full_grid.py --help` — main grid runner (see defaults inside).
-  - `uv run python analysis/plot_grid.py --input data/sim/grid/run1/summaries.parquet --out-prefix analysis/reports/run1` — summarise/plot outputs.
-- Results/figures: `analysis/reports/` (incl. `manuscript_panels.pdf`).
-- Manuscript drafts: `manuscript/text/` (draft.md, outline, captions).
-- Logs/plans: `docs/plan.md`, `docs/log/010_model_design.md`, `docs/interpretation_notes.md`, `docs/decisions.md`.
+The repo is set up so that, starting from a clean checkout, you can:
 
-## Quick reproduce
+- run the core simulations on the same grids used in the manuscript,
+- regenerate all summary tables and figures,
+- and rerun tests and sanity checks.
+
+If you have already read the paper, this README is your practical guide to reproducing all results.
+
+---
+
+## 1. Repository layout
+
+- `src/python/insurance_sim/`
+  - Core simulator and metrics (`model.py`):
+    - Discrete‑time stochastic Ricker dynamics with competition.
+    - Multivariate AR(1) environment with innovation SD `σ_env`, equicorrelated covariance with imposed correlation `ρ_env`, and persistence `φ`.
+    - Slope patterns:
+      - `mixed`: species‑specific slopes evenly spaced in `[-0.5, 0.5]`.
+      - `positive`: slopes in `[0.1, 1.0]`.
+      - `mixed_narrow`: slopes in `[-0.25, 0.25]` (sensitivity).
+    - Summary metrics: community CV (`CV_total`), approximate mean species CV, Loreau–de Mazancourt synchrony `φ_LdM`, mean pairwise growth‑rate correlation, extinction frequency.
+
+- `analysis/`
+  - `run_small_grid.py` – very small preview grid (2 species, few scenarios).
+  - `run_full_grid.py` – generic grid runner used for all main and control experiments.
+  - `plot_grid.py` – summarise a single `summaries.parquet` to CSV + heatmaps.
+  - `run_all.py` – orchestration script that:
+    - optionally reruns a subset of grids (`--rerun-data`),
+    - reads cached simulation outputs under `data/sim/grid/`,
+    - regenerates summary CSVs and all manuscript‑level figures into `analysis/reports/`,
+    - copies key panels into `manuscript/figures/`.
+
+- `data/sim/`
+  - `preview/` – minimal preview run.
+  - `grid/<run_name>/summaries.parquet` – cached scenario‑level summaries for each grid:
+    - `run1` – main mixed‑slope grid.
+    - `pos_full` – aligned positive slopes.
+    - `phi0_reduced`, `phi07_reduced`, `phi09_reduced`, `phi095_reduced` – AR(1) persistence sensitivity.
+    - `no_comp_mixed`, `no_comp_positive` – no‑competition controls (`α_inter = 0`).
+    - `mixed_narrow` – reduced slope‑magnitude sensitivity.
+    - `pos_subset` – early positive‑slope pilot (not used in final figures).
+
+- `analysis/reports/`
+  - Per‑grid CSV summaries and heatmaps (generated).
+  - Combined panels:
+    - `manuscript_panels.png` / `.pdf` – main mixed vs positive contrast.
+    - `imposed_vs_realised_panels.png` – imposed (`ρ_env`) vs realised synchrony.
+    - `cv_vs_synchrony_mixed.png` – link between synchrony metrics and `CV_total`.
+    - `cv_phi_sensitivity_sigma0.5_extended.png` – φ‑sensitivity overlay.
+
+- `manuscript/`
+  - `text/draft.md` – full manuscript draft (Intro, Methods, Results, Discussion).
+  - `text/figure_captions.md` – captions aligned with figure filenames.
+  - `figures/` – figures copied from `analysis/reports/` by `run_all.py`.
+
+- `docs/`
+  - `plan.md` – high‑level hypothesis, model description, experimental grid.
+  - `interpretation_notes.md` – result summaries and follow‑up questions.
+  - `decisions.md` – key modelling and implementation choices.
+  - `log/*.md` – chronological logs of modelling and analysis phases.
+  - `pi_review_round_*.md`, `review_rounds.md` – PI feedback and responses.
+
+- `tests/`
+  - `python/test_sim_basic.py` – unit/sanity tests for the simulator and environment generator.
+
+---
+
+## 2. Environment setup
+
+This project uses **Python 3.12** with dependencies managed by **`uv`**.
+
+1. Install `uv` (if not already available):
+
+   ```bash
+   pip install uv  # or follow the uv installation instructions for your platform
+   ```
+
+2. From the repository root, create/sync the environment:
+
+   ```bash
+   uv sync
+   ```
+
+   This reads `pyproject.toml` and `uv.lock` and installs exact versions of all dependencies into a local environment.
+
+3. Run the test suite to confirm everything is working:
+
+   ```bash
+   uv run pytest
+   ```
+
+   The tests cover:
+   - basic AR(1) behaviour (stationary variance vs `σ_env` and `φ`),
+   - non‑negativity and equilibrium under `σ_env = 0`,
+   - synchrony metrics (φ_LdM, growth correlations) in toy cases,
+   - bookkeeping in the replicate‑level simulator.
+
+---
+
+## 3. Fast reproduction: regenerate all figures from cached data
+
+If you cloned the repository together with the `data/` directory (as in the archived project), you can reproduce all tables and figures **without rerunning the heavy simulations**.
+
+From the repository root:
+
 ```bash
-uv run pytest
-uv run python analysis/run_full_grid.py --reps 150 --run-name run1   # mixed slopes main grid
-uv run python analysis/plot_grid.py --input data/sim/grid/run1/summaries.parquet --out-prefix analysis/reports/run1
-uv run python analysis/run_all.py  # regenerate all figures from cached outputs (fast, ~10s)
+uv run python analysis/run_all.py
 ```
-Positive-slope and φ-sensitivity runs are scripted in the same runner (flags: `--slope-mode positive`, `--phi <value>`, list overrides for σ/ρ/S).
 
-Runtime notes: `analysis/run_all.py` using cached outputs completes in ~10–15s. Rerunning full mixed grid (150 reps × 75 scenarios) takes ~2–3 minutes on a modern laptop; additional grids (positive, φ sweeps) similar scale but optional.
+What this does:
 
-## Environment
-Python 3.12, managed via `uv`; dependencies in `pyproject.toml`.
+- reads existing `.parquet` summaries from:
+  - `data/sim/grid/run1/summaries.parquet`,
+  - `data/sim/grid/pos_full/summaries.parquet`,
+  - `data/sim/grid/phi0_reduced/summaries.parquet`,
+  - `data/sim/grid/phi07_reduced/summaries.parquet`,
+  - `data/sim/grid/phi09_reduced/summaries.parquet`,
+  - `data/sim/grid/phi095_reduced/summaries.parquet`;
+- regenerates per‑grid summary CSVs and heatmaps into `analysis/reports/`;
+- builds the combined panels (main manuscript figure, synchrony panels, φ‑sensitivity, CV vs synchrony scatter);
+- copies key panels into `manuscript/figures/`.
 
-## Status
-Simulation framework and analyses are stable and tested; manuscript scaffold and figures prepared for external review.
+Typical runtime on a laptop or server is **well under a minute**, since no simulations are run.
+
+For a **very small sanity preview** of the dynamics, you can also run:
+
+```bash
+uv run python analysis/run_small_grid.py
+uv run python analysis/plot_grid.py \
+  --input data/sim/preview/summaries.parquet \
+  --out-prefix analysis/reports/preview
+```
+
+This generates a 2‑species, low‑replicate grid and corresponding plots.
+
+---
+
+## 4. Full recomputation: rerun all simulation grids
+
+If you want to reproduce the simulations themselves (e.g. starting from a clone without `data/`), use `analysis/run_full_grid.py`.  
+The commands below recreate each grid used for the manuscript, with the **same replicate counts and parameter sets**.
+
+All commands should be executed from the repository root.
+
+### 4.1 Main mixed‑slope grid (`run1`)
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name run1 \
+  --reps 150
+```
+
+- Slope mode: `mixed` (default, slopes in `[-0.5, 0.5]`).
+- Grid:
+  - `σ_env ∈ {0, 0.2, 0.5, 1.0, 1.5}`,
+  - `ρ_env ∈ {-0.5, 0, 0.5, 0.9, 1.0}`,
+  - `S ∈ {2, 4, 8}`,
+  - `φ = 0.4`,
+  - 600 time steps with 300 burn‑in.
+- Output: `data/sim/grid/run1/summaries.parquet`.
+
+This is the primary grid used for the mixed‑slope insurance results.
+
+### 4.2 Positive‑slope grid (`pos_full`)
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name pos_full \
+  --slope-mode positive \
+  --species-list 4,8 \
+  --reps 100
+```
+
+- Slope mode: `positive` (slopes in `[0.1, 1.0]`).
+- Grid:
+  - `σ_env ∈ {0, 0.2, 0.5, 1.0, 1.5}`,
+  - `ρ_env ∈ {-0.5, 0, 0.5, 0.9, 1.0}`,
+  - `S ∈ {4, 8}`,
+  - `φ = 0.4`,
+  - 600 steps, 300 burn‑in.
+- Output: `data/sim/grid/pos_full/summaries.parquet`.
+
+This grid provides the aligned‑response contrast to the mixed‑slope scenarios.
+
+### 4.3 Environmental persistence (φ) sensitivity grids
+
+For φ‑sensitivity we use reduced grids with:
+- `σ_env ∈ {0, 0.5, 1.0}`,
+- `ρ_env ∈ {-0.5, 0, 0.5, 0.9, 1.0}`,
+- `S ∈ {2, 4}`,
+- `φ ∈ {0.0, 0.7, 0.9, 0.95}`,
+- 400 steps with 200 burn‑in (set inside the simulator via defaults).
+
+Run:
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name phi0_reduced \
+  --phi 0.0 \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4 \
+  --reps 80
+
+uv run python analysis/run_full_grid.py \
+  --run-name phi07_reduced \
+  --phi 0.7 \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4 \
+  --reps 80
+
+uv run python analysis/run_full_grid.py \
+  --run-name phi09_reduced \
+  --phi 0.9 \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4 \
+  --reps 80
+
+uv run python analysis/run_full_grid.py \
+  --run-name phi095_reduced \
+  --phi 0.95 \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4 \
+  --reps 80
+```
+
+These runs underpin the φ‑sensitivity panels and the effective stationary SD (`σ_eff`) comparison in the manuscript.
+
+### 4.4 No‑competition controls (`no_comp_mixed`, `no_comp_positive`)
+
+To check whether the insurance patterns depend on interspecific competition, we repeat a reduced grid with `α_inter = 0`:
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name no_comp_mixed \
+  --alpha-inter 0.0 \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4,8 \
+  --reps 80
+
+uv run python analysis/run_full_grid.py \
+  --run-name no_comp_positive \
+  --alpha-inter 0.0 \
+  --slope-mode positive \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4,8 \
+  --reps 80
+```
+
+These grids are used qualitatively in the manuscript to demonstrate that mixed vs aligned response contrasts persist even without competition.
+
+### 4.5 Slope‑magnitude sensitivity (`mixed_narrow`)
+
+To test robustness to weaker response slopes, we run:
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name mixed_narrow \
+  --slope-mode mixed_narrow \
+  --sigma-list 0,0.5,1.0 \
+  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --species-list 2,4,8 \
+  --reps 80
+```
+
+This grid shows that insurance effects remain when mixed slopes are restricted to `[-0.25, 0.25]`.
+
+### 4.6 Optional early pilot (`pos_subset`)
+
+The early positive‑slope pilot is not used in the final manuscript figures but can be recreated as:
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name pos_subset \
+  --slope-mode positive \
+  --sigma-list 0.5,1.0 \
+  --rho-list 0,0.5,0.9 \
+  --species-list 2 \
+  --reps 50
+```
+
+---
+
+## 5. From simulations to figures
+
+After rerunning any subset of grids above, regenerate all derived summaries and figures with:
+
+```bash
+uv run python analysis/run_all.py
+```
+
+You can also inspect or summarise an individual grid directly, for example:
+
+```bash
+uv run python analysis/plot_grid.py \
+  --input data/sim/grid/run1/summaries.parquet \
+  --out-prefix analysis/reports/run1
+```
+
+Key figures used in the manuscript will appear in:
+
+- `analysis/reports/` – intermediate PNGs and CSVs,
+- `manuscript/figures/` – final panels referenced by `manuscript/text/figure_captions.md`.
+
+Approximate runtimes on a modern laptop:
+
+- `run1` (mixed grid, 150 reps): **~2–3 minutes**.
+- `pos_full` (positive grid, 100 reps): **~1–2 minutes**.
+- Each reduced grid (φ sensitivity, no‑competition, mixed_narrow): **<2 minutes**.
+- `run_all.py` when using existing `.parquet` files: **<1 minute**.
+
+Exact times will depend on hardware, but Monte Carlo uncertainty is small relative to the effect sizes reported in the manuscript.
+
+---
+
+## 6. How this maps to the manuscript
+
+If you are reading this after the paper:
+
+- **Model and experimental design** are described in detail in `manuscript/text/draft.md` (Methods), with notation matched to the code:
+  - imposed environmental correlation `ρ_env`,
+  - innovation SD `σ_env` and effective stationary SD `σ_eff` for φ analyses,
+  - realised synchrony `φ_LdM` and growth‑rate correlations.
+- **Main results**:
+  - Mixed slopes vs aligned positive slopes (main grid vs `pos_full`).
+  - Richness effects in CV_total and synchrony.
+  - Imposed vs realised synchrony and their divergence.
+  - φ‑sensitivity and effective environmental variance.
+  - No‑competition and slope‑magnitude controls.
+- **Figures**: see `manuscript/text/figure_captions.md` for a mapping from figure labels to files in `manuscript/figures/`.
+
+For deeper scientific context and interpretation, consult:
+
+- `docs/plan.md` – refined hypothesis and metric definitions.
+- `docs/interpretation_notes.md` – per‑figure interpretation notes and robustness checks.
+- `docs/decisions.md` – key modelling/implementation choices and their rationale.
+- `docs/review_rounds.md`, `docs/pi_review_round_*.md` – PI review comments and how they were addressed.
+
+---
+
+## 7. Summary of reproduction steps
+
+1. **Set up environment**
+   - `uv sync`
+   - `uv run pytest`
+
+2. **Fast path (cached data)**
+   - `uv run python analysis/run_all.py`
+   - Inspect figures in `analysis/reports/` and `manuscript/figures/`.
+
+3. **Full recomputation (optional)**
+   - Run the grid commands in Section 4 (at minimum `run1` and `pos_full`, plus φ‑sensitivity if you want Fig. φ panels).
+   - Rerun `uv run python analysis/run_all.py`.
+
+Following these steps should exactly reproduce the tables and figures reported in the manuscript.
+
+---
+
+## 8. FAQ and troubleshooting
+
+**Q1. I cloned the repo but there is no `data/` directory. What should I do?**  
+- The fast path in Section 3 assumes cached `.parquet` files exist under `data/sim/grid/`.  
+- If `data/` is missing, you simply need to rerun the grids you care about using `analysis/run_full_grid.py` (Section 4), then run:
+
+  ```bash
+  uv run python analysis/run_all.py
+  ```
+
+  At minimum, re‑create `run1` and `pos_full` for the main figures.
+
+**Q2. I see a warning about `VIRTUAL_ENV` not matching `.venv` when using `uv`. Is this a problem?**  
+- Example warning:
+
+  > `VIRTUAL_ENV=... does not match the project environment path .venv and will be ignored`  
+
+- This just means you already had another virtual environment active. `uv` will ignore it and use the project environment defined by `pyproject.toml` / `uv.lock`.  
+- You can ignore the warning, or deactivate your global env (e.g. `deactivate`) before running `uv` commands.
+
+**Q3. `uv run python analysis/run_all.py` fails because one of the `phi*_reduced` parquet files is missing.**  
+- Each φ‑sensitivity dataset is expected at:
+  - `data/sim/grid/phi0_reduced/summaries.parquet`
+  - `data/sim/grid/phi07_reduced/summaries.parquet`
+  - `data/sim/grid/phi09_reduced/summaries.parquet`
+  - `data/sim/grid/phi095_reduced/summaries.parquet`
+- If any are missing, rerun the corresponding grid using the commands in Section 4.3, then re‑run:
+
+  ```bash
+  uv run python analysis/run_all.py
+  ```
+
+**Q4. `pytest` fails after I modify the simulator or analysis code. How do I debug this?**  
+- First ensure your environment is up to date:
+
+  ```bash
+  uv sync
+  uv run pytest
+  ```
+
+- If tests still fail, check `tests/python/test_sim_basic.py` to see which expectations are violated (e.g. stationary variance under AR(1), non‑negativity, synchrony bounds).  
+- The tests are intentionally small and fast; they are a good starting point for verifying any further changes you make.
+
+**Q5. Simulations are running slowly on my machine. Can I down‑sample?**  
+- For strict reproduction of the manuscript results you should use the replicate counts given in Section 4.  
+- For experimentation or development, you can reduce `--reps`, shorten time series (`--steps` / `--burn`), or restrict σ/ρ/S lists (e.g. a single σ_env or a subset of ρ_env values).  
+- Just be aware that Monte Carlo uncertainty will increase when you reduce replicate counts; the main manuscript grids were sized to make this uncertainty small relative to the effect sizes of interest.***

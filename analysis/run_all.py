@@ -349,6 +349,7 @@ def main() -> None:
             phi_overlay_path,
             REPORTS / "run1_cv_total.png",
             REPORTS / "run1_phi_ldm.png",
+            REPORTS / "cv_richness_scaling_mixed.png",
         ]
     )
 
