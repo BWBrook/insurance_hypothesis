@@ -13,6 +13,7 @@ import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 
@@ -23,17 +24,19 @@ def ensure_effective_rho(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Cannot reconstruct rho_eff without rho_env and n_species.")
 
     out = df.copy()
-    out["rho_eff"] = out["rho_env"].astype(float)
     eps = 1e-6
-    for s in sorted(out["n_species"].unique()):
-        s_int = int(s)
-        if s_int < 2:
-            continue
-        min_rho = -1.0 / (s_int - 1) + eps
+    rho_env = out["rho_env"].to_numpy(dtype=float)
+    n_species = out["n_species"].to_numpy(dtype=int)
+    rho_eff = rho_env.copy()
+
+    mask = n_species >= 2
+    if mask.any():
+        min_rho = (-1.0 / (n_species[mask] - 1)) + eps
         max_rho = 1.0 - eps
-        mask = out["n_species"] == s
-        out.loc[mask, "rho_eff"] = out.loc[mask, "rho_env"].astype(float).clip(lower=min_rho, upper=max_rho)
-    out["rho_clipped"] = (out["rho_eff"] - out["rho_env"].astype(float)).abs() > 1e-12
+        rho_eff[mask] = np.clip(rho_env[mask], min_rho, max_rho)
+
+    out["rho_eff"] = rho_eff
+    out["rho_clipped"] = np.abs(rho_eff - rho_env) > 1e-12
     return out
 
 

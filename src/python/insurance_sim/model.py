@@ -10,7 +10,7 @@ Implements:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from typing import Optional, Sequence, TypeAlias
 
 import numpy as np
 import pandas as pd
@@ -18,6 +18,9 @@ import pandas as pd
 
 DEFAULT_FLOOR = 1e-9  # small positive floor to avoid extinction-driven NaNs
 DEFAULT_MAX_EXP = 50.0  # cap on exponent to avoid overflow in exp
+
+
+SlopeSpec: TypeAlias = Sequence[float] | np.ndarray
 
 
 def effective_rho(rho: float, n_species: int, eps: float = 1e-6) -> float:
@@ -44,7 +47,7 @@ class SimulationConfig:
     burn_in: int = 0
     r0: float = 1.0
     K: float | Sequence[float] = 100.0
-    b_slopes: Optional[Sequence[float]] = None
+    b_slopes: SlopeSpec | None = None
     phi: float = 0.4
     sigma_env: float = 0.5
     rho_env: float = 0.0
@@ -111,7 +114,7 @@ def generate_environment(
     return z
 
 
-def _prepare_b_slopes(b_slopes: Optional[Sequence[float]], n_species: int) -> np.ndarray:
+def _prepare_b_slopes(b_slopes: SlopeSpec | None, n_species: int) -> np.ndarray:
     if b_slopes is None:
         return np.linspace(-0.5, 0.5, n_species, dtype=float)
     b_arr = np.asarray(b_slopes, dtype=float)
@@ -134,7 +137,7 @@ def simulate_ricker(
     *,
     r0: float,
     K: float | Sequence[float],
-    b_slopes: Optional[Sequence[float]],
+    b_slopes: SlopeSpec | None,
     alpha_intra: float,
     alpha_inter: float,
     floor: float = DEFAULT_FLOOR,
@@ -192,7 +195,7 @@ def simulate_ricker_with_diagnostics(
     *,
     r0: float,
     K: float | Sequence[float],
-    b_slopes: Optional[Sequence[float]],
+    b_slopes: SlopeSpec | None,
     alpha_intra: float,
     alpha_inter: float,
     floor: float = DEFAULT_FLOOR,

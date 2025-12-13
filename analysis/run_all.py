@@ -153,19 +153,20 @@ def ensure_effective_rho(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Cannot reconstruct rho_eff without rho_env and n_species columns.")
 
     out = df.copy()
-    out["rho_eff"] = out["rho_env"].astype(float)
-
     eps = 1e-6
-    for s in sorted(out["n_species"].unique()):
-        s_int = int(s)
-        if s_int < 2:
-            continue
-        min_rho = -1.0 / (s_int - 1) + eps
-        max_rho = 1.0 - eps
-        mask = out["n_species"] == s
-        out.loc[mask, "rho_eff"] = out.loc[mask, "rho_env"].astype(float).clip(lower=min_rho, upper=max_rho)
 
-    out["rho_clipped"] = (out["rho_eff"] - out["rho_env"].astype(float)).abs() > 1e-12
+    rho_env = out["rho_env"].to_numpy(dtype=float)
+    n_species = out["n_species"].to_numpy(dtype=int)
+    rho_eff = rho_env.copy()
+
+    mask = n_species >= 2
+    if np.any(mask):
+        min_rho = (-1.0 / (n_species[mask] - 1)) + eps
+        max_rho = 1.0 - eps
+        rho_eff[mask] = np.clip(rho_env[mask], min_rho, max_rho)
+
+    out["rho_eff"] = rho_eff
+    out["rho_clipped"] = np.abs(rho_eff - rho_env) > 1e-12
     return out
 
 
@@ -268,8 +269,8 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
         p_slice = summary_pos[
             (summary_pos["sigma_env"] == sigma_target) & (summary_pos["n_species"] == s)
         ].groupby("rho_eff", as_index=False)["cv_total"].mean()
-        m_slice = m_slice.sort_values("rho_eff")
-        p_slice = p_slice.sort_values("rho_eff")
+        m_slice = m_slice.sort_values(by="rho_eff")
+        p_slice = p_slice.sort_values(by="rho_eff")
         ax.plot(m_slice["rho_eff"], m_slice["cv_total"], marker=marker, label=f"mixed S={s}")
         ax.plot(p_slice["rho_eff"], p_slice["cv_total"], marker=marker, linestyle="--", label=f"positive S={s}")
     ax.set(
@@ -315,7 +316,7 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
         )
 
     fig.suptitle("Insurance simulations: mixed vs aligned responses", fontsize=14)
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(out_path, dpi=250)
     # Also emit a vector version for manuscripts/slides.
     if out_path.suffix.lower() == ".png":
@@ -412,7 +413,7 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
         )
 
     fig.suptitle("Imposed vs realised synchrony", fontsize=14)
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
 
@@ -482,7 +483,7 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             sub = df[(df["sigma_env"] == sigma_target) & (df["n_species"] == s)]
             if sub.empty:
                 continue
-            sub_mean = sub.groupby("rho_eff", as_index=False)["cv_total"].mean().sort_values("rho_eff")
+            sub_mean = sub.groupby("rho_eff", as_index=False)["cv_total"].mean().sort_values(by="rho_eff")
             phi_val = float(sub["phi"].iloc[0])
             sigma_eff = sigma_target / (1.0 - phi_val**2) ** 0.5
             label = f"{labels.get(key, key)} (σ_eff≈{sigma_eff:.2f})"
@@ -492,7 +493,7 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             ax.set_ylabel("CV_total")
         ax.legend(fontsize=8)
     fig.suptitle("CV vs rho across φ (mixed slopes)", fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
 
@@ -520,12 +521,13 @@ def make_richness_scaling(summary_mixed: pd.DataFrame, out_path: Path) -> None:
 
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
     for sigma_val, sub in grp.groupby("sigma_env"):
+        sigma_val_f = float(np.asarray(sigma_val, dtype=float).item())
         ax.plot(
             sub["n_species"],
             sub["cv_total"],
             marker="o",
             lw=1.6,
-            label=rf"$\sigma_{{\mathrm{{env}}}}={float(sigma_val):.1f}$",
+            label=rf"$\sigma_{{\mathrm{{env}}}}={sigma_val_f:.1f}$",
         )
 
     ax.set_xlabel(r"Species richness $S$")
@@ -559,7 +561,7 @@ def make_positive_matched_control(
         return (
             sub.groupby("rho_eff", as_index=False)[["cv_total", "mean_pairwise_corr"]]
             .mean()
-            .sort_values("rho_eff")
+            .sort_values(by="rho_eff")
         )
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharex=True)
@@ -621,7 +623,7 @@ def make_positive_matched_control(
         )
 
     fig.suptitle("Magnitude-matched aligned-slope control", fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    fig.tight_layout(rect=(0, 0, 1, 0.92))
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
 
