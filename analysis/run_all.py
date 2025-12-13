@@ -516,7 +516,7 @@ def make_richness_scaling(summary_mixed: pd.DataFrame, out_path: Path) -> None:
         summary_mixed.groupby(["sigma_env", "n_species"])["cv_total"]
         .mean()
         .reset_index()
-        .sort_values(["sigma_env", "n_species"])
+        .sort_values(by=["sigma_env", "n_species"])
     )
 
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
