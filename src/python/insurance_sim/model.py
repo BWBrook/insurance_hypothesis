@@ -20,6 +20,21 @@ DEFAULT_FLOOR = 1e-9  # small positive floor to avoid extinction-driven NaNs
 DEFAULT_MAX_EXP = 50.0  # cap on exponent to avoid overflow in exp
 
 
+def effective_rho(rho: float, n_species: int, eps: float = 1e-6) -> float:
+    """Return the feasible equicorrelation after enforcing PD constraints.
+
+    For an equicorrelation matrix of size S, positive definiteness requires:
+      rho > -1/(S-1)  (and rho < 1)
+
+    We clip to those bounds (plus a small epsilon) to avoid singular matrices.
+    """
+    if n_species < 2:
+        return float(rho)
+    min_rho = -1.0 / (n_species - 1) + eps
+    max_rho = 1.0 - eps
+    return float(min(max(rho, min_rho), max_rho))
+
+
 @dataclass
 class SimulationConfig:
     """Configuration container for a simulation scenario."""
@@ -49,9 +64,7 @@ def build_env_cov(sigma_env: float, rho: float, n_species: int) -> np.ndarray:
     if n_species < 2:
         return np.array([[sigma_env**2]], dtype=float)
 
-    min_rho = -1.0 / (n_species - 1) + 1e-6
-    max_rho = 1.0 - 1e-6  # equicorrelation matrix singular at rho=1
-    rho_eff = min(max(rho, min_rho), max_rho)
+    rho_eff = effective_rho(rho, n_species)
 
     ones = np.ones((n_species, n_species), dtype=float)
     ident = np.eye(n_species, dtype=float)
@@ -174,6 +187,70 @@ def simulate_ricker(
     return N[1:]  # drop initial state to align length with env
 
 
+def simulate_ricker_with_diagnostics(
+    env: np.ndarray,
+    *,
+    r0: float,
+    K: float | Sequence[float],
+    b_slopes: Optional[Sequence[float]],
+    alpha_intra: float,
+    alpha_inter: float,
+    floor: float = DEFAULT_FLOOR,
+    max_exp: float = DEFAULT_MAX_EXP,
+    initial: Optional[Sequence[float]] = None,
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Simulate Ricker dynamics and report numerical-guard rates.
+
+    This is a diagnostics helper to quantify how often numerical safeguards are
+    activated (exponent clipping and abundance flooring). It is not used in the
+    main pipeline by default.
+
+    Returns
+    -------
+    traj : array (T, S)
+        Abundance trajectories (aligned with env length).
+    diagnostics : dict
+        - frac_exp_clipped_high: fraction of (t,i) where exponent > +max_exp
+        - frac_exp_clipped_low: fraction of (t,i) where exponent < -max_exp
+        - frac_floor: fraction of (t,i) where N_i(t) == floor (post-update)
+    """
+    T, S = env.shape
+    b = _prepare_b_slopes(b_slopes, S)
+    K_arr = _prepare_K(K, S)
+
+    N = np.zeros((T + 1, S), dtype=float)
+    if initial is None:
+        N[0] = K_arr * 0.5
+    else:
+        init = np.asarray(initial, dtype=float)
+        if init.size != S:
+            raise ValueError("Initial abundance must have length n_species.")
+        N[0] = init
+
+    n_hi = 0
+    n_lo = 0
+    n_floor = 0
+    denom = T * S
+
+    for t in range(T):
+        total_biomass = np.sum(N[t])
+        comp = alpha_intra * N[t] + alpha_inter * (total_biomass - N[t])
+        exponent_raw = r0 + b * env[t] - comp / K_arr
+        n_hi += int(np.sum(exponent_raw > max_exp))
+        n_lo += int(np.sum(exponent_raw < -max_exp))
+        exponent = np.clip(exponent_raw, -max_exp, max_exp)
+        N[t + 1] = np.maximum(floor, N[t] * np.exp(exponent))
+        n_floor += int(np.sum(N[t + 1] <= floor))
+
+    traj = N[1:]
+    diagnostics = {
+        "frac_exp_clipped_high": float(n_hi / denom) if denom > 0 else np.nan,
+        "frac_exp_clipped_low": float(n_lo / denom) if denom > 0 else np.nan,
+        "frac_floor": float(n_floor / denom) if denom > 0 else np.nan,
+    }
+    return traj, diagnostics
+
+
 def summarise_timeseries(
     traj: np.ndarray,
     burn_in: int,
@@ -243,6 +320,8 @@ def simulate_replicates(
     """
     records = []
     base_rng = np.random.default_rng(seed)
+    rho_eff = effective_rho(config.rho_env, config.n_species)
+    rho_clipped = bool(abs(rho_eff - float(config.rho_env)) > 1e-12)
 
     for rep in range(n_reps):
         rng = base_rng if seed is None else np.random.default_rng(base_rng.integers(0, 2**32 - 1))
@@ -269,6 +348,8 @@ def simulate_replicates(
         records.append(
             {
                 "replicate": rep,
+                "n_steps": int(config.n_steps),
+                "burn_in": int(config.burn_in),
                 "mean_total": stats["mean_total"],
                 "var_total": stats["var_total"],
                 "cv_total": stats["cv_total"],
@@ -277,6 +358,8 @@ def simulate_replicates(
                 "mean_extinction_freq": float(np.mean(stats["extinction_freq"])),
                 "phi_ldm": stats["phi_ldm"],
                 "mean_pairwise_corr": stats["mean_pairwise_corr"],
+                "rho_eff": rho_eff,
+                "rho_clipped": rho_clipped,
             }
         )
     return pd.DataFrame.from_records(records)

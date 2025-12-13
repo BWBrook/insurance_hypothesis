@@ -25,6 +25,7 @@
 - **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5} (reduced to {0,0.5,1.0} for φ sensitivity).
 - **Response synchrony (ρ)**: {-0.5, 0, 0.5, 0.9, 1.0}.
 - **Species richness (S)**: {2, 4, 8} for mixed slopes; {4, 8} for positive slopes (S=2 subset at σ=0.5,1.0).
+- **Richness sweep for Figure 4**: additional mixed‑slope grid with S ∈ {2,3,4,5,6,7,8} on the full σ_env–ρ_env grid, stored as `data/sim/grid/run1_richness/summaries.parquet`.
 - **AR(1) persistence (φ)**: 0.4 main; sensitivity {0, 0.7, 0.9, 0.95}.
 - **Simulation length**: 600 steps (burn 300) for main/positive grids; 400 (burn 200) for φ sweeps.
 - **Replicates per scenario**: mixed 150; positive 100; φ sweeps 80.

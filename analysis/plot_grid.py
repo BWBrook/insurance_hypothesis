@@ -16,6 +16,27 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+def ensure_effective_rho(df: pd.DataFrame) -> pd.DataFrame:
+    if "rho_eff" in df.columns:
+        return df
+    if "rho_env" not in df.columns or "n_species" not in df.columns:
+        raise ValueError("Cannot reconstruct rho_eff without rho_env and n_species.")
+
+    out = df.copy()
+    out["rho_eff"] = out["rho_env"].astype(float)
+    eps = 1e-6
+    for s in sorted(out["n_species"].unique()):
+        s_int = int(s)
+        if s_int < 2:
+            continue
+        min_rho = -1.0 / (s_int - 1) + eps
+        max_rho = 1.0 - eps
+        mask = out["n_species"] == s
+        out.loc[mask, "rho_eff"] = out.loc[mask, "rho_env"].astype(float).clip(lower=min_rho, upper=max_rho)
+    out["rho_clipped"] = (out["rho_eff"] - out["rho_env"].astype(float)).abs() > 1e-12
+    return out
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Plot grid summaries")
     parser.add_argument("--input", required=True, help="Path to summaries.parquet")
@@ -29,7 +50,7 @@ def parse_args() -> argparse.Namespace:
 
 def pivot_metric(df: pd.DataFrame, metric: str, s: int) -> pd.DataFrame:
     sub = df[df["n_species"] == s]
-    return sub.pivot_table(index="rho_env", columns="sigma_env", values=metric, aggfunc="mean")
+    return sub.pivot_table(index="rho_eff", columns="sigma_env", values=metric, aggfunc="mean")
 
 
 def plot_heatmaps(df: pd.DataFrame, metric: str, out_path: Path) -> None:
@@ -42,8 +63,8 @@ def plot_heatmaps(df: pd.DataFrame, metric: str, out_path: Path) -> None:
         table = pivot_metric(df, metric, s)
         im = ax.imshow(table.values, origin="lower", aspect="auto", cmap="viridis")
         ax.set_title(f"{metric} (S={s})")
-        ax.set_xlabel("sigma_env")
-        ax.set_ylabel("rho_env")
+        ax.set_xlabel(r"$\sigma_{\mathrm{env}}$")
+        ax.set_ylabel(r"$\rho_{\mathrm{env}}$")
         ax.set_xticks(range(len(table.columns)))
         ax.set_xticklabels([f"{c:.1f}" for c in table.columns])
         ax.set_yticks(range(len(table.index)))
@@ -56,13 +77,14 @@ def plot_heatmaps(df: pd.DataFrame, metric: str, out_path: Path) -> None:
 def main() -> None:
     args = parse_args()
     df = pd.read_parquet(args.input)
+    df = ensure_effective_rho(df)
 
     out_prefix = Path(args.out_prefix)
     out_prefix.parent.mkdir(parents=True, exist_ok=True)
 
     summary_path = Path(f"{out_prefix}_summary.csv")
     summary = (
-        df.groupby(["slope_mode", "n_species", "sigma_env", "rho_env", "phi"])
+        df.groupby(["slope_mode", "n_species", "sigma_env", "rho_env", "rho_eff", "phi"])
         [["cv_total", "phi_ldm", "mean_pairwise_corr"]]
         .mean()
         .reset_index()

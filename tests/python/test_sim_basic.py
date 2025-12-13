@@ -3,6 +3,7 @@ import numpy as np
 from insurance_sim.model import (
     SimulationConfig,
     build_env_cov,
+    effective_rho,
     generate_environment,
     simulate_ricker,
     simulate_replicates,
@@ -79,6 +80,22 @@ def test_simulate_replicates_returns_expected_length():
     df = simulate_replicates(config, n_reps=5, seed=42)
     assert len(df) == 5
     assert {"mean_total", "var_total", "cv_total"}.issubset(df.columns)
+
+
+def test_effective_rho_clips_infeasible_negative_equicorrelation():
+    # For S=8, equicorrelation must satisfy rho > -1/(S-1).
+    s = 8
+    rho_req = -0.5
+    rho_eff = effective_rho(rho_req, n_species=s, eps=1e-6)
+    min_rho = -1.0 / (s - 1) + 1e-6
+    assert np.isclose(rho_eff, min_rho, atol=1e-10)
+
+    config = SimulationConfig(n_species=s, n_steps=50, burn_in=0, sigma_env=0.2, rho_env=rho_req)
+    df = simulate_replicates(config, n_reps=1, seed=0)
+    assert "rho_eff" in df.columns
+    assert "rho_clipped" in df.columns
+    assert np.isclose(df.loc[0, "rho_eff"], min_rho, atol=1e-10)
+    assert bool(df.loc[0, "rho_clipped"]) is True
 
 
 def test_synchrony_metrics_deterministic_cases():

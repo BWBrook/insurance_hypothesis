@@ -167,6 +167,8 @@ uv run python analysis/run_full_grid.py \
 
 This is the primary grid used for the mixed‑slope insurance results.
 
+Note on negative correlations: with an equicorrelated innovation covariance, strongly negative `ρ_env` values become infeasible as richness increases (PD requires `ρ_env > -1/(S-1)`). The simulator therefore clips to the feasible bound when needed and records both the requested value (`rho_env`) and the effective value used (`rho_eff`, plus `rho_clipped`).
+
 ### 4.2 Positive‑slope grid (`pos_full`)
 
 ```bash
@@ -188,6 +190,20 @@ uv run python analysis/run_full_grid.py \
 
 This grid provides the aligned‑response contrast to the mixed‑slope scenarios.
 
+### 4.2b Magnitude-matched aligned-slope control (`pos_matched`)
+
+To separate “all slopes are positive” from “slopes are larger on average”, we also run an aligned-slope control where the **magnitude distribution is matched** to the mixed case (all slopes are `|b_i^{mixed}|`):
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name pos_matched \
+  --slope-mode positive_matched \
+  --species-list 4,8 \
+  --reps 100
+```
+
+Output: `data/sim/grid/pos_matched/summaries.parquet`.
+
 ### 4.3 Environmental persistence (φ) sensitivity grids
 
 For φ‑sensitivity we use reduced grids with:
@@ -195,7 +211,7 @@ For φ‑sensitivity we use reduced grids with:
 - `ρ_env ∈ {-0.5, 0, 0.5, 0.9, 1.0}`,
 - `S ∈ {2, 4}`,
 - `φ ∈ {0.0, 0.7, 0.9, 0.95}`,
-- 400 steps with 200 burn‑in (set inside the simulator via defaults).
+- 400 steps with 200 burn‑in (passed explicitly; `run_full_grid.py` defaults are 600/300).
 
 Run:
 
@@ -204,32 +220,40 @@ uv run python analysis/run_full_grid.py \
   --run-name phi0_reduced \
   --phi 0.0 \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4 \
+  --steps 400 \
+  --burn 200 \
   --reps 80
 
 uv run python analysis/run_full_grid.py \
   --run-name phi07_reduced \
   --phi 0.7 \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4 \
+  --steps 400 \
+  --burn 200 \
   --reps 80
 
 uv run python analysis/run_full_grid.py \
   --run-name phi09_reduced \
   --phi 0.9 \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4 \
+  --steps 400 \
+  --burn 200 \
   --reps 80
 
 uv run python analysis/run_full_grid.py \
   --run-name phi095_reduced \
   --phi 0.95 \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4 \
+  --steps 400 \
+  --burn 200 \
   --reps 80
 ```
 
@@ -244,7 +268,7 @@ uv run python analysis/run_full_grid.py \
   --run-name no_comp_mixed \
   --alpha-inter 0.0 \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4,8 \
   --reps 80
 
@@ -253,7 +277,7 @@ uv run python analysis/run_full_grid.py \
   --alpha-inter 0.0 \
   --slope-mode positive \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4,8 \
   --reps 80
 ```
@@ -269,7 +293,7 @@ uv run python analysis/run_full_grid.py \
   --run-name mixed_narrow \
   --slope-mode mixed_narrow \
   --sigma-list 0,0.5,1.0 \
-  --rho-list -0.5,0,0.5,0.9,1.0 \
+  --rho-list=-0.5,0,0.5,0.9,1.0 \
   --species-list 2,4,8 \
   --reps 80
 ```
@@ -285,10 +309,24 @@ uv run python analysis/run_full_grid.py \
   --run-name pos_subset \
   --slope-mode positive \
   --sigma-list 0.5,1.0 \
-  --rho-list 0,0.5,0.9 \
+  --rho-list=0,0.5,0.9 \
   --species-list 2 \
   --reps 50
 ```
+
+### 4.7 Richness sweep for Figure 4 (`run1_richness`)
+
+Figure 4 (richness scaling) uses an additional mixed‑slope grid that fills in all integer richness values `S=2…8` on the full σ_env–ρ_env grid:
+
+```bash
+uv run python analysis/run_full_grid.py \
+  --run-name run1_richness \
+  --species-list 2,3,4,5,6,7,8 \
+  --reps 150
+```
+
+This produces `data/sim/grid/run1_richness/summaries.parquet`.  
+`analysis/run_all.py` will automatically use this file for the richness‑scaling curve if it exists; otherwise it falls back to the main `run1` grid.
 
 ---
 

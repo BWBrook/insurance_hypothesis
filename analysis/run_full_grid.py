@@ -61,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--slope-mode",
-        choices=["mixed", "positive", "mixed_narrow"],
+        choices=["mixed", "positive", "positive_matched", "mixed_narrow"],
         default="mixed",
         help="Slope configuration: mixed = linear -0.5..0.5; positive = 0.1..1.0; mixed_narrow = -0.25..0.25",
     )
@@ -91,6 +91,10 @@ def slopes_for_mode(mode: str, n_species: int) -> np.ndarray | None:
         return None  # handled in simulator as default -0.5..0.5
     if mode == "positive":
         return np.linspace(0.1, 1.0, n_species)
+    if mode == "positive_matched":
+        # Magnitude-matched aligned regime: use abs of the mixed-slope magnitudes.
+        # This isolates sign structure from overall forcing magnitude.
+        return np.abs(np.linspace(-0.5, 0.5, n_species))
     if mode == "mixed_narrow":
         return np.linspace(-0.25, 0.25, n_species)
     raise ValueError(f"Unknown slope mode: {mode}")

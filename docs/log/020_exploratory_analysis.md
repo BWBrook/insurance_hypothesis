@@ -12,3 +12,10 @@
 - Diagnostics / sanity checks run: `uv run pytest` (7 tests), extinction frequencies checked (<0.003), φ_LdM bounds enforced, AR(1) variance vs formula checked.
 - Decisions: Continue with equicorrelated drivers and innovation-SD interpretation for σ_env; robust to φ up to 0.95; insurance patterns persist without competition and under milder slope heterogeneity.
 - Next steps: Respond to PI feedback after review; potential robustness to alternative covariance structures if requested.
+
+## 2025-12-12 – Figure polish and richness sweep
+
+- Added LaTeX/mathtext labels to the main manuscript panels (Fig. 1) and harmonised color scales across mixed vs positive heatmaps; inserted A–D panel tags in `analysis/run_all.py`.
+- Implemented an explicit richness‑scaling plot generator in `analysis/run_all.py` using LaTeX labels (CV_tot, ρ_env, σ_env).
+- Ran an additional mixed‑slope richness sweep on the full σ_env–ρ_env grid with S ∈ {2,3,4,5,6,7,8} (150 reps), stored as `data/sim/grid/run1_richness/summaries.parquet`.
+- Regenerated `cv_richness_scaling_mixed.png` and copied it into `manuscript/figures/` via `analysis/run_all.py`.
