@@ -265,10 +265,10 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
     for s, marker in [(4, "o"), (8, "s")]:
         m_slice = summary_mixed[
             (summary_mixed["sigma_env"] == sigma_target) & (summary_mixed["n_species"] == s)
-        ].groupby("rho_eff", as_index=False)["cv_total"].mean()
+        ].groupby("rho_eff", as_index=False, observed=True).agg(cv_total=("cv_total", "mean"))
         p_slice = summary_pos[
             (summary_pos["sigma_env"] == sigma_target) & (summary_pos["n_species"] == s)
-        ].groupby("rho_eff", as_index=False)["cv_total"].mean()
+        ].groupby("rho_eff", as_index=False, observed=True).agg(cv_total=("cv_total", "mean"))
         m_slice = m_slice.sort_values(by="rho_eff")
         p_slice = p_slice.sort_values(by="rho_eff")
         ax.plot(m_slice["rho_eff"], m_slice["cv_total"], marker=marker, label=f"mixed S={s}")
@@ -483,7 +483,11 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             sub = df[(df["sigma_env"] == sigma_target) & (df["n_species"] == s)]
             if sub.empty:
                 continue
-            sub_mean = sub.groupby("rho_eff", as_index=False)["cv_total"].mean().sort_values(by="rho_eff")
+            sub_mean = (
+                sub.groupby("rho_eff", as_index=False, observed=True)
+                .agg(cv_total=("cv_total", "mean"))
+                .sort_values(by="rho_eff")
+            )
             phi_val = float(sub["phi"].iloc[0])
             sigma_eff = sigma_target / (1.0 - phi_val**2) ** 0.5
             label = f"{labels.get(key, key)} (σ_eff≈{sigma_eff:.2f})"
