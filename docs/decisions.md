@@ -42,6 +42,34 @@ For each entry, include:
 - **Rationale**: Ensures numerical stability while probing high persistence; makes explicit that φ sweeps change both temporal autocorrelation and effective environmental variance, and prevents artefactual synchrony values outside theoretical bounds.
 - **Status**: active
 
+### DEC-005 – Requested vs effective correlation logging
+
+- **Date**: 2025-12-12
+- **Decision**: Keep the requested grid value as `rho_env` and always store the actual value used by the simulator as `rho_eff`, plus a `rho_clipped` flag when clipping occurs.
+- **Rationale**: Equicorrelation has feasibility bounds that tighten with richness; explicit `rho_eff` avoids mislabeling infeasible negative-correlation scenarios and keeps cross-richness comparisons auditable.
+- **Status**: active
+
+### DEC-006 – Fixed φ-sensitivity run length convention
+
+- **Date**: 2025-12-12
+- **Decision**: Use 400 steps with 200 burn-in for φ-sensitivity grids, passed explicitly in runner commands; keep 600/300 for the main and positive full grids.
+- **Rationale**: Resolves a documentation-vs-command mismatch and standardises reduced-grid persistence sweeps without changing the main-inference grid convention.
+- **Status**: active
+
+### DEC-007 – Sign-structure control with magnitude matching
+
+- **Date**: 2025-12-12
+- **Decision**: Add a `positive_matched` control slope mode where aligned slopes are matched to the absolute-value magnitude distribution of mixed slopes.
+- **Rationale**: Separates the effect of slope sign structure from slope magnitude, directly addressing the “aligned responses also have larger |b_i|” confound.
+- **Status**: active
+
+### DEC-008 – Interpretation boundary for high-persistence stress runs
+
+- **Date**: 2026-02-11
+- **Decision**: Treat φ=0.9/0.95 reduced-grid results as stress tests when floor occupancy is elevated (especially low S and high σ_env), and avoid describing these scenarios as uniformly low-extinction.
+- **Rationale**: Post-hiatus audit showed non-negligible floor occupancy in subsets of high-φ scenarios (`phi09_reduced` and `phi095_reduced`) despite low extinction rates in main inference grids; documentation must distinguish these regimes.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

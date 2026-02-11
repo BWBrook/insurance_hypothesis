@@ -73,10 +73,11 @@
 - **Summary (plain language)**:
   - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9, 0.95) increases CV, with amplification noticeable by φ=0.95 but qualitative pattern (CV decreases with richness and with ρ under mixed slopes) unchanged.
   - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9), 0.585 (φ=0.95); S=4 is 0.074, 0.084, 0.114, 0.125, 0.354.
+  - Floor occupancy is still low at φ=0 and φ=0.7, but becomes substantial in part of the stress grid at φ=0.9/0.95 (mostly S=2, σ_env=1.0): max mean extinction frequency ~0.24 (`phi09_reduced`) and ~0.43 (`phi095_reduced`).
 - **Relation to hypothesis**:
   - Insurance patterns persist across φ ∈ [0, 0.95]; autocorrelation modulates magnitude but not direction of stabilisation, though very high φ inflates variability substantially.
 - **Surprises / concerns**:
-  - φ=0.95 shows larger CV inflation, especially for S=2; worth noting in discussion but does not reverse stabilisation ranking between mixed vs aligned slopes.
+  - φ=0.95 shows larger CV inflation, especially for S=2, and enters a regime with meaningful floor occupancy. These runs remain useful as stress tests, but are less representative of the low-extinction regime used for the core inference figures.
 - **Follow-up tasks**:
   - [ ] None immediate; document φ sensitivity in manuscript.
 
@@ -119,11 +120,20 @@
   - [x] Prepare combined panel figure (heatmaps + line panels) for manuscript draft.
   - [x] Decide whether to include φ ≥ 0.95 sensitivity; currently low-impact in tested range (φ=0.95 run confirms stability).
 
-### Extinction sanity check
+### Extinction sanity check (main inference grids)
 
 - **Artefact**: computed from `data/sim/grid/run1/summaries.parquet`
 - **Summary**: Max mean extinction frequency across scenarios ≈0.003; worst cases at σ_env=1.5, high ρ, S=8. Indicates dynamics remain well above floor—no numerical extinctions in main grid.
 - **Follow-up**: None urgent; keep monitoring if parameters change.
+
+### Extinction sanity check (high-persistence stress tests)
+
+- **Artefacts**: `analysis/reports/phi09_reduced_summary.csv`, `analysis/reports/phi095_reduced_summary.csv`
+- **Summary**:
+  - In φ stress tests, floor occupancy is not negligible in a subset of scenarios, with max mean extinction frequency ≈0.2425 (`phi09_reduced`) and ≈0.4275 (`phi095_reduced`).
+  - Elevated floor occupancy is concentrated in low-richness/high-variance corners (primarily S=2, σ_env=1.0), while lower-φ and main grids remain much less affected.
+- **Follow-up**:
+  - [x] Update docs/manuscript wording to distinguish the low-extinction main grids from high-φ stress-test behaviour.
 
 _(Add new sections for subsequent artefacts.)_
 
@@ -131,6 +141,6 @@ _(Add new sections for subsequent artefacts.)_
 
 - **Headline**: Environmental variability tends to destabilise individual species, but heterogeneous responses and higher richness **buffer** this variability at the community level relative to single-species or aligned-response baselines. When responses are aligned (positive slopes), community biomass closely tracks the environment and variability remains high.
 - **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
-- **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95; extinctions are negligible.
+- **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95. Extinction/floor occupancy is negligible in the main inference grids, but becomes non-negligible in part of the high-φ stress grids (especially φ=0.95, S=2, σ_env=1.0).
 - **Key numbers** (mixed slopes, σ=0.5, ρ_env=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
 - **Next focus**: Refine manuscript narrative around **relative** stabilisation (buffering) and clearly separate imposed environmental correlation from realised synchrony metrics.

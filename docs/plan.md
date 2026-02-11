@@ -15,7 +15,7 @@
 
 - **Core model**: discrete-time stochastic Ricker with competition  
   `N_i(t+1) = N_i(t) * exp( r0 + b_i * z_i(t) - (N_i(t) + Σ_j α_ij N_j(t)) / K_i )`, truncated at a small floor to prevent negative values.
-- **Environmental driver**: multivariate AR(1) process `z_t = φ z_{t-1} + ε_t`, with `ε_t ~ MVN(0, Σ)`; variance scaled by `σ_env^2`, synchrony controlled by off-diagonal correlation `ρ` in Σ. Default φ=0.4; sensitivity runs at φ ∈ {0, 0.7, 0.9, 0.95}. Covariance clipped to keep ρ<1 for PD.
+- **Environmental driver**: multivariate AR(1) process `z_t = φ z_{t-1} + ε_t`, with `ε_t ~ MVN(0, Σ)`; innovation variance scaled by `σ_env^2`, imposed environmental correlation controlled by off-diagonal `ρ_env` in Σ. Default φ=0.4; sensitivity runs at φ ∈ {0, 0.7, 0.9, 0.95}. When a requested `ρ_env` is infeasible for equicorrelation at given S, the simulator clips to the nearest feasible value and records effective `rho_eff`.
 - **Species differences**: two slope modes: mixed slopes linearly spaced -0.5..0.5 (heterogeneous responses) and all-positive slopes 0.1..1.0 (aligned responses). K_i=100; intra- vs interspecific competition ratio `α_inter = 0.3 * α_intra`.
 - **Numerical safeguards**: floor abundance at `1e-9`; cap exponent; φ_LdM clipped to [0,1]; checks for NaN/Inf each step.
 - **Tooling choice**: core simulations in **Python 3.12** (uv-managed); plotting with matplotlib.
@@ -23,7 +23,7 @@
 ## 3. Experimental grid (completed)
 
 - **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5} (reduced to {0,0.5,1.0} for φ sensitivity).
-- **Response synchrony (ρ)**: {-0.5, 0, 0.5, 0.9, 1.0}.
+- **Imposed environmental correlation (ρ_env)**: {-0.5, 0, 0.5, 0.9, 1.0}; effective values stored as `rho_eff` when clipping is required for PD.
 - **Species richness (S)**: {2, 4, 8} for mixed slopes; {4, 8} for positive slopes (S=2 subset at σ=0.5,1.0).
 - **Richness sweep for Figure 4**: additional mixed‑slope grid with S ∈ {2,3,4,5,6,7,8} on the full σ_env–ρ_env grid, stored as `data/sim/grid/run1_richness/summaries.parquet`.
 - **AR(1) persistence (φ)**: 0.4 main; sensitivity {0, 0.7, 0.9, 0.95}.
@@ -42,9 +42,10 @@
 ## 5. Sanity checks & validation (to be encoded in tests)
 
 - **Deterministic baseline**: with σ_env = 0, trajectories approach equilibrium near K_i; no extinctions under default parameters.
-- **Perfect synchrony**: ρ = 1 should yield community CV close to species-level CV (little insurance effect).
-- **Negative/low synchrony**: ρ ≤ 0 should reduce community CV relative to species-level CV.
-- **Richness effect**: holding parameters constant, higher S with low ρ should further reduce community variance.
+- **Perfect imposed correlation**: ρ_env = 1 should yield community CV close to species-level CV when responses are aligned (little insurance effect).
+- **Negative/low imposed correlation**: lower ρ_env should reduce community CV under aligned responses.
+- **Richness effect**: holding parameters constant, higher S with low realised synchrony should further reduce community variance.
+- **High-φ stress behaviour**: at φ ≥ 0.9 with high σ_env and low S, monitor floor occupancy explicitly and treat these runs as stress tests rather than low-extinction baseline scenarios.
 - **Numerical**: no NaN/Inf; abundances non-negative; statistics converge as replicates increase.
 - Cross-check small toy case against an independent vectorised implementation or analytic approximation of equilibrium at σ_env = 0.
 
@@ -59,12 +60,15 @@
 
 ## 8. Current status & next steps
 
-- **Current phase**: 010_model_design → transitioning to reporting.
-- **Recently completed**: Full mixed and positive grids, φ sensitivity to 0.95, combined panels, manuscript scaffolding, φ_LdM bound tests.
-- **Immediate next steps** (ordered):
-  1) Finalise manuscript text (Methods/Results/Discussion) in `manuscript/text/draft.md` using current figures/captions.  
-  2) Minor figure polish if needed; keep `analysis/reports/manuscript_panels.pdf` as bundle for reviewers.  
-  3) Maintain sanity tests (φ_LdM bound) and rerun `uv run pytest` after edits.  
-  4) Prep for external review: ensure README/docs point to key runs/figures; package zip when ready.  
+- **Current phase**: post-review polishing and reproducibility QA (pre-submission handoff state).
+- **Recently completed**:
+  1) Full mixed and positive grids plus controls (`positive_matched`, `no_comp_*`, `mixed_narrow`) and φ sensitivity through 0.95.
+  2) Manuscript figure suite and cached-data orchestration (`analysis/run_all.py`) with reproducible regeneration.
+  3) Pylance/type-hint cleanup, `rho_eff` handling in summaries/plots, and test suite expansion (`uv run pytest` currently 8 tests).
+  4) Post-hiatus audit identifying that high-φ stress grids have non-negligible floor occupancy in a subset of scenarios, with documentation corrected accordingly.
+- **Next steps if more work is requested**:
+  1) Keep manuscript text aligned with the corrected extinction/floor-occupancy interpretation as external edits continue.
+  2) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
+  3) Packaging/formatting tasks only (reference formatting, journal-specific figure/table assembly).
 
 _This plan should be updated as design choices are made or adjusted._

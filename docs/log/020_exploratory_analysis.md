@@ -9,7 +9,7 @@
   - Compiled manuscript panels PDF and additional synchrony/CV figures; drafted manuscript text, outline, and figure captions.
   - Clipped φ_LdM to [0,1] with test; added AR(1) stationary-variance test; reran pytest (pass).
 - Interim results / figures: `analysis/reports/manuscript_panels.*`, synchrony panels, `cv_vs_synchrony_mixed.png`, `cv_richness_scaling_mixed.png`, `cv_phi_sensitivity_sigma0.5_extended.png`, summaries in `analysis/reports/*_summary.csv`.
-- Diagnostics / sanity checks run: `uv run pytest` (7 tests), extinction frequencies checked (<0.003), φ_LdM bounds enforced, AR(1) variance vs formula checked.
+- Diagnostics / sanity checks run: `uv run pytest` (7 tests), extinction frequencies checked in the main mixed grid at that stage (<0.003), φ_LdM bounds enforced, AR(1) variance vs formula checked.
 - Decisions: Continue with equicorrelated drivers and innovation-SD interpretation for σ_env; robust to φ up to 0.95; insurance patterns persist without competition and under milder slope heterogeneity.
 - Next steps: Respond to PI feedback after review; potential robustness to alternative covariance structures if requested.
 
@@ -19,3 +19,17 @@
 - Implemented an explicit richness‑scaling plot generator in `analysis/run_all.py` using LaTeX labels (CV_tot, ρ_env, σ_env).
 - Ran an additional mixed‑slope richness sweep on the full σ_env–ρ_env grid with S ∈ {2,3,4,5,6,7,8} (150 reps), stored as `data/sim/grid/run1_richness/summaries.parquet`.
 - Regenerated `cv_richness_scaling_mixed.png` and copied it into `manuscript/figures/` via `analysis/run_all.py`.
+
+## 2026-02-11 – Post-hiatus audit and consistency fixes
+
+- Performed a full reproducibility audit after project hiatus:
+  - `uv run pytest` (8 tests pass),
+  - `uv run python analysis/run_all.py` (figure regeneration from cached data),
+  - targeted checks on extinction/floor occupancy from `analysis/reports/*_summary.csv`,
+  - numerical-guard audit via `analysis/check_numerical_guards.py`.
+- Key finding: low extinction in main inference grids remains true (`run1` max mean extinction frequency ~0.0033), but high-persistence stress grids show non-negligible floor occupancy in subsets of scenarios (`phi09_reduced` max ~0.2425; `phi095_reduced` max ~0.4275; concentrated at low richness/high σ_env).
+- Corrective actions:
+  - Updated `docs/interpretation_notes.md`, `docs/review_rounds.md`, and `docs/plan.md` to separate main-grid inference from high-φ stress-test behaviour.
+  - Added new decision entries in `docs/decisions.md` for `rho_eff` logging, fixed φ-sensitivity run lengths, positive-matched control rationale, and high-φ interpretation boundaries.
+  - Updated stale extinction wording in `manuscript/text/draft.md` for internal consistency.
+- Outcome: repo documentation now reflects actual cached outputs without overstating extinction robustness in extreme φ regimes.
