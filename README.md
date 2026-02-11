@@ -93,6 +93,7 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
 
    ```bash
    uv run pytest
+   uv run pyright
    ```
 
    The tests cover:
@@ -100,6 +101,8 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
    - non‑negativity and equilibrium under `σ_env = 0`,
    - synchrony metrics (φ_LdM, growth correlations) in toy cases,
    - bookkeeping in the replicate‑level simulator.
+
+   Static type checks (`pyright`) help catch pandas/numpy interface mistakes early, especially in plotting and analysis orchestration scripts.
 
 ---
 
@@ -392,6 +395,7 @@ For deeper scientific context and interpretation, consult:
 1. **Set up environment**
    - `uv sync`
    - `uv run pytest`
+   - `uv run pyright`
 
 2. **Fast path (cached data)**
    - `uv run python analysis/run_all.py`
@@ -451,4 +455,14 @@ Following these steps should exactly reproduce the tables and figures reported i
 **Q5. Simulations are running slowly on my machine. Can I down‑sample?**  
 - For strict reproduction of the manuscript results you should use the replicate counts given in Section 4.  
 - For experimentation or development, you can reduce `--reps`, shorten time series (`--steps` / `--burn`), or restrict σ/ρ/S lists (e.g. a single σ_env or a subset of ρ_env values).  
-- Just be aware that Monte Carlo uncertainty will increase when you reduce replicate counts; the main manuscript grids were sized to make this uncertainty small relative to the effect sizes of interest.***
+- Just be aware that Monte Carlo uncertainty will increase when you reduce replicate counts; the main manuscript grids were sized to make this uncertainty small relative to the effect sizes of interest.
+
+**Q6. Pylance/VS Code reports type errors even though `pytest` passes. What should I run?**  
+- Run:
+
+  ```bash
+  uv run pyright
+  ```
+
+- This uses the project-locked `pyright` version from `uv.lock`, so results are reproducible across machines.
+- If `pyright` fails, address those issues before trusting regenerated figures; many static failures are pandas shape/type mismatches that can silently affect analysis scripts.

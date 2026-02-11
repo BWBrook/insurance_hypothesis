@@ -170,6 +170,16 @@ def ensure_effective_rho(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def sort_by_rho_eff(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a copy sorted by rho_eff with a clean index.
+
+    Using an explicit numpy-based sort avoids pandas type-stub ambiguity in
+    static analysis while keeping runtime behaviour identical.
+    """
+    order = np.argsort(np.asarray(df["rho_eff"], dtype=float))
+    return df.iloc[order].reset_index(drop=True)
+
+
 def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     summary_df = ensure_effective_rho(summary_df)
@@ -269,8 +279,8 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
         p_slice = summary_pos[
             (summary_pos["sigma_env"] == sigma_target) & (summary_pos["n_species"] == s)
         ].groupby("rho_eff", as_index=False, observed=True).agg(cv_total=("cv_total", "mean"))
-        m_slice = m_slice.sort_values(by="rho_eff")
-        p_slice = p_slice.sort_values(by="rho_eff")
+        m_slice = sort_by_rho_eff(pd.DataFrame(m_slice))
+        p_slice = sort_by_rho_eff(pd.DataFrame(p_slice))
         ax.plot(m_slice["rho_eff"], m_slice["cv_total"], marker=marker, label=f"mixed S={s}")
         ax.plot(p_slice["rho_eff"], p_slice["cv_total"], marker=marker, linestyle="--", label=f"positive S={s}")
     ax.set(
@@ -486,9 +496,9 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             sub_mean = (
                 sub.groupby("rho_eff", as_index=False, observed=True)
                 .agg(cv_total=("cv_total", "mean"))
-                .sort_values(by="rho_eff")
             )
-            phi_val = float(sub["phi"].iloc[0])
+            sub_mean = sort_by_rho_eff(pd.DataFrame(sub_mean))
+            phi_val = float(np.asarray(sub["phi"], dtype=float)[0])
             sigma_eff = sigma_target / (1.0 - phi_val**2) ** 0.5
             label = f"{labels.get(key, key)} (σ_eff≈{sigma_eff:.2f})"
             ax.plot(sub_mean["rho_eff"], sub_mean["cv_total"], marker=marker, label=label)
@@ -514,7 +524,7 @@ def make_richness_scaling(summary_mixed: pd.DataFrame, out_path: Path) -> None:
     """
     summary_mixed = ensure_effective_rho(summary_mixed)
     if "rho_env" in summary_mixed.columns:
-        summary_mixed = summary_mixed[summary_mixed["rho_env"] >= 0].copy()
+        summary_mixed = summary_mixed.query("rho_env >= 0").copy()
 
     grp = (
         summary_mixed.groupby(["sigma_env", "n_species"])["cv_total"]
@@ -562,11 +572,11 @@ def make_positive_matched_control(
 
     def scenario_means(df: pd.DataFrame, n_species: int) -> pd.DataFrame:
         sub = df[(df["sigma_env"] == sigma_target) & (df["n_species"] == n_species)]
-        return (
+        out = (
             sub.groupby("rho_eff", as_index=False)[["cv_total", "mean_pairwise_corr"]]
             .mean()
-            .sort_values(by="rho_eff")
         )
+        return sort_by_rho_eff(pd.DataFrame(out))
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharex=True)
 
