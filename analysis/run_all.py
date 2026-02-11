@@ -183,26 +183,48 @@ def sort_by_rho_eff(df: pd.DataFrame) -> pd.DataFrame:
 def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     summary_df = ensure_effective_rho(summary_df)
+    metric_labels = {
+        "cv_total": "CV Total",
+        "phi_ldm": r"$\phi_{\mathrm{LdM}}$",
+    }
     # Heatmaps of CV and phi_ldm per richness
     for metric in ["cv_total", "phi_ldm"]:
         richness = sorted(summary_df["n_species"].unique())
-        ncols = len(richness)
-        fig, axes = plt.subplots(1, ncols, figsize=(4 * ncols, 4), constrained_layout=True)
-        if ncols == 1:
-            axes = [axes]
-        for ax, s in zip(axes, richness):
+        metric_label = metric_labels.get(metric, metric)
+        tables: dict[int, pd.DataFrame] = {}
+        for s in richness:
             table = summary_df[summary_df["n_species"] == s].pivot_table(
                 index="rho_eff", columns="sigma_env", values=metric, aggfunc="mean"
             )
-            im = ax.imshow(table.values, origin="lower", aspect="auto", cmap="viridis")
-            ax.set_title(f"{metric} (S={s})")
+            tables[s] = table
+        vmin_shared = float(np.nanmin([np.nanmin(t.values) for t in tables.values()]))
+        vmax_shared = float(np.nanmax([np.nanmax(t.values) for t in tables.values()]))
+        ncols = len(richness)
+        fig, axes = plt.subplots(1, ncols, figsize=(4 * ncols, 4), constrained_layout=True)
+        if ncols == 1:
+            axes_list = [axes]
+        else:
+            axes_list = list(np.ravel(axes))
+        for i, (ax, s) in enumerate(zip(axes_list, richness)):
+            table = tables[s]
+            im = ax.imshow(
+                table.values,
+                origin="lower",
+                aspect="auto",
+                cmap="viridis",
+                vmin=vmin_shared,
+                vmax=vmax_shared,
+            )
+            ax.set_title(rf"{metric_label} (S={s})")
             ax.set_xlabel(r"$\sigma_{\mathrm{env}}$")
-            ax.set_ylabel(r"$\rho_{\mathrm{env}}$")
+            if i == 0:
+                ax.set_ylabel(r"$\rho_{\mathrm{env}}$")
             ax.set_xticks(range(len(table.columns)))
             ax.set_xticklabels([f"{c:.1f}" for c in table.columns])
             ax.set_yticks(range(len(table.index)))
             ax.set_yticklabels([f"{r:.1f}" for r in table.index])
-            fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        cbar = fig.colorbar(im, ax=axes_list, fraction=0.030, pad=0.04)
+        cbar.set_label(metric_label)
         fig.savefig(out_prefix.with_name(out_prefix.name + f"_{metric}.png"), dpi=200)
         plt.close(fig)
 
@@ -430,9 +452,15 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
         ("mixed", mixed_mean, "o"),
         ("positive", pos_mean, "s"),
     ]:
+        # Collapse across richness to one regime-level curve per slope mode.
+        regime_mean = (
+            df_mean.groupby("rho_eff", as_index=False)[["delta_corr"]]
+            .mean()
+            .sort_values("rho_eff")
+        )
         ax.plot(
-            df_mean["rho_eff"],
-            df_mean["delta_corr"],
+            regime_mean["rho_eff"],
+            regime_mean["delta_corr"],
             marker=marker,
             label=label,
         )
@@ -514,12 +542,6 @@ def make_cv_vs_synchrony(summary_mixed: pd.DataFrame, out_path: Path) -> None:
 
 def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_target: float = 0.5) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
-    labels = {
-        "phi0_reduced": "φ=0",
-        "phi07_reduced": "φ=0.7",
-        "phi09_reduced": "φ=0.9",
-        "phi095_reduced": "φ=0.95",
-    }
     markers = ["s", "^", "v", "d"]
     for idx, s in enumerate([2, 4]):
         ax = axes[idx]
@@ -535,13 +557,36 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             sub_mean = sort_by_rho_eff(pd.DataFrame(sub_mean))
             phi_val = float(np.asarray(sub["phi"], dtype=float)[0])
             sigma_eff = sigma_target / (1.0 - phi_val**2) ** 0.5
-            label = f"{labels.get(key, key)} (σ_eff≈{sigma_eff:.2f})"
-            ax.plot(sub_mean["rho_eff"], sub_mean["cv_total"], marker=marker, label=label)
-        ax.set(title=f"S={s}, sigma={sigma_target}", xlabel=r"$\rho_{\mathrm{env}}$")
+            label = f"{phi_val:g} (~{sigma_eff:.2f})"
+            line = ax.plot(sub_mean["rho_eff"], sub_mean["cv_total"], marker=marker, label=label)[0]
+            # Overlay replicate values (faint) so points=replicates and lines=means.
+            ax.scatter(
+                sub["rho_eff"],
+                sub["cv_total"],
+                s=10,
+                alpha=0.12,
+                color=line.get_color(),
+                marker=marker,
+                edgecolors="none",
+                label="_nolegend_",
+                zorder=1,
+            )
+        ax.set(
+            title=f"S={s}",
+            xlabel=r"$\rho_{\mathrm{env}}$",
+            xlim=(-0.5, 1.0),
+        )
         if idx == 0:
-            ax.set_ylabel("CV_total")
-        ax.legend(fontsize=8)
-    fig.suptitle("CV vs rho across φ (mixed slopes)", fontsize=12)
+            ax.set_ylabel("CV Total")
+            ax.legend(
+                fontsize=8,
+                title=r"$\phi$ ($\sigma_{\mathrm{eff}}$)",
+                title_fontsize=9,
+            )
+    fig.suptitle(
+        rf"CV versus $\rho_{{\mathrm{{env}}}}$ at $\sigma_{{\mathrm{{env}}}}={sigma_target}$ across $\phi$ (mixed slopes)",
+        fontsize=12,
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
@@ -576,7 +621,7 @@ def make_richness_scaling(summary_mixed: pd.DataFrame, out_path: Path) -> None:
             sub["cv_total"],
             marker="o",
             lw=1.6,
-            label=rf"$\sigma_{{\mathrm{{env}}}}={sigma_val_f:.1f}$",
+            label=f"{sigma_val_f:.1f}",
         )
 
     ax.set_xlabel(r"Species richness $S$")
@@ -720,13 +765,13 @@ def main() -> None:
     make_panel(summary_mixed, summary_pos, panel_path)
     panel_pdf_path = panel_path.with_suffix(".pdf")
 
-    sync_panel_path = REPORTS / "imposed_vs_realised_panels.png"
+    sync_panel_path = REPORTS / "fig3_imposed_vs_realised_panels.png"
     make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
 
-    phi_overlay_path = REPORTS / "cv_phi_sensitivity_sigma0.5_extended.png"
+    phi_overlay_path = REPORTS / "fig5_phi_sensitivity_sigma0.5_extended.png"
     make_phi_overlay(phi_runs, phi_overlay_path)
 
-    cv_sync_path = REPORTS / "cv_vs_synchrony_mixed.png"
+    cv_sync_path = REPORTS / "fig4_cv_vs_synchrony_mixed.png"
     make_cv_vs_synchrony(summary_mixed, cv_sync_path)
 
     # Richness scaling curve (prefer dedicated richness sweep if available)
@@ -735,8 +780,20 @@ def main() -> None:
         richness_df = pd.read_parquet(richness_path)
     else:
         richness_df = summary_mixed
-    richness_fig_path = REPORTS / "cv_richness_scaling_mixed.png"
+    richness_fig_path = REPORTS / "fig2_richness_scaling_mixed.png"
     make_richness_scaling(richness_df, richness_fig_path)
+
+    # Promote mixed-grid heatmaps to supplementary figure names.
+    supp_cv_src = REPORTS / "run1_cv_total.png"
+    supp_phi_src = REPORTS / "run1_phi_ldm.png"
+    supp_cv_path = REPORTS / "figS1_run1_cv_total.png"
+    supp_phi_path = REPORTS / "figS2_run1_phi_ldm.png"
+    if supp_cv_src.exists():
+        supp_cv_path.write_bytes(supp_cv_src.read_bytes())
+        supp_cv_src.unlink()
+    if supp_phi_src.exists():
+        supp_phi_path.write_bytes(supp_phi_src.read_bytes())
+        supp_phi_src.unlink()
 
     # Magnitude-matched aligned-slope control (if available)
     if summary_pos_matched is not None:
@@ -751,11 +808,17 @@ def main() -> None:
             sync_panel_path,
             cv_sync_path,
             phi_overlay_path,
-            REPORTS / "run1_cv_total.png",
-            REPORTS / "run1_phi_ldm.png",
+            supp_cv_path,
+            supp_phi_path,
             richness_fig_path,
         ]
     )
+
+    # Remove stale supplementary filenames after transition to figS* names.
+    for legacy in [FIG_DIR / "run1_cv_total.png", FIG_DIR / "run1_phi_ldm.png"]:
+        if legacy.exists():
+            legacy.unlink()
+            print(f"Removed legacy figure {legacy}")
 
     print("Run complete. Figures in analysis/reports and manuscript/figures.")
 

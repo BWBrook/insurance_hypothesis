@@ -50,9 +50,11 @@ If you have already read the paper, this README is your practical guide to repro
   - Per‑grid CSV summaries and heatmaps (generated).
   - Combined panels:
     - `fig1_panels.png` / `.pdf` – Figure 1 main mixed vs positive contrast.
-    - `imposed_vs_realised_panels.png` – imposed (`ρ_env`) vs realised synchrony.
-    - `cv_vs_synchrony_mixed.png` – link between synchrony metrics and `CV_total`.
-    - `cv_phi_sensitivity_sigma0.5_extended.png` – φ‑sensitivity overlay.
+    - `fig3_imposed_vs_realised_panels.png` – Figure 3 imposed (`ρ_env`) vs realised synchrony.
+    - `fig4_cv_vs_synchrony_mixed.png` – Figure 4 link between synchrony metrics and `CV_total`.
+    - `fig5_phi_sensitivity_sigma0.5_extended.png` – Figure 5 φ‑sensitivity overlay.
+    - `figS1_run1_cv_total.png` – Supplementary Figure S1 mixed-grid `CV Total` heatmaps.
+    - `figS2_run1_phi_ldm.png` – Supplementary Figure S2 mixed-grid `φ_LdM` heatmaps.
 
 - `manuscript/`
   - `text/draft.md` – full manuscript draft (Intro, Methods, Results, Discussion).
@@ -317,9 +319,9 @@ uv run python analysis/run_full_grid.py \
   --reps 50
 ```
 
-### 4.7 Richness sweep for Figure 4 (`run1_richness`)
+### 4.7 Richness sweep for Figure 2 (`run1_richness`)
 
-Figure 4 (richness scaling) uses an additional mixed‑slope grid that fills in all integer richness values `S=2…8` on the full σ_env–ρ_env grid:
+Figure 2 (richness scaling) uses an additional mixed‑slope grid that fills in all integer richness values `S=2…8` on the full σ_env–ρ_env grid:
 
 ```bash
 uv run python analysis/run_full_grid.py \

@@ -69,7 +69,7 @@
 
 ### PHI_sensitivity_mixed
 
-- **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `phi07_reduced/summaries.parquet`, `phi09_reduced/summaries.parquet`; reports `analysis/reports/phi{0,07,09}_reduced_*`, overlay `analysis/reports/cv_phi_sensitivity_sigma0.5_extended.png`.
+- **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `phi07_reduced/summaries.parquet`, `phi09_reduced/summaries.parquet`; reports `analysis/reports/phi{0,07,09}_reduced_*`, overlay `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`.
 - **Summary (plain language)**:
   - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9, 0.95) increases CV, with amplification noticeable by φ=0.95 but qualitative pattern (CV decreases with richness and with ρ under mixed slopes) unchanged.
   - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9), 0.585 (φ=0.95); S=4 is 0.074, 0.084, 0.114, 0.125, 0.354.
@@ -109,7 +109,7 @@
 
 ### Comparative figures (new)
 
-- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `cv_richness_scaling_mixed.png`, `imposed_vs_realised_panels.png`, `cv_phi_sensitivity_sigma0.5.png`, `cv_vs_synchrony_mixed.png`.
+- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `fig2_richness_scaling_mixed.png`, `fig3_imposed_vs_realised_panels.png`, `cv_phi_sensitivity_sigma0.5.png`, `fig4_cv_vs_synchrony_mixed.png`.
 - **Summary**:
   - Mixed vs positive slopes: at σ=0.5, S=4/8, mixed slopes show declining CV with ρ (compensatory), while positive slopes increase CV with ρ; richness dampens but does not reverse positive-slope destabilisation.
   - Richness scaling (mixed): mean CV drops sharply from S=2→4 and continues to decline to S=8 across σ_env values.
