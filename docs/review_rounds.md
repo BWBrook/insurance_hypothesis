@@ -19,7 +19,7 @@
 
 ## What to look at
 - Figures: `analysis/reports/fig1_panels.pdf` (also copied to `manuscript/figures/`) plus `fig5_phi_sensitivity_sigma0.5_extended.png`.
-- Manuscript draft: `manuscript/text/draft.md` (outline, parameter table, key numbers) and captions in `manuscript/text/figure_captions.md`.
+- Manuscript draft: `manuscript/text/draft_ms_v2.md` (outline, parameter table, key numbers) and captions in `manuscript/text/figure_captions_v2.md`.
 - Interpretation notes: `docs/interpretation_notes.md` for per-figure takeaways and follow-ups.
 
 ## Suggested PI focus / questions (Round 1)
@@ -43,3 +43,15 @@
 - Final interpretation now distinguishes:
   - low floor occupancy in the main inference grids (`run1`, `pos_full`), and
   - non-negligible floor occupancy in subsets of high-persistence stress grids (`phi09_reduced`, `phi095_reduced`), primarily at low richness and high σ_env.
+
+## Round 4 – Manuscript v2 alignment pass (2026-02-11)
+
+- Updated manuscript artifact references to the active v2 files:
+  - draft: `manuscript/text/draft_ms_v2.md`
+  - captions: `manuscript/text/figure_captions_v2.md`
+- Integrated key critique clarifications directly into v2 prose:
+  - explicit `rho_env` (requested) vs `rho_eff` (effective),
+  - explicit positive-matched slope control definition in Methods,
+  - sample-variance wording aligned with implementation,
+  - numerical-guard diagnostics and high-stress interpretation language.
+- Added supplementary Figure S3 handling in pipeline output (`figS3_positive_matched_control.png`) to surface the magnitude-matched aligned-slope control used in robustness checks.

@@ -55,10 +55,11 @@ If you have already read the paper, this README is your practical guide to repro
     - `fig5_phi_sensitivity_sigma0.5_extended.png` – Figure 5 φ‑sensitivity overlay.
     - `figS1_run1_cv_total.png` – Supplementary Figure S1 mixed-grid `CV Total` heatmaps.
     - `figS2_run1_phi_ldm.png` – Supplementary Figure S2 mixed-grid `φ_LdM` heatmaps.
+    - `figS3_positive_matched_control.png` – Supplementary Figure S3 positive-matched control panel.
 
 - `manuscript/`
-  - `text/draft.md` – full manuscript draft (Intro, Methods, Results, Discussion).
-  - `text/figure_captions.md` – captions aligned with figure filenames.
+  - `text/draft_ms_v2.md` – full manuscript draft (Intro, Methods, Results, Discussion).
+  - `text/figure_captions_v2.md` – captions aligned with figure filenames.
   - `figures/` – figures copied from `analysis/reports/` by `run_all.py`.
 
 - `docs/`
@@ -354,7 +355,7 @@ uv run python analysis/plot_grid.py \
 Key figures used in the manuscript will appear in:
 
 - `analysis/reports/` – intermediate PNGs and CSVs,
-- `manuscript/figures/` – final panels referenced by `manuscript/text/figure_captions.md`.
+- `manuscript/figures/` – final panels referenced by `manuscript/text/figure_captions_v2.md`.
 
 Approximate runtimes on a modern laptop:
 
@@ -371,7 +372,7 @@ Exact times will depend on hardware, but Monte Carlo uncertainty is small relati
 
 If you are reading this after the paper:
 
-- **Model and experimental design** are described in detail in `manuscript/text/draft.md` (Methods), with notation matched to the code:
+- **Model and experimental design** are described in detail in `manuscript/text/draft_ms_v2.md` (Methods), with notation matched to the code:
   - imposed environmental correlation `ρ_env`,
   - innovation SD `σ_env` and effective stationary SD `σ_eff` for φ analyses,
   - realised synchrony `φ_LdM` and growth‑rate correlations.
@@ -381,7 +382,7 @@ If you are reading this after the paper:
   - Imposed vs realised synchrony and their divergence.
   - φ‑sensitivity and effective environmental variance.
   - No‑competition and slope‑magnitude controls.
-- **Figures**: see `manuscript/text/figure_captions.md` for a mapping from figure labels to files in `manuscript/figures/`.
+- **Figures**: see `manuscript/text/figure_captions_v2.md` for a mapping from figure labels to files in `manuscript/figures/`.
 
 For deeper scientific context and interpretation, consult:
 

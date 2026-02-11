@@ -16,6 +16,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
+from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -184,7 +185,7 @@ def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     summary_df = ensure_effective_rho(summary_df)
     metric_labels = {
-        "cv_total": "CV Total",
+        "cv_total": r"$\mathrm{CV}_{\mathrm{tot}}$",
         "phi_ldm": r"$\phi_{\mathrm{LdM}}$",
     }
     # Heatmaps of CV and phi_ldm per richness
@@ -205,6 +206,7 @@ def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
             axes_list = [axes]
         else:
             axes_list = list(np.ravel(axes))
+        im: AxesImage | None = None
         for i, (ax, s) in enumerate(zip(axes_list, richness)):
             table = tables[s]
             im = ax.imshow(
@@ -223,6 +225,7 @@ def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
             ax.set_xticklabels([f"{c:.1f}" for c in table.columns])
             ax.set_yticks(range(len(table.index)))
             ax.set_yticklabels([f"{r:.1f}" for r in table.index])
+        assert im is not None
         cbar = fig.colorbar(im, ax=axes_list, fraction=0.030, pad=0.04)
         cbar.set_label(metric_label)
         fig.savefig(out_prefix.with_name(out_prefix.name + f"_{metric}.png"), dpi=200)
@@ -453,10 +456,8 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
         ("positive", pos_mean, "s"),
     ]:
         # Collapse across richness to one regime-level curve per slope mode.
-        regime_mean = (
-            df_mean.groupby("rho_eff", as_index=False)[["delta_corr"]]
-            .mean()
-            .sort_values("rho_eff")
+        regime_mean = sort_by_rho_eff(
+            pd.DataFrame(df_mean.groupby("rho_eff", as_index=False)[["delta_corr"]].mean())
         )
         ax.plot(
             regime_mean["rho_eff"],
@@ -577,14 +578,14 @@ def make_phi_overlay(phi_runs: dict[str, pd.DataFrame], out_path: Path, sigma_ta
             xlim=(-0.5, 1.0),
         )
         if idx == 0:
-            ax.set_ylabel("CV Total")
+            ax.set_ylabel(r"$\mathrm{CV}_{\mathrm{tot}}$")
             ax.legend(
                 fontsize=8,
                 title=r"$\phi$ ($\sigma_{\mathrm{eff}}$)",
                 title_fontsize=9,
             )
     fig.suptitle(
-        rf"CV versus $\rho_{{\mathrm{{env}}}}$ at $\sigma_{{\mathrm{{env}}}}={sigma_target}$ across $\phi$ (mixed slopes)",
+        rf"$\mathrm{{CV}}_{{\mathrm{{tot}}}}$ versus $\rho_{{\mathrm{{env}}}}$ at $\sigma_{{\mathrm{{env}}}}={sigma_target}$ across $\phi$ (mixed slopes)",
         fontsize=12,
     )
     fig.tight_layout(rect=(0, 0, 1, 0.94))
@@ -796,26 +797,33 @@ def main() -> None:
         supp_phi_src.unlink()
 
     # Magnitude-matched aligned-slope control (if available)
+    matched_path: Path | None = None
     if summary_pos_matched is not None:
-        matched_path = REPORTS / "positive_matched_control.png"
+        matched_path = REPORTS / "figS3_positive_matched_control.png"
         make_positive_matched_control(summary_mixed, summary_pos, summary_pos_matched, matched_path)
 
     # Copy key panels to manuscript/figures
-    copy_figures(
-        [
-            panel_path,
-            panel_pdf_path,
-            sync_panel_path,
-            cv_sync_path,
-            phi_overlay_path,
-            supp_cv_path,
-            supp_phi_path,
-            richness_fig_path,
-        ]
-    )
+    figure_paths = [
+        panel_path,
+        panel_pdf_path,
+        sync_panel_path,
+        cv_sync_path,
+        phi_overlay_path,
+        supp_cv_path,
+        supp_phi_path,
+        richness_fig_path,
+    ]
+    if matched_path is not None:
+        figure_paths.append(matched_path)
+    copy_figures(figure_paths)
 
     # Remove stale supplementary filenames after transition to figS* names.
-    for legacy in [FIG_DIR / "run1_cv_total.png", FIG_DIR / "run1_phi_ldm.png"]:
+    for legacy in [
+        FIG_DIR / "run1_cv_total.png",
+        FIG_DIR / "run1_phi_ldm.png",
+        REPORTS / "positive_matched_control.png",
+        FIG_DIR / "positive_matched_control.png",
+    ]:
         if legacy.exists():
             legacy.unlink()
             print(f"Removed legacy figure {legacy}")
