@@ -39,9 +39,24 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `docs/q_and_a_interpretation.md`
 
+### QA-002
+
+- Context: Figure 1 caption check against `manuscript/text/figure_captions_v2.md` and current Figure 1 panel file.
+- Question: Are Figure 1 caption and figure congruent, and can we move to numbered figure filenames?
+- Response:
+  - Mostly congruent for panels A, B, and D.
+  - One mismatch identified in panel C: caption states "points = replicates, lines = scenario means", but the prior plotting code showed only means.
+  - Renaming to numbered figure filenames is straightforward and improves manuscript/pipeline consistency.
+- Decision / Action:
+  - Update Figure 1 generator so panel C overlays replicate points and mean lines.
+  - Rename Figure 1 output target to `fig1_panels.png` (and `.pdf`) in `analysis/run_all.py`.
+  - Keep checking later figures in sequence and apply `figN_` naming pattern as we go.
+- Status: actioned
+- Links: `analysis/run_all.py`, `analysis/reports/fig1_panels.png`, `manuscript/figures/fig1_panels.png`, `manuscript/text/figure_captions_v2.md`
+
 ## Open action queue
 
-- None yet.
+- Continue sequential caption-vs-figure congruence checks for Figures 2-5, applying `figN_` filename prefixes and updating generation paths.
 
 ## Deferred topics
 

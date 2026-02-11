@@ -18,7 +18,7 @@
 - Figures derived from cached simulation outputs (parquet files in `data/sim/grid/`). Entry point can rerun but is slower.
 
 ## What to look at
-- Figures: `analysis/reports/manuscript_panels.pdf` (also copied to `manuscript/figures/`) plus `cv_phi_sensitivity_sigma0.5_extended.png`.
+- Figures: `analysis/reports/fig1_panels.pdf` (also copied to `manuscript/figures/`) plus `cv_phi_sensitivity_sigma0.5_extended.png`.
 - Manuscript draft: `manuscript/text/draft.md` (outline, parameter table, key numbers) and captions in `manuscript/text/figure_captions.md`.
 - Interpretation notes: `docs/interpretation_notes.md` for per-figure takeaways and follow-ups.
 

@@ -273,6 +273,12 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
     sigma_target = 0.5
     ax = axes[1, 0]
     for s, marker in [(4, "o"), (8, "s")]:
+        m_rep = summary_mixed[
+            (summary_mixed["sigma_env"] == sigma_target) & (summary_mixed["n_species"] == s)
+        ]
+        p_rep = summary_pos[
+            (summary_pos["sigma_env"] == sigma_target) & (summary_pos["n_species"] == s)
+        ]
         m_slice = summary_mixed[
             (summary_mixed["sigma_env"] == sigma_target) & (summary_mixed["n_species"] == s)
         ].groupby("rho_eff", as_index=False, observed=True).agg(cv_total=("cv_total", "mean"))
@@ -281,8 +287,37 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
         ].groupby("rho_eff", as_index=False, observed=True).agg(cv_total=("cv_total", "mean"))
         m_slice = sort_by_rho_eff(pd.DataFrame(m_slice))
         p_slice = sort_by_rho_eff(pd.DataFrame(p_slice))
-        ax.plot(m_slice["rho_eff"], m_slice["cv_total"], marker=marker, label=f"mixed S={s}")
-        ax.plot(p_slice["rho_eff"], p_slice["cv_total"], marker=marker, linestyle="--", label=f"positive S={s}")
+        m_line = ax.plot(m_slice["rho_eff"], m_slice["cv_total"], marker=marker, label=f"mixed S={s}")[0]
+        p_line = ax.plot(
+            p_slice["rho_eff"],
+            p_slice["cv_total"],
+            marker=marker,
+            linestyle="--",
+            label=f"positive S={s}",
+        )[0]
+        # Overlay replicate-level points so points=replicates, lines=scenario means.
+        ax.scatter(
+            m_rep["rho_eff"],
+            m_rep["cv_total"],
+            s=10,
+            alpha=0.15,
+            color=m_line.get_color(),
+            marker=marker,
+            edgecolors="none",
+            label="_nolegend_",
+            zorder=1,
+        )
+        ax.scatter(
+            p_rep["rho_eff"],
+            p_rep["cv_total"],
+            s=10,
+            alpha=0.15,
+            color=p_line.get_color(),
+            marker=marker,
+            edgecolors="none",
+            label="_nolegend_",
+            zorder=1,
+        )
     ax.set(
         title=rf"$\mathrm{{CV}}_{{\mathrm{{tot}}}}$ vs $\rho_{{\mathrm{{env}}}}$ ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
         xlabel=r"$\rho_{\mathrm{env}}$",
@@ -681,7 +716,7 @@ def main() -> None:
         ensure_reports(df, REPORTS / key)
 
     # Panels
-    panel_path = REPORTS / "manuscript_panels.png"
+    panel_path = REPORTS / "fig1_panels.png"
     make_panel(summary_mixed, summary_pos, panel_path)
     panel_pdf_path = panel_path.with_suffix(".pdf")
 

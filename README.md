@@ -49,7 +49,7 @@ If you have already read the paper, this README is your practical guide to repro
 - `analysis/reports/`
   - Per‑grid CSV summaries and heatmaps (generated).
   - Combined panels:
-    - `manuscript_panels.png` / `.pdf` – main mixed vs positive contrast.
+    - `fig1_panels.png` / `.pdf` – Figure 1 main mixed vs positive contrast.
     - `imposed_vs_realised_panels.png` – imposed (`ρ_env`) vs realised synchrony.
     - `cv_vs_synchrony_mixed.png` – link between synchrony metrics and `CV_total`.
     - `cv_phi_sensitivity_sigma0.5_extended.png` – φ‑sensitivity overlay.
