@@ -6,7 +6,7 @@ Date: 2026-02-11
 
 | Item | Decision | Resolution |
 | --- | --- | --- |
-| Figure-caption congruence and panel labeling | Accepted | Implemented in numbered figure set and `manuscript/text/figure_captions_v2.md`; A/B/C/D panel references align with current figures. |
+| Figure-caption congruence and panel labeling | Accepted | Implemented in numbered figure set and `paper/manuscript/text/figure_captions_v2.md`; A/B/C/D panel references align with current figures. |
 | Shared colour scale where needed | Accepted | Figure 1 A-B and supplementary heatmaps use shared scales as configured in plotting pipeline. |
 | Avoid unsupported species-variance mechanism claim | Accepted | Manuscript wording kept synchrony-mediated and does not claim species-level variance constancy without evidence panel. |
 | Numerical safeguard disclosure | Accepted | Methods now defines exponent/floor safeguards and reports diagnostic rates plus stress-test caveat. |

@@ -11,10 +11,11 @@ This workflow uses **external-path mode only**.
 What that means:
 
 1. The manuscript stays in its own repository.
-2. `makedoc` reads manuscript/references/CSL files via paths configured in `settings/build.yaml`.
+2. `makedoc` reads `paper/manuscript/`, `paper/references/`, and `paper/csl/` files via paths configured in `paper/settings/build.yaml`.
 3. Builds are run from `makedoc` against that external config.
+4. In external-path mode, use **absolute paths** for all profile file references (`manuscript_sources`, `lint_sources`, `author_metadata`, `bibliography`, `csl`) because relative paths resolve from the build process working directory.
 
-Do **not** implement or rely on copy/sync workflows (for example copying `manuscript/` into `makedoc` before builds).  
+Do **not** implement or rely on copy/sync workflows (for example copying `paper/manuscript/` into `makedoc` before builds).  
 Reason: copy/sync introduces drift risk and weakens reproducibility guarantees.
 
 ## 1. What makedoc expects
@@ -35,35 +36,36 @@ Use this layout unless you have a strong reason not to.
 
 ```text
 <your-repo>/
-  manuscript/
-    text/
-      main.md
-      figures.md
-    figures/
-      fig1.png
-      fig2.png
-      figS1.png
-    authors.yaml
-  references/
-    refs.yaml
-  csl/
-    journal-style.csl
-  settings/
-    build.yaml
+  paper/
+    manuscript/
+      text/
+        main.md
+        figures.md
+      figures/
+        fig1.png
+        fig2.png
+        figS1.png
+      authors.yaml
+    references/
+      refs.yaml
+    csl/
+      journal-style.csl
+    settings/
+      build.yaml
 ```
 
 Notes:
 
-- `main.md` should contain the manuscript body (title, abstract, intro, methods, etc.).
+- `main.md` is a recommended convention for the manuscript body (title, abstract, intro, methods, etc.), not a strict requirement.
 - `figures.md` should contain figure markdown blocks only (recommended), though figure lines can exist in any manuscript source.
 - `authors.yaml` is optional but recommended when you want structured author block generation.
-- `refs.yaml` should contain all citations used in markdown.
+- Use one canonical bibliography YAML file (for example `refs.yaml`) containing all citations used in markdown.
 - `journal-style.csl` is your journal citation style.
-- Paths in the `makedoc` profile should point to these files directly (prefer absolute paths).
+- Paths in the `makedoc` profile should point to these files directly; in external-path mode use absolute paths.
 
 ## 3. Authoritative file contracts
 
-### 3.1 `manuscript/text/main.md`
+### 3.1 `paper/manuscript/text/main.md` (or equivalent primary body file)
 
 Recommended skeleton:
 
@@ -121,16 +123,16 @@ Use Pandoc citekeys only:
 
 Avoid manual citations like `(Smith 2020)`. `makedoc` lint flags these as errors.
 
-### 3.3 `manuscript/text/figures.md`
+### 3.3 `paper/manuscript/text/figures.md`
 
 Use one image per markdown figure line, with attribute block and explicit ID:
 
 ```markdown
-![Caption for main figure.](manuscript/figures/fig1.png){#fig-main-1 width=90%}
+![Caption for main figure.](paper/manuscript/figures/fig1.png){#fig-main-1 width=90%}
 
-![Caption for second figure.](manuscript/figures/fig2.png){#fig-main-2 width=85%}
+![Caption for second figure.](paper/manuscript/figures/fig2.png){#fig-main-2 width=85%}
 
-![Caption for supplementary figure.](manuscript/figures/figS1.png){#fig-main-s1 width=85%}
+![Caption for supplementary figure.](paper/manuscript/figures/figS1.png){#fig-main-s1 width=85%}
 ```
 
 Rules:
@@ -140,7 +142,7 @@ Rules:
 3. Supplementary detection is ID-based: IDs ending in `-s<number>` (for example `#fig-main-s1`) are treated as supplementary.
 4. Alt text (the text inside `![ ... ]`) is used as caption/title text in figure workflows.
 
-### 3.4 `manuscript/authors.yaml`
+### 3.4 `paper/manuscript/authors.yaml`
 
 Example:
 
@@ -169,7 +171,7 @@ Schema notes:
 3. Every `authors[*].affiliations` entry must reference an existing affiliation key.
 4. Output renders names with superscript affiliation numbers (for example `Jane Example*^1,2^`).
 
-### 3.5 `references/refs.yaml`
+### 3.5 `paper/references/refs.yaml` (or another canonical bibliography filename)
 
 Example:
 
@@ -198,16 +200,17 @@ Rules:
 2. Each entry should include at least one citation key field: `citation-key` or `id`.
 3. Best practice: set both `id` and `citation-key` to the same value.
 4. Markdown `@citekeys` must exactly match these keys.
+5. Keep a single canonical bibliography file in the profile (avoid parallel maintained duplicates).
 
-### 3.6 `csl/journal-style.csl`
+### 3.6 `paper/csl/journal-style.csl`
 
 - Place the chosen journal CSL file here.
 - Point profile key `csl` to this path.
 - Optional: maintain `csl_search_dirs` for discovery/sourcing workflows.
 
-## 4. Build profile template (`settings/build.yaml`)
+## 4. Build profile template (`paper/settings/build.yaml`)
 
-Use this as your starting point. If this config is consumed from another repo, prefer absolute paths.
+Use this as your starting point. For external-path mode, use absolute paths.
 
 ```yaml
 default_profile: my_ms
@@ -216,19 +219,19 @@ profiles:
   my_ms:
     description: Active manuscript profile
     manuscript_sources:
-      - /abs/path/to/your-repo/manuscript/text/main.md
-      - /abs/path/to/your-repo/manuscript/text/figures.md
+      - /abs/path/to/your-repo/paper/manuscript/text/main.md
+      - /abs/path/to/your-repo/paper/manuscript/text/figures.md
     # Optional. If omitted, defaults to manuscript_sources.
     lint_sources:
-      - /abs/path/to/your-repo/manuscript/text/main.md
-      - /abs/path/to/your-repo/manuscript/text/figures.md
+      - /abs/path/to/your-repo/paper/manuscript/text/main.md
+      - /abs/path/to/your-repo/paper/manuscript/text/figures.md
 
-    author_metadata: /abs/path/to/your-repo/manuscript/authors.yaml
-    bibliography: /abs/path/to/your-repo/references/refs.yaml
-    csl: /abs/path/to/your-repo/csl/journal-style.csl
+    author_metadata: /abs/path/to/your-repo/paper/manuscript/authors.yaml
+    bibliography: /abs/path/to/your-repo/paper/references/refs.yaml
+    csl: /abs/path/to/your-repo/paper/csl/journal-style.csl
     journal: Journal Name
     csl_search_dirs:
-      - /abs/path/to/your-repo/csl
+      - /abs/path/to/your-repo/paper/csl
       - csl
 
     output_dir: dist
@@ -296,25 +299,26 @@ profiles:
    - reports unused bibliography keys as non-fatal
 
 Practical implication: convert all citations to Pandoc citekeys before expecting `make check` to pass.
+Practical workflow: keep a drafting profile with scoped `lint_sources` for iterative work, plus a strict submission profile with full manuscript linting.
 
 ## 8. Agent setup checklist for a fresh manuscript repo
 
 Use this sequence when onboarding a repository.
 
-1. Create directories: `manuscript/text`, `manuscript/figures`, `references`, `csl`, `settings`.
-2. Create `manuscript/text/main.md` with title, abstract, intro, and `## References` heading.
-3. Create `manuscript/text/figures.md` with figure lines using explicit `#fig-...` IDs.
-4. Create `references/refs.yaml` with valid citekeys.
-5. Place CSL file in `csl/`.
-6. Create `manuscript/authors.yaml` (if author injection is desired).
-7. Create `settings/build.yaml` profile using absolute paths when called from external makedoc repo.
+1. Create directories: `paper/manuscript/text`, `paper/manuscript/figures`, `paper/references`, `paper/csl`, `paper/settings`.
+2. Create `paper/manuscript/text/main.md` with title, abstract, intro, and `## References` heading.
+3. Create `paper/manuscript/text/figures.md` with figure lines using explicit `#fig-...` IDs.
+4. Create one canonical bibliography file under `paper/references/` (for example `refs.yaml`) with valid citekeys.
+5. Place CSL file in `paper/csl/`.
+6. Create `paper/manuscript/authors.yaml` (if author injection is desired).
+7. Create `paper/settings/build.yaml` profile using absolute paths when called from external makedoc repo.
 8. Ensure markdown cites use `@citekey` syntax only.
 9. Run validations/build from makedoc repo:
 
 ```bash
-make validate-config CONFIG=/abs/path/to/your-repo/settings/build.yaml
-make check CONFIG=/abs/path/to/your-repo/settings/build.yaml
-make all CONFIG=/abs/path/to/your-repo/settings/build.yaml
+make validate-config CONFIG=/abs/path/to/your-repo/paper/settings/build.yaml
+make check CONFIG=/abs/path/to/your-repo/paper/settings/build.yaml
+make all CONFIG=/abs/path/to/your-repo/paper/settings/build.yaml
 ```
 
 Policy reminder: do not copy manuscript files into `makedoc`; keep a single source of truth in the manuscript repo and build by reference.
@@ -326,7 +330,7 @@ Policy reminder: do not copy manuscript files into `makedoc`; keep a single sour
 Fix:
 
 1. Search for each unknown `@key` in markdown.
-2. Add matching entry in `refs.yaml` or fix typo.
+2. Add matching entry in the canonical bibliography file or fix typo.
 3. Re-run `make check`.
 
 ### Problem: author block not inserted

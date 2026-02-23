@@ -22,4 +22,4 @@
 
 ---
 
-Figure assets are generated into `analysis/reports/` and copied to `manuscript/figures/` by `analysis/run_all.py`.
+Figure assets are generated into `analysis/reports/` and copied to `paper/manuscript/figures/` by `analysis/run_all.py`.

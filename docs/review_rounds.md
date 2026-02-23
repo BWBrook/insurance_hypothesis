@@ -18,8 +18,8 @@
 - Figures derived from cached simulation outputs (parquet files in `data/sim/grid/`). Entry point can rerun but is slower.
 
 ## What to look at
-- Figures: `analysis/reports/fig1_panels.pdf` (also copied to `manuscript/figures/`) plus `fig5_phi_sensitivity_sigma0.5_extended.png`.
-- Manuscript draft: `manuscript/text/draft_ms_v2.md` (outline, parameter table, key numbers) and captions in `manuscript/text/figure_captions_v2.md`.
+- Figures: `analysis/reports/fig1_panels.pdf` (also copied to `paper/manuscript/figures/`) plus `fig5_phi_sensitivity_sigma0.5_extended.png`.
+- Manuscript draft: `paper/manuscript/text/draft_ms_v2.md` (outline, parameter table, key numbers) and captions in `paper/manuscript/text/figure_captions_v2.md`.
 - Interpretation notes: `docs/interpretation_notes.md` for per-figure takeaways and follow-ups.
 
 ## Suggested PI focus / questions (Round 1)
@@ -47,8 +47,8 @@
 ## Round 4 – Manuscript v2 alignment pass (2026-02-11)
 
 - Updated manuscript artifact references to the active v2 files:
-  - draft: `manuscript/text/draft_ms_v2.md`
-  - captions: `manuscript/text/figure_captions_v2.md`
+  - draft: `paper/manuscript/text/draft_ms_v2.md`
+  - captions: `paper/manuscript/text/figure_captions_v2.md`
 - Integrated key critique clarifications directly into v2 prose:
   - explicit `rho_env` (requested) vs `rho_eff` (effective),
   - explicit positive-matched slope control definition in Methods,

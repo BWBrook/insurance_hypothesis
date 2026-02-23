@@ -9,7 +9,7 @@ Model parameters and baseline values (or ranges) used in the stochastic multispe
 | $\alpha_{\mathrm{inter}}$                 | $0.3$ (set to $0$ in no-competition controls)                                                                                             |
 | $b_i$ (mixed)                             | evenly spaced in $[-0.5, 0.5]$                                                                                                            |
 | $b_i$ (positive)                          | evenly spaced in $[0.1, 1.0]$                                                                                                             |
-| $b_i$ (positive-matched control)          | $                                                                                                                                         | b_i^{\mathrm{mixed}} | $ (all slopes non-negative; evaluated for $S \in \{4, 8\}$) |
+| $b_i$ (positive-matched control)          | $|b_i^{\mathrm{mixed}}|$ (all slopes non-negative; evaluated for $S \in \{4, 8\}$)                                                      |
 | $b_i$ (mixed–narrow)                      | evenly spaced in $[-0.25, 0.25]$                                                                                                          |
 | $\sigma_{\mathrm{env}}$                   | $0$–$1.5$ (specific values given in the scenario grids)                                                                                   |
 | $\rho_{\mathrm{env}}$ (requested)         | $-0.5$ to $1.0$                                                                                                                           |

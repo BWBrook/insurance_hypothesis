@@ -56,9 +56,11 @@ This repo uses a simplified version of the `ai-science-portal` layout:
 - `analysis/`
   - `notebooks/` – exploratory notebooks or scripts.
   - `reports/` – rendered summaries, e.g. HTML / markdown.
-- `manuscript/`
-  - `text/` – eventual paper draft.
-  - `figures/` – figures created by code.
+- `paper/`
+  - `paper/manuscript/text/` – eventual paper draft.
+  - `paper/manuscript/figures/` – figures created by code.
+  - `paper/references/` – bibliography source files.
+  - `paper/csl/` – journal style files.
 - `tests/`
   - language-specific tests and sanity-check scripts.
 
@@ -152,7 +154,7 @@ Expected high-level phases:
    - *Iteration* (revise models/experiments until results are coherent or you can explain why they are not).
 
 6. **Manuscript drafting**
-   - Once you have a coherent, validated story, draft a manuscript in `manuscript/text/` with:
+   - Once you have a coherent, validated story, draft a manuscript in `paper/manuscript/text/` with:
      - clear statement of hypothesis,
      - model description,
      - simulation design,

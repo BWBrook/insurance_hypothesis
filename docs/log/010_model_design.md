@@ -22,8 +22,8 @@
 - Built combined panel figure `analysis/reports/panel_insurance_mixed_vs_positive.png`.
 - Added φ=0.9 sensitivity run (reduced grid) and extended overlay figure `cv_phi_sensitivity_sigma0.5_extended.png`; reports at `data/sim/grid/phi09_reduced/` and `analysis/reports/phi09_reduced_*`.
 - Added φ=0.95 sensitivity run; patterns stable though CV inflated at high φ; reports under `phi095_reduced/`.
-- Drafted manuscript scaffolding and figure captions (`manuscript/text/draft.md`, `draft_outline.md`, `figure_captions.md`); compiled main panels PDF `analysis/reports/manuscript_panels.pdf`.
-- Added entrypoint `analysis/run_all.py` to regenerate figures (and optionally rerun grids) and copy outputs to `manuscript/figures/`; updated README for reproduction commands.
+- Drafted manuscript scaffolding and figure captions (`paper/manuscript/text/draft_ms_v2.md`, `paper/archive/draft_outline.md`, `paper/archive/figure_captions_v1.md`); compiled main panels PDF `analysis/reports/manuscript_panels.pdf`.
+- Added entrypoint `analysis/run_all.py` to regenerate figures (and optionally rerun grids) and copy outputs to `paper/manuscript/figures/`; updated README for reproduction commands.
 - Enforced φ_LdM bounds in code and test suite; all tests passing via `uv run pytest`.
 
 ## Next steps

@@ -34,7 +34,7 @@ If you have already read the paper, this README is your practical guide to repro
     - optionally reruns a subset of grids (`--rerun-data`),
     - reads cached simulation outputs under `data/sim/grid/`,
     - regenerates summary CSVs and all manuscript‑level figures into `analysis/reports/`,
-    - copies key panels into `manuscript/figures/`.
+    - copies key panels into `paper/manuscript/figures/`.
 
 - `data/sim/`
   - `preview/` – minimal preview run.
@@ -57,10 +57,14 @@ If you have already read the paper, this README is your practical guide to repro
     - `figS2_run1_phi_ldm.png` – Supplementary Figure S2 mixed-grid `φ_LdM` heatmaps.
     - `figS3_positive_matched_control.png` – Supplementary Figure S3 positive-matched control panel.
 
-- `manuscript/`
-  - `text/draft_ms_v2.md` – full manuscript draft (Intro, Methods, Results, Discussion).
-  - `text/figure_captions_v2.md` – captions aligned with figure filenames.
-  - `figures/` – figures copied from `analysis/reports/` by `run_all.py`.
+- `paper/`
+  - `paper/manuscript/text/draft_ms_v2.md` – full manuscript draft (Intro, Methods, Results, Discussion).
+  - `paper/manuscript/text/figure_captions_v2.md` – captions aligned with figure filenames.
+  - `paper/manuscript/text/figures.md` – makedoc figure blocks with stable `#fig-...` IDs.
+  - `paper/manuscript/figures/` – figures copied from `analysis/reports/` by `run_all.py`.
+  - `paper/references/ih_references.yaml` – canonical bibliography source (Zotero export and makedoc input).
+  - `paper/csl/oikos.csl` – target journal CSL style.
+  - `paper/settings/build.yaml` – makedoc external-path profiles (`ih_draft` scoped lint, `ih_submission` strict lint), using absolute paths.
 
 - `docs/`
   - `plan.md` – high‑level hypothesis, model description, experimental grid.
@@ -130,7 +134,7 @@ What this does:
   - `data/sim/grid/phi095_reduced/summaries.parquet`;
 - regenerates per‑grid summary CSVs and heatmaps into `analysis/reports/`;
 - builds the combined panels (main manuscript figure, synchrony panels, φ‑sensitivity, CV vs synchrony scatter);
-- copies key panels into `manuscript/figures/`.
+- copies key panels into `paper/manuscript/figures/`.
 
 Typical runtime on a laptop or server is **well under a minute**, since no simulations are run.
 
@@ -355,7 +359,7 @@ uv run python analysis/plot_grid.py \
 Key figures used in the manuscript will appear in:
 
 - `analysis/reports/` – intermediate PNGs and CSVs,
-- `manuscript/figures/` – final panels referenced by `manuscript/text/figure_captions_v2.md`.
+- `paper/manuscript/figures/` – final panels referenced by `paper/manuscript/text/figure_captions_v2.md`.
 
 Approximate runtimes on a modern laptop:
 
@@ -372,17 +376,17 @@ Exact times will depend on hardware, but Monte Carlo uncertainty is small relati
 
 If you are reading this after the paper:
 
-- **Model and experimental design** are described in detail in `manuscript/text/draft_ms_v2.md` (Methods), with notation matched to the code:
-  - imposed environmental correlation `ρ_env`,
-  - innovation SD `σ_env` and effective stationary SD `σ_eff` for φ analyses,
-  - realised synchrony `φ_LdM` and growth‑rate correlations.
 - **Main results**:
   - Mixed slopes vs aligned positive slopes (main grid vs `pos_full`).
   - Richness effects in CV_total and synchrony.
   - Imposed vs realised synchrony and their divergence.
   - φ‑sensitivity and effective environmental variance.
   - No‑competition and slope‑magnitude controls.
-- **Figures**: see `manuscript/text/figure_captions_v2.md` for a mapping from figure labels to files in `manuscript/figures/`.
+- **Model and experimental design** are described in detail in `paper/manuscript/text/draft_ms_v2.md` (Methods), with notation matched to the code:
+  - imposed environmental correlation `ρ_env`,
+  - innovation SD `σ_env` and effective stationary SD `σ_eff` for φ analyses,
+  - realised synchrony `φ_LdM` and growth‑rate correlations.
+- **Figures**: see `paper/manuscript/text/figure_captions_v2.md` for a mapping from figure labels to files in `paper/manuscript/figures/`.
 
 For deeper scientific context and interpretation, consult:
 
@@ -402,7 +406,7 @@ For deeper scientific context and interpretation, consult:
 
 2. **Fast path (cached data)**
    - `uv run python analysis/run_all.py`
-   - Inspect figures in `analysis/reports/` and `manuscript/figures/`.
+   - Inspect figures in `analysis/reports/` and `paper/manuscript/figures/`.
 
 3. **Full recomputation (optional)**
    - Run the grid commands in Section 4 (at minimum `run1` and `pos_full`, plus φ‑sensitivity if you want Fig. φ panels).

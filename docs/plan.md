@@ -71,7 +71,9 @@
   2) Numbered manuscript figure suite (`fig1_*` to `fig5_*`, `figS1_*` to `figS3_*`) and cached-data orchestration (`analysis/run_all.py`) with reproducible regeneration.
   3) Pylance/type-hint cleanup, `rho_eff` handling in summaries/plots, and test suite expansion (`uv run pytest` currently 8 tests).
   4) Post-hiatus audit identifying that high-φ stress grids have non-negligible floor occupancy in a subset of scenarios, with documentation corrected accordingly.
-  5) Manuscript v2 (`manuscript/text/draft_ms_v2.md`) and captions (`manuscript/text/figure_captions_v2.md`) aligned to implemented model conventions (`rho_env` requested vs `rho_eff` effective; `sigma_env` innovation SD; `sigma_eff` stationary SD in φ analyses).
+  5) Manuscript v2 (`paper/manuscript/text/draft_ms_v2.md`) and captions (`paper/manuscript/text/figure_captions_v2.md`) aligned to implemented model conventions (`rho_env` requested vs `rho_eff` effective; `sigma_env` innovation SD; `sigma_eff` stationary SD in φ analyses).
+  6) `paper/` hierarchy harmonised for makedoc handoff (`paper/settings/build.yaml`, `paper/manuscript/text/figures.md`, `paper/references/ih_references.yaml`) with path mapping rewritten away from legacy `manuscript/` references.
+  7) makedoc profile finalised to absolute-path external mode with dual profiles (`ih_draft` scoped lint; `ih_submission` strict lint) and single canonical bibliography (`paper/references/ih_references.yaml`).
 - **Next steps if more work is requested**:
   1) Keep manuscript text aligned with the corrected extinction/floor-occupancy interpretation as external edits continue.
   2) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.

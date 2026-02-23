@@ -272,7 +272,7 @@ The implication is straightforward: richness alone is insufficient. Stabilisatio
 
 ---
 
-Tables and their captions are given in `paper/manuscript/text/tables.md1
+Tables and their captions are given in `paper/manuscript/text/tables.md`
 Figure captions are given in `paper/manuscript/text/figure_captions_v2.md`
 
 ---

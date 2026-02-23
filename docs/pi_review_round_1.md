@@ -203,7 +203,7 @@
     * **What & why:** Turn the outline‑style draft into continuous text, integrating the clarifications above, adding a parameter table, and ensuring that all claims about “stabilisation” and “insurance” are aligned with the simulations.
     * **Success criteria:**
 
-      * `manuscript/text/draft.md` contains full paragraphs for Intro, Methods, Results, and Discussion, not just bullet lists.
+      * `paper/manuscript/text/draft_ms_v2.md` contains full paragraphs for Intro, Methods, Results, and Discussion, not just bullet lists.
       * Title and abstract (once drafted) no longer claim absolute stabilisation by increasing σ_env, but instead emphasise buffering/insurance relative to synchronous or single‑species baselines.
       * Limitations and caveats are explicitly acknowledged (equicorrelation, trait simplicity, φ–σ_env choice, etc.).
 

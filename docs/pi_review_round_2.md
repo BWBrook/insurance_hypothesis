@@ -143,7 +143,7 @@ At this point, I see **no need for further simulation or major methodological ch
    * **What & why:** Ensure that σ_env, σ_eff, ρ_env, φ_LdM, and “realised correlation” are used consistently and always defined once. This avoids reader confusion.
    * **Success criteria:**
 
-     * A quick global pass through `manuscript/text/draft.md` and `manuscript/text/figure_captions.md` to standardise notation (e.g. always ρ_env, never bare ρ).
+     * A quick global pass through `paper/manuscript/text/draft_ms_v2.md` and `paper/manuscript/text/figure_captions_v2.md` to standardise notation (e.g. always ρ_env, never bare ρ).
      * Matching terminology in README and docs (e.g. “imposed environmental correlation” vs “realised synchrony”).
 
 3. **Clarify the main conceptual contributions in the Discussion**
@@ -166,7 +166,7 @@ At this point, I see **no need for further simulation or major methodological ch
    * **What & why:** The scientific content is in place, but the manuscript needs actual references to classical insurance/portfolio and synchrony work. Codex can insert author–year placeholders; the human can finalise details.
    * **Success criteria:**
 
-     * All “[REF]” markers in `manuscript/text/draft.md` replaced by explicit author–year placeholders (e.g. “Yachi & Loreau 1999”, “Loreau & de Mazancourt 2008”).
+     * All “[REF]” markers in `paper/manuscript/text/draft_ms_v2.md` replaced by explicit author–year placeholders (e.g. “Yachi & Loreau 1999”, “Loreau & de Mazancourt 2008”).
      * Reference list scaffold added (even if not fully formatted) so the human can later polish.
 
 ---

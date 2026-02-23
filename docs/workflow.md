@@ -49,7 +49,7 @@ The agent must encode these expectations as tests where possible, not just prose
 For each candidate main result (e.g. figure or table), the agent must:
 
 1. Save the artefact under:
-   - `manuscript/figures/` (for figures), or
+   - `paper/manuscript/figures/` (for figures), or
    - `analysis/reports/` (for exploratory output).
 2. Add a section to `docs/interpretation_notes.md` with:
    - a short identifier (e.g. `FIG1_variance_vs_variability`),

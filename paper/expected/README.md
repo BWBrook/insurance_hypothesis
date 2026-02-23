@@ -29,7 +29,7 @@ This folder documents behavioral expectations for the synthetic manuscript fixtu
   - `expect_drawings`
   - `min_pdf_pages`
   - `required_text`
-- Per-profile override path can be set via `golden_contract` in `settings/build.yaml` (active profile) or `settings/fixture.yaml` (fixture profile).
+- Per-profile override path can be set via `golden_contract` in `paper/settings/build.yaml` (active profile) or `paper/settings/fixture.yaml` (fixture profile).
 
 ## Notes
 - This fixture is synthetic by design; textual content is not semantically important.

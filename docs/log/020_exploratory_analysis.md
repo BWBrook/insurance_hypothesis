@@ -3,7 +3,7 @@
 - Date/time (UTC): 2025-12-09
 - Objectives: Package results for review; ensure figures and manuscript draft reflect completed simulations; add robustness checks (φ sweeps, no-competition control, slope-magnitude sensitivity); create entrypoint.
 - Actions taken:
-  - Added entrypoint `analysis/run_all.py` to regenerate figures from cached outputs (optionally rerun simulations) and copy panels to `manuscript/figures/`.
+  - Added entrypoint `analysis/run_all.py` to regenerate figures from cached outputs (optionally rerun simulations) and copy panels to `paper/manuscript/figures/`.
   - Ran φ=0.95 sensitivity grid and generated plots; updated extended φ overlay and documented effective σ_env vs φ.
   - Ran reduced no-competition grids (`no_comp_mixed`, `no_comp_positive`) and mixed-slope magnitude sensitivity grid (`mixed_narrow`); summarised CV_total and φ_LdM patterns.
   - Compiled manuscript panels PDF and additional synchrony/CV figures; drafted manuscript text, outline, and figure captions.
@@ -18,7 +18,7 @@
 - Added LaTeX/mathtext labels to the main manuscript panels (Fig. 1) and harmonised color scales across mixed vs positive heatmaps; inserted A–D panel tags in `analysis/run_all.py`.
 - Implemented an explicit richness‑scaling plot generator in `analysis/run_all.py` using LaTeX labels (CV_tot, ρ_env, σ_env).
 - Ran an additional mixed‑slope richness sweep on the full σ_env–ρ_env grid with S ∈ {2,3,4,5,6,7,8} (150 reps), stored as `data/sim/grid/run1_richness/summaries.parquet`.
-- Regenerated `cv_richness_scaling_mixed.png` and copied it into `manuscript/figures/` via `analysis/run_all.py`.
+- Regenerated `cv_richness_scaling_mixed.png` and copied it into `paper/manuscript/figures/` via `analysis/run_all.py`.
 
 ## 2026-02-11 – Post-hiatus audit and consistency fixes
 
@@ -31,5 +31,5 @@
 - Corrective actions:
   - Updated `docs/interpretation_notes.md`, `docs/review_rounds.md`, and `docs/plan.md` to separate main-grid inference from high-φ stress-test behaviour.
   - Added new decision entries in `docs/decisions.md` for `rho_eff` logging, fixed φ-sensitivity run lengths, positive-matched control rationale, and high-φ interpretation boundaries.
-  - Updated stale extinction wording in `manuscript/text/draft.md` for internal consistency.
+  - Updated stale extinction wording in `paper/manuscript/text/draft_ms_v2.md` for internal consistency.
 - Outcome: repo documentation now reflects actual cached outputs without overstating extinction robustness in extreme φ regimes.

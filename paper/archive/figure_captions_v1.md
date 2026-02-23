@@ -22,4 +22,4 @@
 5. **Figure 5 – Environmental persistence sensitivity** (`cv_phi_sensitivity_sigma0.5_extended.png`)
    - CV vs ρ_env at σ_env=0.5 for φ = 0, 0.4, 0.7, 0.9, 0.95 (S=2,4). Higher φ increases CV_total (partly via higher stationary environmental variance), but the qualitative insurance pattern (mixed vs positive contrast, richness effect) remains.
 
-(Assets live under `analysis/reports/` and are mirrored to `manuscript/figures/` by `analysis/run_all.py`.) 
+(Assets live under `analysis/reports/` and are mirrored to `paper/manuscript/figures/` by `analysis/run_all.py`.) 

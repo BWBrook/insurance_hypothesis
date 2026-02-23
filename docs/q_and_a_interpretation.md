@@ -10,6 +10,8 @@ It captures:
 
 The goal is to keep a transparent record of human-in-the-loop sanity checks as we review results and presentation.
 
+Path note: after the manuscript reorganisation, canonical manuscript paths are under `paper/manuscript/` and links in this log follow that structure.
+
 ## How to use this file
 
 For each question, we add one entry with:
@@ -41,7 +43,7 @@ For each question, we add one entry with:
 
 ### QA-002
 
-- Context: Figure 1 caption check against `manuscript/text/figure_captions_v2.md` and current Figure 1 panel file.
+- Context: Figure 1 caption check against `paper/manuscript/text/figure_captions_v2.md` and current Figure 1 panel file.
 - Question: Are Figure 1 caption and figure congruent, and can we move to numbered figure filenames?
 - Response:
   - Mostly congruent for panels A, B, and D.
@@ -52,11 +54,11 @@ For each question, we add one entry with:
   - Rename Figure 1 output target to `fig1_panels.png` (and `.pdf`) in `analysis/run_all.py`.
   - Keep checking later figures in sequence and apply `figN_` naming pattern as we go.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig1_panels.png`, `manuscript/figures/fig1_panels.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/fig1_panels.png`, `paper/manuscript/figures/fig1_panels.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ### QA-003
 
-- Context: Figure 2 caption check against `manuscript/text/figure_captions_v2.md` and `manuscript/figures/cv_richness_scaling_mixed.png`.
+- Context: Figure 2 caption check against `paper/manuscript/text/figure_captions_v2.md` and `paper/manuscript/figures/cv_richness_scaling_mixed.png`.
 - Question: Is the Figure 2 caption fully congruent with the richness-scaling figure, and can we rename to a numbered figure filename?
 - Response:
   - Core pattern is congruent: for `sigma_env > 0`, `CV_tot` drops from `S=2` to `S=4` and continues declining toward `S=8`.
@@ -66,7 +68,7 @@ For each question, we add one entry with:
   - Rename generated Figure 2 output to `fig2_richness_scaling_mixed.png`.
   - Keep current plotting logic unchanged for now (shared non-negative `rho_env` subset), and flag caption wording for refinement.
 - Status: answered
-- Links: `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `manuscript/figures/fig2_richness_scaling_mixed.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `paper/manuscript/figures/fig2_richness_scaling_mixed.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ### QA-004
 
@@ -77,7 +79,7 @@ For each question, we add one entry with:
   - Simplified Figure 2 legend entries from `sigma_env = value` to `value` while keeping legend title as `sigma_env`.
   - Regenerate and re-check Figure 2 for readability.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `manuscript/figures/fig2_richness_scaling_mixed.png`
+- Links: `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `paper/manuscript/figures/fig2_richness_scaling_mixed.png`
 
 ### QA-005
 
@@ -88,10 +90,10 @@ For each question, we add one entry with:
     - `sigma_env=0` is a flat near-zero baseline, not a declining richness trend.
     - The current figure averages over the shared non-negative `rho_env` subset (`rho_env >= 0`) for cross-richness comparability.
 - Decision / Action:
-  - Updated Figure 2 caption text in `manuscript/text/figure_captions_v2.md` to state both details explicitly.
+  - Updated Figure 2 caption text in `paper/manuscript/text/figure_captions_v2.md` to state both details explicitly.
   - Continued numbered-figure transition by keeping legacy `manuscript_panels.*` assets deleted.
 - Status: actioned
-- Links: `manuscript/text/figure_captions_v2.md`, `analysis/reports/fig2_richness_scaling_mixed.png`, `manuscript/figures/fig2_richness_scaling_mixed.png`
+- Links: `paper/manuscript/text/figure_captions_v2.md`, `analysis/reports/fig2_richness_scaling_mixed.png`, `paper/manuscript/figures/fig2_richness_scaling_mixed.png`
 
 ### QA-006
 
@@ -99,10 +101,10 @@ For each question, we add one entry with:
 - Question: Should legacy `cv_richness_scaling_mixed.png` be removed now that Figure 2 uses numbered filenames?
 - Response: Yes. Keeping only current numbered assets reduces ambiguity and prevents accidental citation of stale files.
 - Decision / Action:
-  - Deleted `manuscript/figures/cv_richness_scaling_mixed.png`.
+  - Deleted `paper/manuscript/figures/cv_richness_scaling_mixed.png`.
   - Deleted `analysis/reports/cv_richness_scaling_mixed.png` for consistency.
 - Status: actioned
-- Links: `manuscript/figures/fig2_richness_scaling_mixed.png`, `analysis/reports/fig2_richness_scaling_mixed.png`
+- Links: `paper/manuscript/figures/fig2_richness_scaling_mixed.png`, `analysis/reports/fig2_richness_scaling_mixed.png`
 
 ### QA-007
 
@@ -115,9 +117,9 @@ For each question, we add one entry with:
 - Decision / Action:
   - Renamed Figure 3 output to `fig3_imposed_vs_realised_panels.png`.
   - Updated panel C plotting to use richness-averaged regime means (one curve per slope mode) to match caption framing.
-  - Updated Figure 3 caption text in `manuscript/text/figure_captions_v2.md` to reflect the corrected positive-regime pattern.
+  - Updated Figure 3 caption text in `paper/manuscript/text/figure_captions_v2.md` to reflect the corrected positive-regime pattern.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `manuscript/figures/fig3_imposed_vs_realised_panels.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `paper/manuscript/figures/fig3_imposed_vs_realised_panels.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ### QA-008
 
@@ -130,7 +132,7 @@ For each question, we add one entry with:
   - No caption wording change required at this step.
   - Rename Figure 4 output to `fig4_cv_vs_synchrony_mixed.png` and update references.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig4_cv_vs_synchrony_mixed.png`, `manuscript/figures/fig4_cv_vs_synchrony_mixed.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/fig4_cv_vs_synchrony_mixed.png`, `paper/manuscript/figures/fig4_cv_vs_synchrony_mixed.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ### QA-009
 
@@ -143,7 +145,7 @@ For each question, we add one entry with:
   - Updated Figure 5 plotting to overlay faint replicate points plus mean lines.
   - Renamed Figure 5 output to `fig5_phi_sensitivity_sigma0.5_extended.png` and updated references.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `paper/manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ### QA-010
 
@@ -157,7 +159,7 @@ For each question, we add one entry with:
   - Simplified legend entries to compact numeric format (`phi (~sigma_eff)`) with a single legend title.
   - Kept only one legend (left panel) to avoid duplication.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`
+- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `paper/manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`
 
 ### QA-011
 
@@ -168,7 +170,7 @@ For each question, we add one entry with:
   - Updated Figure 5 super-title to use Greek notation and include fixed `sigma_env=0.5` context.
   - Simplified panel titles to `S=2` and `S=4`.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`
+- Links: `analysis/run_all.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `paper/manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`
 
 ### QA-012
 
@@ -184,9 +186,9 @@ For each question, we add one entry with:
     - `cv_total` -> `CV Total`
     - `phi_ldm` -> `φ_LdM`
   - Simplified each figure to a single shared colourbar.
-  - Added Figure S1 and Figure S2 captions to `manuscript/text/figure_captions_v2.md`.
+  - Added Figure S1 and Figure S2 captions to `paper/manuscript/text/figure_captions_v2.md`.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/figS1_run1_cv_total.png`, `analysis/reports/figS2_run1_phi_ldm.png`, `manuscript/figures/figS1_run1_cv_total.png`, `manuscript/figures/figS2_run1_phi_ldm.png`, `manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `analysis/reports/figS1_run1_cv_total.png`, `analysis/reports/figS2_run1_phi_ldm.png`, `paper/manuscript/figures/figS1_run1_cv_total.png`, `paper/manuscript/figures/figS2_run1_phi_ldm.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ## Open action queue
 

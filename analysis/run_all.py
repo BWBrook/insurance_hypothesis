@@ -3,7 +3,7 @@
 Default behaviour (no flags):
 - Uses existing simulation outputs under data/sim/grid/ (run1, pos_full, phi0/07/09/095_reduced).
 - Regenerates summary tables and figures into analysis/reports/.
-- Copies key panels into manuscript/figures/.
+- Copies key panels into paper/manuscript/figures/.
 
 Optional: rerun simulations with `--rerun-data`, which will rerun a smaller set
 of grids with the same configurations used in the paper. This is slower
@@ -117,7 +117,7 @@ DATA_RUNS = {
 }
 
 REPORTS = Path("analysis/reports")
-FIG_DIR = Path("manuscript/figures")
+FIG_DIR = Path("paper/manuscript/figures")
 
 
 def run_command(cmd: list[str]) -> None:
@@ -1014,7 +1014,7 @@ def main() -> None:
         matched_path = REPORTS / "figS3_positive_matched_control.png"
         make_positive_matched_control(summary_mixed, summary_pos, summary_pos_matched, matched_path)
 
-    # Copy key panels to manuscript/figures
+    # Copy key panels to paper/manuscript/figures
     figure_paths = [
         panel_path,
         panel_pdf_path,
@@ -1041,7 +1041,7 @@ def main() -> None:
             legacy.unlink()
             print(f"Removed legacy figure {legacy}")
 
-    print("Run complete. Figures in analysis/reports and manuscript/figures.")
+    print("Run complete. Figures in analysis/reports and paper/manuscript/figures.")
 
 
 if __name__ == "__main__":
