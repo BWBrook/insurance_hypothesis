@@ -1,4 +1,4 @@
-# Title (placeholder)
+# Title
 
 Biodiversity buffers environmental variability only when species responses diverge
 
@@ -50,10 +50,11 @@ Environmental variation enters as a linear response term $b_i z_i(t)$ in the per
 \[
 N_i(t+1) = N_i(t)\exp\left[r_0 + b_i z_i(t) - \frac{\alpha_{\mathrm{intra}} N_i(t) + \alpha_{\mathrm{inter}}\sum_{j \neq i} N_j(t)}{K_i}\right].
 \]
-Species differ only in their response slopes $b_i$, which encode both the direction and magnitude of their response to the environmental anomaly $z_i(t)$. Three slope regimes are considered:
+Species differ only in their response slopes $b_i$, which encode both the direction and magnitude of their response to the environmental anomaly $z_i(t)$. Four slope regimes are considered:
 
 * Mixed slopes: $b_i$ evenly spaced in $[-0.5, 0.5]$, giving both positive and negative responses.
 * Positive slopes: $b_i$ evenly spaced in $[0.1, 1.0]$, giving aligned positive responses.
+* Positive-matched (sign-structure control): aligned positive slopes with magnitudes matched to mixed slopes, $b_i = |b_i^{\mathrm{mixed}}|$.
 * Mixed–narrow (sensitivity analysis): $b_i$ evenly spaced in $[-0.25, 0.25]$.
 
 Abundances are floored at a small positive constant $N_{\min} = 10^{-9}$ to avoid numerical issues from extinction-driven zeros, and the exponent in the growth term is capped at $\pm 50$ to prevent overflow in $\exp(\cdot)$. Initial abundances are set to $K_i/2$ for all species.
@@ -69,7 +70,11 @@ where $\mathbf{z}_t$ is an $S$-dimensional vector of environmental anomalies at 
 \[
 \Sigma = \sigma_{\mathrm{env}}^2\,C(\rho_{\mathrm{env}})
 \]
-where $\sigma_{\mathrm{env}}$ is the innovation standard deviation, $\rho_{\mathrm{env}}$ is the imposed environmental correlation between species’ drivers, and $C(\rho_{\mathrm{env}})$ is the equicorrelation matrix with ones on the diagonal and $\rho_{\mathrm{env}}$ off-diagonal. For numerical stability, $\rho_{\mathrm{env}}$ is clipped slightly away from its theoretical bounds for positive definiteness, $-1/(S-1) < \rho_{\mathrm{env}} < 1$.
+where $\sigma_{\mathrm{env}}$ is the innovation standard deviation, $\rho_{\mathrm{env}}$ is the imposed environmental correlation between species’ drivers, and $C(\rho_{\mathrm{env}})$ is the equicorrelation matrix with ones on the diagonal and $\rho_{\mathrm{env}}$ off-diagonal. For equicorrelated innovations, positive definiteness requires $\rho > -1/(S-1)$ and the matrix is singular at $\rho=1$. The implementation therefore treats $\rho_{\mathrm{env}}$ as a requested value and uses an effective value
+\[
+\rho_{\mathrm{eff}} = \min\!\Bigl(\max\!\bigl(\rho_{\mathrm{env}}, -\tfrac{1}{S-1} + \epsilon\bigr), 1 - \epsilon\Bigr),
+\]
+with small $\epsilon$. Simulations are generated using $\rho_{\mathrm{eff}}$, while both requested and effective values are retained in outputs.
 
 Under this convention, the stationary variance of each environmental component (for $|\phi| < 1$) is
 \[
@@ -77,9 +82,7 @@ Under this convention, the stationary variance of each environmental component (
 \]
 so increasing $\phi$ at fixed $\sigma_{\mathrm{env}}$ simultaneously increases environmental persistence and the effective stationary variance. When $\sigma_{\mathrm{env}} = 0$, the process is constant and the community dynamics reduce to the deterministic Ricker model.
 
-For a given scenario, all species share the same $\phi$ and $\rho_{\mathrm{env}}$ but receive correlated environmental trajectories via the multivariate process. One environmental time series is generated per replicate and scenario.
-
-Right, the nested bullets are doing your head in because they’re doing the reader’s head in. Let’s flatten it.
+For a given scenario, all species share the same $\phi$ and requested $\rho_{\mathrm{env}}$ but receive correlated environmental trajectories via the multivariate process (after clipping to $\rho_{\mathrm{eff}}$ where required). One environmental time series is generated per replicate and scenario.
 
 ### Simulation design
 
@@ -91,13 +94,15 @@ The primary mixed-slope grid crosses $\sigma_{\mathrm{env}} \in \{0, 0.2, 0.5, 1
 
 The positive-slope grid (aligned responses) uses the same $(\sigma_{\mathrm{env}}, \rho_{\mathrm{env}})$ combinations, with $S \in \{4, 8\}$ (plus a small pilot subset for $S = 2$), $\phi = 0.4$, $n_{\mathrm{steps}} = 600$, and $n_{\mathrm{burn}} = 300$. For this grid, 100 replicates are simulated per scenario.
 
-To examine sensitivity to temporal autocorrelation, a $\phi$-sensitivity grid is run for mixed slopes on a reduced set of parameters: $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4\}$, and $\phi \in \{0, 0.4, 0.7, 0.9, 0.95\}$. These runs use $n_{\mathrm{steps}} = 400$ with $n_{\mathrm{burn}} = 200$, and 80 replicates per scenario.
+To isolate response sign structure from slope-magnitude differences, an additional positive-matched control grid is run with aligned positive slopes whose magnitudes match the mixed regime ($b_i = |b_i^{\mathrm{mixed}}|$). This grid uses the same $(\sigma_{\mathrm{env}}, \rho_{\mathrm{env}})$ combinations as the positive-slope grid, with $S \in \{4, 8\}$, $\phi = 0.4$, $n_{\mathrm{steps}} = 600$, $n_{\mathrm{burn}} = 300$, and 100 replicates per scenario.
+
+To examine sensitivity to temporal autocorrelation, a $\phi$-sensitivity grid is run for mixed slopes on a reduced set of parameters: $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4\}$, and $\phi \in \{0, 0.7, 0.9, 0.95\}$. These runs use $n_{\mathrm{steps}} = 400$ with $n_{\mathrm{burn}} = 200$, and 80 replicates per scenario; the $\phi=0.4$ baseline is represented by the main mixed-slope grid.
 
 No-competition controls set $\alpha_{\mathrm{inter}} = 0$ (with $\alpha_{\mathrm{intra}} = 1$) for both mixed and positive slopes. These controls use reduced grids with $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4, 8\}$, and $\phi = 0.4$, with 80 replicates per scenario.
 
 Finally, a slope-magnitude sensitivity analysis uses the mixed–narrow regime (slopes $b_i$ evenly spaced in $[-0.25, 0.25]$). This grid matches the reduced $(\sigma_{\mathrm{env}}, \rho_{\mathrm{env}}, S)$ combinations of the $\phi$-sensitivity grid at $\phi = 0.4$, again with 80 replicates per scenario.
 
-For each run, a fixed base seed is used to generate independent random seeds for replicates, so that replicates within a scenario experience independent environmental realisations. Scenario-level summaries are stored in parquet format and subsequently aggregated into CSV files and figures by the analysis scripts.
+For each run, a fixed base seed is used to generate independent random seeds for replicates, so that replicates within a scenario experience independent environmental realisations. Because the same base-seed scheme is used across scenario families, replicate indices are paired across comparable scenarios (e.g. mixed versus positive), reducing Monte Carlo comparison noise without changing within-scenario independence. Scenario-level summaries are stored in parquet format and subsequently aggregated into CSV files and figures by the analysis scripts.
 
 ### Metrics and insurance measures
 
@@ -110,7 +115,7 @@ N_{\mathrm{tot}}(t) = \sum_{i=1}^S N_i(t).
 \[
 \mathrm{CV}_{\mathrm{tot}} = \frac{\sqrt{\operatorname{Var}(N_{\mathrm{tot}})}}{\mathbb{E}[N_{\mathrm{tot}}]},
 \]
-where expectations and variances are taken over the $T'$ retained time points.
+where empirical sample means and sample variances (with $\mathrm{ddof}=1$) are computed over the $T'$ retained time points.
 
 **Approximate mean species CV.** For each species, the temporal mean and variance are
 \[
@@ -122,6 +127,7 @@ An approximate mean species-level CV is then defined as
 \frac{\sqrt{\frac{1}{S}\sum_{i=1}^S v_i}}{\frac{1}{S}\sum_{i=1}^S m_i},
 \]
 treating the mean of species variances and the mean of species means as proxies for a “typical” species.
+A supplementary diagnostic of this metric versus imposed correlation is shown in Fig. S4.
 
 **Synchrony indices.** Abundance-based community synchrony is quantified using the Loreau–de Mazancourt index,
 \[
@@ -134,6 +140,7 @@ To capture realised synchrony in growth responses, per-capita growth rates are c
 g_i(t) = \log\bigl(N_i(t+1) + N_{\min}\bigr) - \log\bigl(N_i(t) + N_{\min}\bigr),
 \]
 the correlation matrix of ${g_i(t)}$ across time is formed, and the mean of its off-diagonal elements is taken. This yields the **mean pairwise growth-rate correlation**, which can be negative when species exhibit compensatory dynamics.
+When $\sigma_{\mathrm{env}} = 0$, growth-rate variance is zero and this correlation is undefined; such scenarios are excluded from correlation-based synchrony panels.
 
 **Extinction frequency.** The extinction frequency for species $i$ is defined as
 \[
@@ -157,6 +164,7 @@ Across all scenario grids, Monte Carlo uncertainty in $\mathrm{CV}_{\mathrm{tot}
 A suite of automated numerical and ecological checks is used to verify the simulations. For each richness $S$, the equicorrelation matrix with clamped $\rho_{\mathrm{env}}$ is confirmed to be positive definite and to admit a successful Cholesky decomposition. For long AR(1) runs, empirical stationary variances are compared with the analytic expression $\sigma_{\mathrm{env}}^2/(1 - \phi^2)$ and agree within tolerance. When $\sigma_{\mathrm{env}} = 0$, simulated abundances converge to the analytical symmetric equilibrium $N_i^\ast$. Under stochastic forcing, abundances remain above the numerical floor, ensuring non-negativity throughout.
 
 Synchrony metrics are checked using toy examples with perfectly synchronous and perfectly asynchronous trajectories: the Loreau–de Mazancourt index $\phi_{\mathrm{LdM}}$ and mean pairwise growth-rate correlations approach their expected extreme values, and $\phi_{\mathrm{LdM}}$ always lies in $[0,1]$ after clipping. Bookkeeping checks ensure that replicate simulation wrappers return arrays and data frames of the expected shapes and summary statistics.
+Numerical-guard diagnostics showed exponent clipping was rare (high-side clipping rates effectively zero and low-side clipping rates generally below $0.01$), while floor occupancy remained low in most scenarios but increased in high-persistence/high-variance stress-test corners (summary in `analysis/reports/numerical_guard_rates_summary.md`).
 
 Extinction frequencies are monitored in scenario summaries and remain very low (mean $\bar{e} \lesssim 0.003$ across all grids), confirming that the reported patterns are not driven by widespread numerical extinction.
 
@@ -177,6 +185,7 @@ In the positive-slope regime, realised growth correlations increase with $\rho_{
 ### Synchrony–variability relationships
 
 These synchrony patterns are closely linked to community variability. Across the mixed-slope scenarios, $\mathrm{CV}_{\mathrm{tot}}$ increases with abundance-based synchrony $\phi_{\mathrm{LdM}}$ and, more broadly, with mean pairwise growth-rate correlation (Fig. 4A,B). Scenarios with low $\phi_{\mathrm{LdM}}$ and weakly positive or negative growth-rate correlations have the lowest $\mathrm{CV}_{\mathrm{tot}}$, especially at higher richness. Conversely, scenarios with elevated $\phi_{\mathrm{LdM}}$ and strongly positive growth correlations tend to show high $\mathrm{CV}_{\mathrm{tot}}$, even when $\sigma_{\mathrm{env}}$ is modest. Together, these patterns are consistent with stabilisation in mixed-slope communities being mediated by reduced realised synchrony, including compensatory growth dynamics.
+Across the same scenarios, approximate species-level variability (Fig. S4) does not show a compensatory decline that could alone explain community-level buffering, supporting a synchrony-mediated interpretation.
 
 In positive-slope communities, $\phi_{\mathrm{LdM}}$ is generally high and mean growth correlations track imposed driver correlation (Figs. 1D, 3B). Community $\mathrm{CV}_{\mathrm{tot}}$ is correspondingly high and more tightly controlled by $\sigma_{\mathrm{env}}$, consistent with shared environmental shocks being transmitted to all species in the same direction.
 
@@ -263,31 +272,8 @@ The implication is straightforward: richness alone is insufficient. Stabilisatio
 
 ---
 
-### Table 1
-Model parameters and baseline values (or ranges) used in the stochastic multispecies Ricker simulations. Unless otherwise stated, parameters are held fixed across all scenarios.
-
-| Parameter                                | Value(s) / description                                                                                                                   |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| $r_0$                                    | $1.0$                                                                                                                                     |
-| $K_i$                                    | $100$ for all species                                                                                                                     |
-| $\alpha_{\mathrm{intra}}$                | $1.0$                                                                                                                                     |
-| $\alpha_{\mathrm{inter}}$                | $0.3$ (set to $0$ in no-competition controls)                                                                                             |
-| $b_i$ (mixed)                            | evenly spaced in $[-0.5, 0.5]$                                                                                                            |
-| $b_i$ (positive)                         | evenly spaced in $[0.1, 1.0]$                                                                                                             |
-| $b_i$ (positive-matched control)         | $|b_i^{\mathrm{mixed}}|$ (all slopes non-negative; evaluated for $S \in \{4, 8\}$)                                                      |
-| $b_i$ (mixed–narrow)                     | evenly spaced in $[-0.25, 0.25]$                                                                                                          |
-| $\sigma_{\mathrm{env}}$                  | $0$–$1.5$ (specific values given in the scenario grids)                                                                                   |
-| $\rho_{\mathrm{env}}$ (requested)        | $-0.5$ to $1.0$                                                                                                                           |
-| $\rho_{\mathrm{eff}}$ (used in simulator) | $\rho_{\mathrm{eff}}=\mathrm{clip}\!\left(\rho_{\mathrm{env}},-1/(S-1)+10^{-6},\,1-10^{-6}\right)$ to ensure positive-definite covariance |
-| $\phi$                                   | $0$–$0.95$                                                                                                                                |
-| $N_{\min}$                               | $10^{-9}$ (abundance floor)                                                                                                               |
-| Ricker exponent clipping                 | $x \in [-50, 50]$ before $\exp(x)$                                                                                                        |
-| Steps / burn-in                          | $600 / 300$ (main and control grids); $400 / 200$ ($\phi$-sensitivity grids)                                                             |
-| Replicates per scenario                  | 150 (mixed main and richness sweep), 100 (positive and positive-matched), 80 (reduced grids and control runs)                           |
-
----
-
-Figure captions are given in `manuscript/text/figure_captions_v2.md`
+Tables and their captions are given in `paper/manuscript/text/tables.md1
+Figure captions are given in `paper/manuscript/text/figure_captions_v2.md`
 
 ---
 

@@ -1,0 +1,4 @@
+scenario,slope_mode,n_species,phi,sigma_env,rho_env_requested,frac_exp_clipped_high_mean,frac_exp_clipped_high_max,frac_exp_clipped_low_mean,frac_exp_clipped_low_max,frac_floor_mean,frac_floor_max
+mixed_phi095_sigma1_rho1_S4,mixed,4,0.95,1.0,1.0,0.0,0.0,0.00025,0.0025,0.10860416666666667,0.18375
+positive_phi04_sigma15_rho1_S8,positive,8,0.4,1.5,1.0,0.0,0.0,0.00023611111111109667,0.0016666666666666,0.0014166666666666366,0.0072916666666666
+positive_phi095_sigma1_rho1_S4,positive,4,0.95,1.0,1.0,0.0,0.0,0.0069791666666666665,0.030625,0.12389583333333333,0.27

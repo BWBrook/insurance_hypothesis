@@ -181,6 +181,200 @@ def sort_by_rho_eff(df: pd.DataFrame) -> pd.DataFrame:
     return df.iloc[order].reset_index(drop=True)
 
 
+def add_species_cv(df: pd.DataFrame) -> pd.DataFrame:
+    """Add approximate mean species-level CV (`cv_sp`) if available.
+
+    cv_sp is computed from stored per-replicate summaries as:
+      sqrt(mean_species_var) / mean_species_mean
+    """
+    if "cv_sp" in df.columns:
+        return df
+    if "mean_species_var" not in df.columns or "mean_species_mean" not in df.columns:
+        return df
+
+    out = df.copy()
+    mean_species = np.asarray(out["mean_species_mean"], dtype=float)
+    var_species = np.asarray(out["mean_species_var"], dtype=float)
+    cv_sp = np.full_like(mean_species, np.nan, dtype=float)
+    valid = mean_species > 0
+    cv_sp[valid] = np.sqrt(np.maximum(var_species[valid], 0.0)) / mean_species[valid]
+    out["cv_sp"] = cv_sp
+    return out
+
+
+def make_species_cv_diagnostic(
+    summary_mixed: pd.DataFrame,
+    summary_pos: pd.DataFrame,
+    out_path: Path,
+    *,
+    sigma_target: float = 0.5,
+) -> None:
+    """Supplementary diagnostic: approximate species-level CV vs imposed correlation."""
+    summary_mixed = add_species_cv(ensure_effective_rho(summary_mixed))
+    summary_pos = add_species_cv(ensure_effective_rho(summary_pos))
+    if "cv_sp" not in summary_mixed.columns or "cv_sp" not in summary_pos.columns:
+        print("Warning: missing species-level variance summaries; skipping cv_sp diagnostic figure.")
+        return
+
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    summary_rows: list[pd.DataFrame] = []
+
+    for s, marker in [(4, "o"), (8, "s")]:
+        m_rep = summary_mixed[
+            (summary_mixed["sigma_env"] == sigma_target) & (summary_mixed["n_species"] == s)
+        ].copy()
+        p_rep = summary_pos[
+            (summary_pos["sigma_env"] == sigma_target) & (summary_pos["n_species"] == s)
+        ].copy()
+
+        m_mean = (
+            m_rep.groupby("rho_eff", as_index=False, observed=True)
+            .agg(cv_sp=("cv_sp", "mean"))
+        )
+        p_mean = (
+            p_rep.groupby("rho_eff", as_index=False, observed=True)
+            .agg(cv_sp=("cv_sp", "mean"))
+        )
+        m_mean = sort_by_rho_eff(pd.DataFrame(m_mean))
+        p_mean = sort_by_rho_eff(pd.DataFrame(p_mean))
+
+        m_line = ax.plot(
+            m_mean["rho_eff"],
+            m_mean["cv_sp"],
+            marker=marker,
+            label=f"mixed S={s}",
+        )[0]
+        p_line = ax.plot(
+            p_mean["rho_eff"],
+            p_mean["cv_sp"],
+            marker=marker,
+            ls="--",
+            label=f"positive S={s}",
+        )[0]
+        ax.scatter(
+            m_rep["rho_eff"],
+            m_rep["cv_sp"],
+            s=10,
+            alpha=0.15,
+            color=m_line.get_color(),
+            marker=marker,
+            edgecolors="none",
+            label="_nolegend_",
+        )
+        ax.scatter(
+            p_rep["rho_eff"],
+            p_rep["cv_sp"],
+            s=10,
+            alpha=0.15,
+            color=p_line.get_color(),
+            marker=marker,
+            edgecolors="none",
+            label="_nolegend_",
+        )
+
+        m_out = m_mean.copy()
+        m_out["slope_mode"] = "mixed"
+        m_out["n_species"] = s
+        m_out["sigma_env"] = sigma_target
+        p_out = p_mean.copy()
+        p_out["slope_mode"] = "positive"
+        p_out["n_species"] = s
+        p_out["sigma_env"] = sigma_target
+        summary_rows.extend([m_out, p_out])
+
+    ax.set(
+        title=rf"Approx. species-level CV vs $\rho_{{\mathrm{{env}}}}$ ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
+        xlabel=r"$\rho_{\mathrm{env}}$",
+        ylabel=r"Approx. $\mathrm{CV}_{\mathrm{sp}}$",
+    )
+    ax.legend(fontsize=8, ncol=2)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
+
+    if summary_rows:
+        summary_out = pd.concat(summary_rows, ignore_index=True)
+        summary_out_path = REPORTS / "figS4_species_cv_vs_rho_summary.csv"
+        summary_out.to_csv(summary_out_path, index=False)
+
+
+def summarize_numerical_guards() -> None:
+    """Run and summarise numerical-guard diagnostics for manuscript transparency."""
+    REPORTS.mkdir(parents=True, exist_ok=True)
+    run_command(["uv", "run", "python", "analysis/check_numerical_guards.py"])
+
+    in_path = REPORTS / "numerical_guard_rates.csv"
+    if not in_path.exists():
+        print(f"Warning: missing expected guard diagnostics file: {in_path}")
+        return
+
+    df = pd.read_csv(in_path)
+    group_cols = ["scenario", "slope_mode", "n_species", "phi", "sigma_env", "rho_env_requested"]
+    summary = (
+        df.groupby(group_cols, as_index=False)[
+            ["frac_exp_clipped_high", "frac_exp_clipped_low", "frac_floor"]
+        ]
+        .agg(["mean", "max"])
+    )
+    summary.columns = [
+        "_".join([c for c in col if c]).rstrip("_")
+        if isinstance(col, tuple)
+        else str(col)
+        for col in summary.columns.to_flat_index()
+    ]
+    summary = summary.sort_values(by="scenario")
+
+    out_csv = REPORTS / "numerical_guard_rates_summary.csv"
+    summary.to_csv(out_csv, index=False)
+
+    md_lines = [
+        "# Numerical Guard Diagnostics Summary",
+        "",
+        "Derived from `analysis/reports/numerical_guard_rates.csv`.",
+        "",
+        "| scenario | frac_exp_clipped_high_mean | frac_exp_clipped_low_mean | frac_floor_mean | frac_floor_max |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for _, row in summary.iterrows():
+        md_lines.append(
+            "| {scenario} | {hi:.4f} | {lo:.4f} | {fm:.4f} | {fx:.4f} |".format(
+                scenario=row["scenario"],
+                hi=float(row["frac_exp_clipped_high_mean"]),
+                lo=float(row["frac_exp_clipped_low_mean"]),
+                fm=float(row["frac_floor_mean"]),
+                fx=float(row["frac_floor_max"]),
+            )
+        )
+    (REPORTS / "numerical_guard_rates_summary.md").write_text("\n".join(md_lines) + "\n")
+
+
+def validate_phi_run_lengths(
+    phi_runs: dict[str, pd.DataFrame],
+    *,
+    expected_steps: int = 400,
+    expected_burn: int = 200,
+) -> None:
+    """Verify cached phi-sensitivity runs match documented time-series lengths.
+
+    This prevents silent drift between manuscript/docs and runnable pipeline.
+    """
+    for key, df in phi_runs.items():
+        if "n_steps" not in df.columns or "burn_in" not in df.columns:
+            print(
+                f"Warning: {key} is missing n_steps/burn_in columns; "
+                f"cannot validate expected {expected_steps}/{expected_burn}."
+            )
+            continue
+
+        steps = sorted(int(x) for x in np.unique(df["n_steps"]))
+        burn = sorted(int(x) for x in np.unique(df["burn_in"]))
+        if steps != [expected_steps] or burn != [expected_burn]:
+            raise ValueError(
+                f"{key} has n_steps={steps}, burn_in={burn}; "
+                f"expected {expected_steps}/{expected_burn} for phi-sensitivity grids."
+            )
+
+
 def ensure_reports(summary_df: pd.DataFrame, out_prefix: Path) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     summary_df = ensure_effective_rho(summary_df)
@@ -352,13 +546,16 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
 
     # Panel D imposed vs realised synchrony
     ax = axes[1, 1]
+    # Exclude deterministic sigma=0 scenarios where growth correlations are undefined by construction.
+    mixed_sync = summary_mixed[summary_mixed["sigma_env"] > 0].copy()
+    pos_sync = summary_pos[summary_pos["sigma_env"] > 0].copy()
     mixed_scatter = (
-        summary_mixed.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False)["mean_pairwise_corr"]
+        mixed_sync.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False)["mean_pairwise_corr"]
         .mean()
         .dropna()
     )
     pos_scatter = (
-        summary_pos.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False)["mean_pairwise_corr"]
+        pos_sync.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False)["mean_pairwise_corr"]
         .mean()
         .dropna()
     )
@@ -496,6 +693,9 @@ def make_cv_vs_synchrony(summary_mixed: pd.DataFrame, out_path: Path) -> None:
     """Scatter of CV_total vs synchrony metrics for mixed slopes."""
     # Aggregate by scenario to reduce overplotting
     summary_mixed = ensure_effective_rho(summary_mixed)
+    # Synchrony metrics based on growth correlations are undefined at sigma=0.
+    # Filter explicitly to avoid implicit NaN dropping in plotting layers.
+    summary_mixed = summary_mixed[summary_mixed["sigma_env"] > 0].copy()
     grp = (
         summary_mixed.groupby(["n_species", "sigma_env", "rho_eff"])[
             ["cv_total", "phi_ldm", "mean_pairwise_corr"]
@@ -737,10 +937,18 @@ def copy_figures(fig_paths: list[Path]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run simulations and regenerate figures")
     parser.add_argument("--rerun-data", action="store_true", help="Rerun simulations instead of using cached parquet files")
+    parser.add_argument(
+        "--skip-guard-audit",
+        action="store_true",
+        help="Skip numerical-guard diagnostics refresh (enabled by default).",
+    )
     args = parser.parse_args()
 
     if args.rerun_data:
         rerun_data()
+
+    if not args.skip_guard_audit:
+        summarize_numerical_guards()
 
     # Load summaries
     summary_mixed = load_summary("run1")
@@ -752,6 +960,7 @@ def main() -> None:
         "phi09_reduced": pd.read_parquet("data/sim/grid/phi09_reduced/summaries.parquet"),
         "phi095_reduced": pd.read_parquet("data/sim/grid/phi095_reduced/summaries.parquet"),
     }
+    validate_phi_run_lengths(phi_runs)
 
     # Per-run summary figs
     ensure_reports(summary_mixed, REPORTS / "run1")
@@ -784,6 +993,9 @@ def main() -> None:
     richness_fig_path = REPORTS / "fig2_richness_scaling_mixed.png"
     make_richness_scaling(richness_df, richness_fig_path)
 
+    species_cv_path = REPORTS / "figS4_species_cv_vs_rho.png"
+    make_species_cv_diagnostic(summary_mixed, summary_pos, species_cv_path)
+
     # Promote mixed-grid heatmaps to supplementary figure names.
     supp_cv_src = REPORTS / "run1_cv_total.png"
     supp_phi_src = REPORTS / "run1_phi_ldm.png"
@@ -811,6 +1023,7 @@ def main() -> None:
         phi_overlay_path,
         supp_cv_path,
         supp_phi_path,
+        species_cv_path,
         richness_fig_path,
     ]
     if matched_path is not None:

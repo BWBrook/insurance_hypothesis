@@ -1,0 +1,19 @@
+expect_tables: 1
+expect_drawings: 9
+min_pdf_pages: 1
+required_text:
+  - Manuscript Title
+  - Introduction
+  - Methods
+  - Results
+  - Discussion
+  - Table 1.
+  - Fig. 1
+  - Fig. 2
+  - Fig. 3
+  - Fig. 4
+  - Fig. 5
+  - Fig. S1
+  - Fig. S2
+  - Fig. S3
+  - Fig. S4

@@ -18,6 +18,8 @@
 
 **Figure S3.** Positive-matched control (magnitude-matched aligned slopes). Comparison of mixed, positive-matched, and positive slope regimes for $\mathrm{CV}_{\mathrm{tot}}$ and mean pairwise growth-rate correlation as functions of imposed correlation ($\rho_{\mathrm{eff}}$), shown for $S=4$ and $S=8$. The positive-matched control isolates response sign structure from slope-magnitude differences: it shifts patterns toward mixed communities relative to positive slopes, but does not remove the mixed-vs-aligned contrast.
 
+**Figure S4.** Approximate species-level CV diagnostic. Approximate $\mathrm{CV}_{\mathrm{sp}}$ (computed from `mean_species_var` and `mean_species_mean`) versus imposed correlation $\rho_{\mathrm{eff}}$ at $\sigma_{\mathrm{env}}=0.5$, shown for mixed and positive slope regimes at $S=4,8$. This panel documents species-level variability alongside community-level variability and synchrony metrics.
+
 ---
 
 Figure assets are generated into `analysis/reports/` and copied to `manuscript/figures/` by `analysis/run_all.py`.
