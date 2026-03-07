@@ -17,22 +17,21 @@ from itertools import product
 from pathlib import Path
 from typing import Iterable, Sequence, Tuple
 
-import numpy as np
 import pandas as pd
 
-from insurance_sim.model import SimulationConfig, simulate_replicates
+from insurance_sim.model import SimulationConfig, simulate_replicates, slopes_for_mode
 
 
 def _parse_float_list(val: str | None, default: Sequence[float]) -> Sequence[float]:
     if val is None:
         return default
-    return [float(x) for x in val.split(",") if x != ""]
+    return [float(x.strip()) for x in val.split(",") if x.strip() != ""]
 
 
 def _parse_int_list(val: str | None, default: Sequence[int]) -> Sequence[int]:
     if val is None:
         return default
-    return [int(x) for x in val.split(",") if x != ""]
+    return [int(x.strip()) for x in val.split(",") if x.strip() != ""]
 
 
 def parse_args() -> argparse.Namespace:
@@ -86,18 +85,36 @@ def scenario_grid(
     return product(sigma_vals, rho_vals, species_vals)
 
 
-def slopes_for_mode(mode: str, n_species: int) -> np.ndarray | None:
-    if mode == "mixed":
-        return None  # handled in simulator as default -0.5..0.5
-    if mode == "positive":
-        return np.linspace(0.1, 1.0, n_species)
-    if mode == "positive_matched":
-        # Magnitude-matched aligned regime: use abs of the mixed-slope magnitudes.
-        # This isolates sign structure from overall forcing magnitude.
-        return np.abs(np.linspace(-0.5, 0.5, n_species))
-    if mode == "mixed_narrow":
-        return np.linspace(-0.25, 0.25, n_species)
-    raise ValueError(f"Unknown slope mode: {mode}")
+def _validate_cli_inputs(
+    *,
+    reps: int,
+    steps: int,
+    burn: int,
+    phi: float,
+    alpha_inter: float,
+    run_name: str,
+    sigma_vals: Sequence[float],
+    rho_vals: Sequence[float],
+    species_vals: Sequence[int],
+) -> None:
+    if reps <= 0:
+        raise ValueError("reps must be positive.")
+    if steps <= 0:
+        raise ValueError("steps must be positive.")
+    if burn < 0 or burn >= steps:
+        raise ValueError("burn must satisfy 0 <= burn < steps.")
+    if abs(phi) >= 1.0:
+        raise ValueError("phi must satisfy abs(phi) < 1.")
+    if alpha_inter < 0:
+        raise ValueError("alpha_inter must be non-negative.")
+    if not run_name.strip():
+        raise ValueError("run_name must be non-empty.")
+    if not sigma_vals:
+        raise ValueError("sigma-list must contain at least one value.")
+    if not rho_vals:
+        raise ValueError("rho-list must contain at least one value.")
+    if not species_vals:
+        raise ValueError("species-list must contain at least one value.")
 
 
 def main() -> None:
@@ -105,6 +122,17 @@ def main() -> None:
     sigma_vals = _parse_float_list(args.sigma_list, [0.0, 0.2, 0.5, 1.0, 1.5])
     rho_vals = _parse_float_list(args.rho_list, [-0.5, 0.0, 0.5, 0.9, 1.0])
     species_vals = _parse_int_list(args.species_list, [2, 4, 8])
+    _validate_cli_inputs(
+        reps=args.reps,
+        steps=args.steps,
+        burn=args.burn,
+        phi=args.phi,
+        alpha_inter=args.alpha_inter,
+        run_name=args.run_name,
+        sigma_vals=sigma_vals,
+        rho_vals=rho_vals,
+        species_vals=species_vals,
+    )
 
     out_dir = Path("data/sim/grid") / args.run_name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -113,7 +141,7 @@ def main() -> None:
     base_seed = 12345  # fixed for reproducibility
 
     for sigma_env, rho_env, n_species in scenario_grid(sigma_vals, rho_vals, species_vals):
-        b_slopes = slopes_for_mode(args.slope_mode, n_species)
+        b_slopes = None if args.slope_mode == "mixed" else slopes_for_mode(args.slope_mode, n_species)
         config = SimulationConfig(
             n_species=n_species,
             n_steps=args.steps,

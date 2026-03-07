@@ -75,9 +75,11 @@
   6) `paper/` hierarchy harmonised for makedoc handoff (`paper/settings/build.yaml`, `paper/manuscript/text/figures.md`, `paper/references/ih_references.yaml`) with path mapping rewritten away from legacy `manuscript/` references.
   7) makedoc profile finalised to absolute-path external mode with dual profiles (`ih_draft` scoped lint; `ih_submission` strict lint) and single canonical bibliography (`paper/references/ih_references.yaml`).
   8) Environment bootstrap QA rerun on 2026-03-06: `uv sync --dev`, `uv run pytest`, `uv run pyright`, and the README preview workflow all verified after fixing preview-schema compatibility and pandas-stub typing issues.
+  9) Repo hardening pass on 2026-03-07: added GitHub Actions CI, expanded test coverage to runner/schema/validation/scientific-invariant checks (`uv run pytest` now 23 tests), moved durable reporting/figure helpers into `src/python/insurance_sim/`, and tightened config validation without changing the documented CLI/output contract.
 - **Next steps if more work is requested**:
   1) Keep manuscript text aligned with the corrected extinction/floor-occupancy interpretation as external edits continue.
   2) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   3) Packaging/formatting tasks only (reference formatting, journal-specific figure/table assembly).
+  4) Approval-gated work only for changes that would alter RNG/seeding policy, scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

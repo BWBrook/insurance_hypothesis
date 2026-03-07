@@ -70,6 +70,13 @@ For each entry, include:
 - **Rationale**: Post-hiatus audit showed non-negligible floor occupancy in subsets of high-φ scenarios (`phi09_reduced` and `phi095_reduced`) despite low extinction rates in main inference grids; documentation must distinguish these regimes.
 - **Status**: active
 
+### DEC-009 – Keep CLI scripts thin and reusable analysis logic importable
+
+- **Date**: 2026-03-07
+- **Decision**: Move reusable reporting and figure-generation logic into importable Python modules under `src/python/insurance_sim/`, leaving `analysis/*.py` as thin CLI/orchestration entry points.
+- **Rationale**: Reduces duplication (`rho_eff` handling, slope-mode definitions, reporting helpers), makes behavior easier to test under `pytest`, and keeps future refactors reviewable without changing the public CLI or scientific outputs.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

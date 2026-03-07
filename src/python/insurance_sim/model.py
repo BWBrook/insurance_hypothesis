@@ -23,6 +23,21 @@ DEFAULT_MAX_EXP = 50.0  # cap on exponent to avoid overflow in exp
 SlopeSpec: TypeAlias = Sequence[float] | np.ndarray
 
 
+def slopes_for_mode(mode: str, n_species: int) -> np.ndarray:
+    """Return the canonical slope vector for a named experimental regime."""
+    if n_species < 1:
+        raise ValueError("n_species must be at least 1.")
+    if mode == "mixed":
+        return np.linspace(-0.5, 0.5, n_species, dtype=float)
+    if mode == "positive":
+        return np.linspace(0.1, 1.0, n_species, dtype=float)
+    if mode == "positive_matched":
+        return np.abs(np.linspace(-0.5, 0.5, n_species, dtype=float))
+    if mode == "mixed_narrow":
+        return np.linspace(-0.25, 0.25, n_species, dtype=float)
+    raise ValueError(f"Unknown slope mode: {mode}")
+
+
 def effective_rho(rho: float, n_species: int, eps: float = 1e-6) -> float:
     """Return the feasible equicorrelation after enforcing PD constraints.
 
@@ -55,6 +70,43 @@ class SimulationConfig:
     alpha_inter: float = 0.3
     floor: float = DEFAULT_FLOOR
     max_exp: float = DEFAULT_MAX_EXP
+
+    def __post_init__(self) -> None:
+        if self.n_species < 1:
+            raise ValueError("n_species must be at least 1.")
+        if self.n_steps <= 0:
+            raise ValueError("n_steps must be positive.")
+        if self.burn_in < 0 or self.burn_in >= self.n_steps:
+            raise ValueError("burn_in must satisfy 0 <= burn_in < n_steps.")
+        if not np.isfinite(self.r0):
+            raise ValueError("r0 must be finite.")
+        if not np.isfinite(self.phi) or abs(self.phi) >= 1.0:
+            raise ValueError("phi must be finite and satisfy abs(phi) < 1.")
+        if not np.isfinite(self.sigma_env) or self.sigma_env < 0:
+            raise ValueError("sigma_env must be finite and non-negative.")
+        if not np.isfinite(self.rho_env):
+            raise ValueError("rho_env must be finite.")
+        if not np.isfinite(self.alpha_intra) or self.alpha_intra < 0:
+            raise ValueError("alpha_intra must be finite and non-negative.")
+        if not np.isfinite(self.alpha_inter) or self.alpha_inter < 0:
+            raise ValueError("alpha_inter must be finite and non-negative.")
+        if not np.isfinite(self.floor) or self.floor <= 0:
+            raise ValueError("floor must be finite and strictly positive.")
+        if not np.isfinite(self.max_exp) or self.max_exp <= 0:
+            raise ValueError("max_exp must be finite and strictly positive.")
+
+        K_arr = np.asarray(self.K, dtype=float)
+        if K_arr.size not in (1, self.n_species):
+            raise ValueError("Length of K must be 1 or n_species.")
+        if np.any(~np.isfinite(K_arr)) or np.any(K_arr <= 0):
+            raise ValueError("K values must be finite and strictly positive.")
+
+        if self.b_slopes is not None:
+            b_arr = np.asarray(self.b_slopes, dtype=float)
+            if b_arr.size != self.n_species:
+                raise ValueError("Length of b_slopes must match n_species.")
+            if np.any(~np.isfinite(b_arr)):
+                raise ValueError("b_slopes values must be finite.")
 
 
 def build_env_cov(sigma_env: float, rho: float, n_species: int) -> np.ndarray:
@@ -116,7 +168,7 @@ def generate_environment(
 
 def _prepare_b_slopes(b_slopes: SlopeSpec | None, n_species: int) -> np.ndarray:
     if b_slopes is None:
-        return np.linspace(-0.5, 0.5, n_species, dtype=float)
+        return slopes_for_mode("mixed", n_species)
     b_arr = np.asarray(b_slopes, dtype=float)
     if b_arr.shape[0] != n_species:
         raise ValueError("Length of b_slopes must match n_species.")
@@ -321,6 +373,9 @@ def simulate_replicates(
 
     Returns a DataFrame with per-replicate summaries.
     """
+    if n_reps <= 0:
+        raise ValueError("n_reps must be positive.")
+
     records = []
     base_rng = np.random.default_rng(seed)
     rho_eff = effective_rho(config.rho_env, config.n_species)

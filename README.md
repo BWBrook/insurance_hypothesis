@@ -91,10 +91,10 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
 2. From the repository root, create/sync the environment:
 
    ```bash
-   uv sync
+   uv sync --dev
    ```
 
-   This reads `pyproject.toml` and `uv.lock` and installs exact versions of all dependencies into a local environment.
+   This reads `pyproject.toml` and `uv.lock` and installs exact versions of the runtime and repo-local developer dependencies into a local environment.
 
 3. Run the test suite to confirm everything is working:
 
@@ -116,6 +116,8 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
 ## 3. Fast reproduction: regenerate all figures from cached data
 
 If you cloned the repository together with the `data/` directory (as in the archived project), you can reproduce all tables and figures **without rerunning the heavy simulations**.
+
+The main Git repository does **not** currently track `data/sim/grid/`, so a fresh clone of the code alone will usually need Section 4 or `--rerun-data` before this fast path works.
 
 From the repository root:
 

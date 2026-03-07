@@ -23,6 +23,7 @@ from insurance_sim.model import (
     SimulationConfig,
     generate_environment,
     simulate_ricker_with_diagnostics,
+    slopes_for_mode,
 )
 
 
@@ -106,7 +107,7 @@ def main() -> None:
                 phi=0.95,
                 r0=1.0,
                 K=100.0,
-                b_slopes=np.linspace(0.1, 1.0, 4),
+                b_slopes=slopes_for_mode("positive", 4),
                 alpha_intra=1.0,
                 alpha_inter=0.3,
             ),
@@ -123,7 +124,7 @@ def main() -> None:
                 phi=0.4,
                 r0=1.0,
                 K=100.0,
-                b_slopes=np.linspace(0.1, 1.0, 8),
+                b_slopes=slopes_for_mode("positive", 8),
                 alpha_intra=1.0,
                 alpha_inter=0.3,
             ),
@@ -153,4 +154,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

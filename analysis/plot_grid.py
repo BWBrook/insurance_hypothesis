@@ -16,28 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
-def ensure_effective_rho(df: pd.DataFrame) -> pd.DataFrame:
-    if "rho_eff" in df.columns:
-        return df
-    if "rho_env" not in df.columns or "n_species" not in df.columns:
-        raise ValueError("Cannot reconstruct rho_eff without rho_env and n_species.")
-
-    out = df.copy()
-    eps = 1e-6
-    rho_env = out["rho_env"].to_numpy(dtype=float)
-    n_species = out["n_species"].to_numpy(dtype=int)
-    rho_eff = rho_env.copy()
-
-    mask = n_species >= 2
-    if mask.any():
-        min_rho = (-1.0 / (n_species[mask] - 1)) + eps
-        max_rho = 1.0 - eps
-        rho_eff[mask] = np.clip(rho_env[mask], min_rho, max_rho)
-
-    out["rho_eff"] = rho_eff
-    out["rho_clipped"] = np.abs(rho_eff - rho_env) > 1e-12
-    return out
+from insurance_sim.reporting import ensure_effective_rho
 
 
 def parse_args() -> argparse.Namespace:

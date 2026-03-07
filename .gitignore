@@ -32,5 +32,5 @@ data/sim/grid/
 !analysis/reports/*.pdf
 !analysis/reports/*summary.csv
 !analysis/reports/*panels*.png
-!manuscript/figures/*.png
-!manuscript/figures/*.pdf
+!paper/manuscript/figures/*.png
+!paper/manuscript/figures/*.pdf
