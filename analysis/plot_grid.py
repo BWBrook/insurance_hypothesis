@@ -81,6 +81,9 @@ def main() -> None:
     args = parse_args()
     df = pd.read_parquet(args.input)
     df = ensure_effective_rho(df)
+    if "slope_mode" not in df.columns:
+        df = df.copy()
+        df["slope_mode"] = "mixed"
 
     out_prefix = Path(args.out_prefix)
     out_prefix.parent.mkdir(parents=True, exist_ok=True)

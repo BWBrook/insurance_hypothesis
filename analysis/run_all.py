@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import subprocess
 from pathlib import Path
+from typing import cast
 
 from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
@@ -322,7 +323,7 @@ def summarize_numerical_guards() -> None:
         else str(col)
         for col in summary.columns.to_flat_index()
     ]
-    summary = summary.sort_values(by="scenario")
+    summary = cast(pd.DataFrame, summary).sort_values("scenario").reset_index(drop=True)
 
     out_csv = REPORTS / "numerical_guard_rates_summary.csv"
     summary.to_csv(out_csv, index=False)
@@ -695,7 +696,8 @@ def make_cv_vs_synchrony(summary_mixed: pd.DataFrame, out_path: Path) -> None:
     summary_mixed = ensure_effective_rho(summary_mixed)
     # Synchrony metrics based on growth correlations are undefined at sigma=0.
     # Filter explicitly to avoid implicit NaN dropping in plotting layers.
-    summary_mixed = summary_mixed[summary_mixed["sigma_env"] > 0].copy()
+    sigma_positive = np.asarray(summary_mixed["sigma_env"], dtype=float) > 0
+    summary_mixed = cast(pd.DataFrame, summary_mixed.loc[sigma_positive, :].copy())
     grp = (
         summary_mixed.groupby(["n_species", "sigma_env", "rho_eff"])[
             ["cv_total", "phi_ldm", "mean_pairwise_corr"]

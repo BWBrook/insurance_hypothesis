@@ -38,6 +38,7 @@ def main() -> None:
             alpha_inter=0.3,
         )
         df = simulate_replicates(config, n_reps=20, seed=123)
+        df["slope_mode"] = "mixed"
         df["sigma_env"] = sigma_env
         df["rho_env"] = rho_env
         df["n_species"] = config.n_species
