@@ -64,7 +64,7 @@ If you have already read the paper, this README is your practical guide to repro
   - `paper/manuscript/figures/` – figures copied from `analysis/reports/` by `run_all.py`.
   - `paper/references/ih_references.yaml` – canonical bibliography source (Zotero export and makedoc input).
   - `paper/csl/oikos.csl` – target journal CSL style.
-  - `paper/settings/build.yaml` – makedoc external-path profiles (`ih_draft` scoped lint, `ih_submission` strict lint), using absolute paths.
+  - `paper/settings/build.yaml` – makedoc external-path profiles (`ih_draft` scoped lint, `ih_submission` strict lint), using config-relative manuscript paths.
 
 - `docs/`
   - `plan.md` – high‑level hypothesis, model description, experimental grid.

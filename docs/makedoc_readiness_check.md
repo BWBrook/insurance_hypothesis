@@ -12,9 +12,9 @@ This check focuses on structural and mapping readiness after moving manuscript a
 1. Repository paths use `paper/` hierarchy consistently: **PASS**
    - Active docs and pipeline paths now reference `paper/manuscript/...`, `paper/references/...`, and `paper/csl/...`.
 
-2. Figure assets available under canonical figure directory: **PASS**
-   - Required files exist under `paper/manuscript/figures/` (Fig. 1-5, Fig. S1-S4).
-   - `analysis/run_all.py` copies to `paper/manuscript/figures/` successfully.
+2. Figure assets available for manuscript builds: **PASS**
+   - Required files exist under `analysis/reports/` (Fig. 1-5, Fig. S1-S4).
+   - `paper/manuscript/text/figures.md` now points directly to those tracked report artefacts for fresh-clone portability.
 
 3. makedoc figure source file with explicit IDs: **PASS**
    - Added `paper/manuscript/text/figures.md`.
@@ -32,7 +32,7 @@ This check focuses on structural and mapping readiness after moving manuscript a
 
 7. Build profile file present: **PASS**
    - Added `paper/settings/build.yaml`.
-   - Uses absolute paths for external-path reliability.
+   - Uses config-relative manuscript paths, while still supporting external-path builds via an absolute `CONFIG=...` passed to `makedoc`.
    - Includes two profiles:
      - `ih_draft`: scoped lint for iterative drafting.
      - `ih_submission`: strict lint for submission gating.
@@ -50,12 +50,12 @@ This check focuses on structural and mapping readiness after moving manuscript a
 
 ```bash
 uv run pytest
-uv run python analysis/run_all.py
+make -C /Users/bwbrook/work/makedoc validate-config CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
 ```
 
-Both commands completed successfully; figure copy targets now resolve to `paper/manuscript/figures/`.
+The original note predated the later macOS verification pass. Current validation on this Mac succeeded via the external `makedoc` repo (`validate-config`, `all`, `check`) rather than through `analysis/run_all.py`, which still requires cached full-grid parquet files.
 
-Note: `makedoc`/`make validate-config` is not available in this repo runtime, so config validation here is limited to YAML parsing and path-existence checks.
+Note: this check originally predated the local `makedoc` verification pass on macOS. Current validation should be done against the external `makedoc` repo with `make validate-config`.
 
 ## Integration status
 
