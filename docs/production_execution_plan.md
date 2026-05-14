@@ -168,6 +168,15 @@ Exit criteria:
 - The ecological story is unchanged or any change is understood and documented.
 - A decision is made about whether to extend production runs to other richness levels and controls.
 
+Status, 2026-05-14:
+
+- Complete for raw simulation and validation.
+- Run ID: `fig1-s4-highres-v1`.
+- Remote output: `/data/codex/scratch/insurance_hypothesis/fig1-s4-highres-v1`.
+- Validation: 570000 rows, 570 scenarios, 5700 shards, 1000 replicates per scenario.
+- Initial interpretation is in `docs/interpretation_notes.md` and `docs/log/140_fig1_production_batch.md`.
+- Remaining Phase 5 work is display and comparison: build manuscript-quality production Figure 1, compare against the coarse/interim Figure 1, and decide whether to extend production surfaces to other richness levels.
+
 ## Phase 6: Production Campaign Expansion
 
 Goal: run only the additional production grids needed to support the final manuscript claims.

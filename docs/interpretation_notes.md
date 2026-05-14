@@ -40,7 +40,7 @@
   - [ ] Quantify realised growth synchrony vs imposed ρ across grid to visualise divergence.
   - [x] Repeat grid with φ sensitivity (0, 0.7) to check robustness.
   - [x] Produce richness-scaling plot of CV and φ_LdM averaged over ρ for each σ_env.
-  - [ ] Run a focused high-resolution Figure 1 surface grid (mixed and positive slopes, S=4 first) with denser `sigma_env`/`rho_env` values and 1000 replicates per scenario/slice, then compare against the coarse grid before changing display defaults.
+  - [x] Run a focused high-resolution Figure 1 surface grid (mixed and positive slopes, S=4 first) with denser `sigma_env`/`rho_env` values and 1000 replicates per scenario/slice, then compare against the coarse grid before changing display defaults.
 
 ### POS_subset_positive_slopes
 
@@ -136,6 +136,23 @@
   - Elevated floor occupancy is concentrated in low-richness/high-variance corners (primarily S=2, σ_env=1.0), while lower-φ and main grids remain much less affected.
 - **Follow-up**:
   - [x] Update docs/manuscript wording to distinguish the low-extinction main grids from high-φ stress-test behaviour.
+
+### PROD_fig1_s4_highres_v1
+
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig1-s4-highres-v1`; local retrieved summary `data/sim/production/fig1_s4_highres_v1/summaries.parquet`; quicklooks under `analysis/reports/production/fig1_s4_highres_v1_*`.
+- **Summary (plain language)**:
+  - The production run validated cleanly: 570 scenarios, 5700 shards, 570000 replicate-summary rows, 1000 replicates for every S=4 mixed/positive scenario.
+  - The main contrast is strong and smooth at production resolution. Across `sigma_env`, positive aligned slopes have much higher community CV than mixed slopes; the positive/mixed CV ratio averages ~3.0 at `sigma_env=1.0`, ~3.5 at 1.5, and ~4.3 at 2.0.
+  - Mixed slopes remain strongly buffered: mean CV is ~0.089 at `sigma_env=0.5`, ~0.232 at 1.0, ~0.451 at 1.5, and ~0.784 at 2.0 averaged across `rho_eff`.
+  - The simple monotonic effect of `rho_eff` weakens at the high-variance edge. For mixed slopes, CV declines with `rho_eff` at moderate `sigma_env`, but is nearly flat by `sigma_env=2.0`; for positive slopes, CV generally increases with `rho_eff` at moderate `sigma_env`, but the `sigma_env=2.0` edge is slightly non-monotonic.
+  - Floor/extinction frequency is still negligible for mixed slopes (max scenario mean ~0.0005), but positive slopes at `sigma_env=2.0` reach mean floor/extinction frequency ~0.019, with replicate maxima up to ~0.068. This is useful as a stress edge but should be labelled carefully if retained in main display.
+- **Relation to hypothesis**:
+  - Strongly supports the conditional-insurance story: heterogeneous/mixed responses buffer aggregate biomass relative to aligned positive responses under the same environmental variance and imposed driver correlation.
+  - The high-resolution grid confirms that the coarse Figure 1 pattern was not a sampling artefact, while revealing that the highest `sigma_env` edge enters a nonlinear/high-stress regime where monotonic `rho_eff` expectations are less clean.
+- **Follow-up tasks**:
+  - [ ] Rebuild a manuscript-quality Figure 1 from the production summary, likely with display choices that avoid letting the `sigma_env=2.0` stress edge dominate the colour scale.
+  - [ ] Decide whether `sigma_env=2.0` belongs in the main panel, an inset/extended axis, or supplementary stress-region display.
+  - [ ] Compare production surfaces directly with the coarse/interim Figure 1 before replacing display defaults.
 
 _(Add new sections for subsequent artefacts.)_
 
