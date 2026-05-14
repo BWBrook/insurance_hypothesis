@@ -84,6 +84,13 @@ For each entry, include:
 - **Rationale**: The Nectar control-plane repo identifies `deep-server` as the best fit for durable CPU-heavy single-host jobs, with 64 logical CPUs, 125 GiB RAM, and large `/data` storage. A fixed 1000-replicate convention is easy to justify in the paper and reduces reviewer concern about Monte Carlo sampling uncertainty, even where diminishing returns would likely begin earlier.
 - **Status**: active
 
+### DEC-011 – Production-only shard seeding
+
+- **Date**: 2026-05-14
+- **Decision**: For production manifests, derive each replicate seed deterministically from `(base_seed, scenario_index, replicate)` using NumPy `SeedSequence`; keep the existing exploratory `analysis/run_full_grid.py` seeding behaviour unchanged.
+- **Rationale**: Production runs must be shardable and resumable across many independent worker processes on `deep-server`. Per-replicate deterministic seeds let shards run in any order or be re-run independently without changing already-completed replicate identities, while preserving the older exploratory runner as a compatibility surface.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---
