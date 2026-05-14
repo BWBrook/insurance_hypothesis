@@ -77,6 +77,13 @@ For each entry, include:
 - **Rationale**: Reduces duplication (`rho_eff` handling, slope-mode definitions, reporting helpers), makes behavior easier to test under `pytest`, and keeps future refactors reviewable without changing the public CLI or scientific outputs.
 - **Status**: active
 
+### DEC-010 – Production-grid compute target and replicate convention
+
+- **Date**: 2026-05-14
+- **Decision**: Use `deep-server` as the default execution host for production-scale single-host simulation grids, and use 1000 replicates per scenario/slice for final-paper production grids unless a run is explicitly labelled as a smoke test, pilot, or stress-test subset.
+- **Rationale**: The Nectar control-plane repo identifies `deep-server` as the best fit for durable CPU-heavy single-host jobs, with 64 logical CPUs, 125 GiB RAM, and large `/data` storage. A fixed 1000-replicate convention is easy to justify in the paper and reduces reviewer concern about Monte Carlo sampling uncertainty, even where diminishing returns would likely begin earlier.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

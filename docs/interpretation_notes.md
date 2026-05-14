@@ -35,10 +35,12 @@
   - Demonstrates that imposed driver synchrony does not guarantee synchronous growth when response directions differ.
 - **Surprises / concerns**:
   - CV decreases with ρ in mixed-slope setup—counter to classical expectation under aligned responses; highlights need to separate driver vs response synchrony.
+  - Current Figure 1 heatmap panels are visually blocky because they summarise a coarse 5 x 5 `sigma_env`-by-`rho_env` grid; the strong visual change at `sigma_env > 1` should be checked with a denser production grid rather than hidden by plotting interpolation alone.
 - **Follow-up tasks**:
   - [ ] Quantify realised growth synchrony vs imposed ρ across grid to visualise divergence.
   - [x] Repeat grid with φ sensitivity (0, 0.7) to check robustness.
   - [x] Produce richness-scaling plot of CV and φ_LdM averaged over ρ for each σ_env.
+  - [ ] Run a focused high-resolution Figure 1 surface grid (mixed and positive slopes, S=4 first) with denser `sigma_env`/`rho_env` values and 1000 replicates per scenario/slice, then compare against the coarse grid before changing display defaults.
 
 ### POS_subset_positive_slopes
 

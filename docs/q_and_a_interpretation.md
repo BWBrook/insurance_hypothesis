@@ -27,8 +27,10 @@ For each question, we add one entry with:
 ## Session metadata
 
 - Start date: 2026-02-11
+- Latest restart: 2026-05-14
 - Mode: ecologist-facing human-testing pass with technical chaperoning
 - Scope: interpretation, sanity checks, display clarity, reproducibility UX
+- Current focus: whole-repo ecologist-facing sanity pass outside `paper/`, following the recent hardening/refactor work
 
 ## Q and A entries
 
@@ -190,9 +192,108 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/run_all.py`, `analysis/reports/figS1_run1_cv_total.png`, `analysis/reports/figS2_run1_phi_ldm.png`, `paper/manuscript/figures/figS1_run1_cv_total.png`, `paper/manuscript/figures/figS2_run1_phi_ldm.png`, `paper/manuscript/text/figure_captions_v2.md`
 
+### QA-013
+
+- Context: restart of the ecologist-facing review after the 2026-03-07 repo hardening pass.
+- Question: How should we run the new scientist-in-the-loop sanity-check phase, and where should the discussion be captured?
+- Response:
+  - Reuse this file as the canonical living log for your questions and my responses.
+  - Keep the pass explicitly non-`paper/` for now, so we sanity-check the repo from the ecologist-facing side first: README claims, analysis outputs, interpretation notes, and reproducibility UX.
+  - Work in a stable review order so we can tell whether issues come from scientific framing, code behavior, or presentation.
+- Decision / Action:
+  - Resume `docs/q_and_a_interpretation.md` as the active running log.
+  - First-pass review order:
+    1. `README.md` as the ecologist-facing entry point.
+    2. `analysis/reports/fig1_panels.png` for the main mixed-vs-aligned contrast.
+    3. `analysis/reports/fig3_imposed_vs_realised_panels.png` for mechanism/synchrony interpretation.
+    4. `analysis/reports/fig2_richness_scaling_mixed.png` and `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png` for robustness/story checks.
+  - Record each new question as `QA-014` onward.
+- Status: actioned
+- Links: `docs/q_and_a_interpretation.md`, `README.md`, `analysis/reports/fig1_panels.png`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `analysis/reports/fig2_richness_scaling_mixed.png`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
+
+### QA-014
+
+- Context: first ecologist-facing read of `analysis/reports/fig1_panels.png`, especially the blocky heatmaps in panels A/B and the concentration of visual change at higher `sigma_env`.
+- Question: Why did we run relatively few simulation iterations, and quite crude gradations in parameters like `rho_env` and `sigma_env`? In a full multi-core/RAM setting, would it make sense to smooth this out with more replicates and finer parameter gradations, at least to make the figures nicer?
+- Response:
+  - The current grid is best understood as an exploratory-to-interim production grid, not the final display-quality response surface. It was coarse enough to map the sign and broad shape of the effect across slope modes, richness, synchrony, persistence, and controls while keeping turnaround times manageable during model development.
+  - More replicates and finer parameter gradations solve different problems. More replicates reduce Monte Carlo noise around each scenario mean. Finer `sigma_env`/`rho_env` values reduce the blocky heatmap appearance and reveal whether apparent thresholds or bends are smooth transitions.
+  - The blockiness in panels A/B is mostly the 5 x 5 parameter grid being shown with `imshow`; it is not primarily a replicate-count problem. The cached summary feeding the mixed panel has 150 replicates per scenario, while the aligned-response panel has 100. Those are reasonable for detecting the main effect, but sparse for publication-quality surfaces.
+  - The bunching of the visual signal at `sigma_env > 1` is scientifically important rather than just a plotting nuisance. It suggests the response is nonlinear across the chosen environmental-noise range. A denser grid should concentrate points between about `sigma_env = 0.5` and `1.5`, and possibly treat the highest `sigma_env` values as stress-test territory rather than the main ecological operating range.
+  - `rho_env` has an additional complication: under the equicorrelated multivariate driver, negative correlations are constrained by species richness. For example, requested `rho_env = -0.5` must be clipped upward for S=4 and S=8. So simply adding many negative `rho_env` values will not necessarily add much information unless we also consider a different covariance design.
+  - My recommendation is yes: now that the code and tests are more stable, a high-resolution production grid is worthwhile. But we should do it as a controlled extension, not just smooth the existing figure. First run a focused high-resolution S=4 grid for mixed and positive slopes, compare it against the coarse grid, then decide whether to scale up to S=2/4/8 and the supplementary/sensitivity figures.
+- Decision / Action:
+  - Add a follow-up task to design and run a high-resolution production grid for Figure 1 surfaces.
+  - Candidate first pass: keep `phi=0.4`, steps/burn unchanged or modestly increased, use higher replicate counts, densify `sigma_env` around the visible transition, and use `rho_eff`-aware plotting.
+  - Follow-up on 2026-05-14: production-scale runs should default to 1000 replicates per scenario/slice, superseding the earlier 300-500 exploratory suggestion.
+  - Before changing manuscript/display defaults, compare coarse vs high-resolution surfaces to confirm the ecological story is unchanged.
+- Status: answered
+- Links: `analysis/reports/fig1_panels.png`, `analysis/reports/run1_summary.csv`, `analysis/reports/pos_full_summary.csv`, `analysis/run_full_grid.py`, `src/python/insurance_sim/reporting.py`
+
+### QA-015
+
+- Context: infrastructure scouting for future higher-resolution simulation grids on `deep-server`.
+- Question: Is `deep-server` available and suitably configured for larger compute-heavy simulation jobs?
+- Response:
+  - SSH access works non-interactively via `deep-server`; `deep-server-relay` also works and the persistent reverse tunnel listener is active at `127.0.0.1:2222`.
+  - Follow-up access check on 2026-05-05 confirmed both direct SSH forms now work: `ssh deep-server ...` and `ssh -o ControlMaster=no -o ControlPath=none deep-server ...`. The earlier odd direct-SSH behaviour was plausibly a stale control-master socket rather than a server-side fault.
+  - Hardware is suitable for the next simulation round: 64 logical CPUs on dual Intel Xeon E5-2683 v4 sockets, 2 NUMA nodes, about 125 GiB RAM with about 123 GiB available during the scout, and about 808 GiB free on the root/home filesystem.
+  - The machine was effectively idle during the scout: load averages were near zero, no user simulation jobs were evident, and no tmux sessions were active.
+  - Tooling is adequate: Python 3.12.3, `uv 0.9.13` in a login shell, Git, tmux, rsync, taskset, numactl, gcc/g++, make, Julia 1.12.2, and R 4.5.3 are available.
+  - A checkout already exists at `~/papers/insurance_hypothesis`; it is currently behind `origin/main` by 3 commits, so it should be fast-forwarded or resynced before any production run.
+  - A small `uv run` import check succeeded on the remote checkout for numpy, pandas, pyarrow, and matplotlib. No large simulations were launched.
+- Decision / Action:
+  - Use `deep-server` as the default execution host for high-resolution production grids, with WSL as the control plane.
+  - Use `tmux` for long jobs, and sync outputs back via Git/rsync depending on whether outputs are intended to be tracked.
+  - Before starting new grids, update the remote checkout to current `origin/main` and rerun a lightweight environment/test check.
+- Status: answered
+- Links: `docs/q_and_a_interpretation.md`
+
+### QA-016
+
+- Context: review of `/home/bwbrook/work/nectar` before planning production-scale insurance-hypothesis simulations.
+- Question: How should the Nectar/deep-server operating guidance shape the new production simulation work, and should final runs use 1000 replicates rather than 300-500?
+- Response:
+  - The Nectar control-plane repo confirms the right division of labour: WSL is a dashboard/orchestration host, while `deep-server` is the right default for this project because the proposed production grids are CPU-heavy, single-host, and do not need GPU or multi-node queueing.
+  - The relevant Nectar guidance is: use `deep-server` for durable standalone multicore jobs, keep project-specific scientific run definitions in this repository, use `tmux` for long jobs, and put bulky clones/caches/outputs under `/data` when running on `deep-server`.
+  - The repo's own checks passed on 2026-05-14: `scripts/validate-repo.sh`, `scripts/check-access.sh deep-server`, and `scripts/deep-server/inventory.sh`.
+  - `deep-server` inventory confirms 64 logical CPUs, 125 GiB RAM, `/data` mounted with about 4.5 TiB available, Docker available, passwordless sudo enabled, and no scheduler environment. GPU compute should be ignored for this project.
+  - The inventory script reports `uv=missing` because it probes a non-login shell, but `uv` is present in a login shell at `~/.local/bin/uv`; remote project commands should therefore use `ssh deep-server 'bash -lc "..."'`.
+  - The 1000-replicate default is scientifically reasonable for the final paper. Even if precision gains diminish after a few hundred replicates, a fixed 1K per scenario is easy to justify and reduces reviewer concern about sampling uncertainty.
+- Decision / Action:
+  - Default production-scale insurance-hypothesis runs to 1000 replicates per scenario/slice unless a specific stress-test or smoke-test is intentionally smaller.
+  - Use `deep-server` via login-shell SSH commands and `tmux` for long production jobs.
+  - Stage heavy run outputs under `/data` on `deep-server`, while keeping run definitions, code, summaries, and interpretation in this project repo.
+  - Before launching production grids, sync/update the remote `insurance_hypothesis` checkout and run a small project-native smoke test.
+- Status: answered
+- Links: `/home/bwbrook/work/nectar/README.md`, `/home/bwbrook/work/nectar/docs/workflows/compute-resource-selection.md`, `/home/bwbrook/work/nectar/docs/machines/deep-server.md`, `/home/bwbrook/work/nectar/docs/workflows/project-integration.md`, `/home/bwbrook/work/nectar/docs/workflows/smoke-tests.md`
+
+### QA-017
+
+- Context: deciding how to move from a draft manuscript based on low/interim simulations to a final Oikos-ready manuscript based on production-level simulations.
+- Question: What is the first cab off the rank, or is this the right time to make a detailed phased execution plan?
+- Response:
+  - This is the right time for a detailed phased plan. The project is crossing from exploratory result-building into a production campaign, so compute, provenance, validation, and display-item rebuilds need to be planned together.
+  - The first implementation task is not launching the full grid. The current `analysis/run_full_grid.py` is scenario-sequential and suited to exploratory runs; before 1000-replicate production grids, we need a shardable, resumable production harness that can run under `tmux` on `deep-server`, validate outputs, and preserve run provenance.
+  - The execution plan should still leave room for Barry's ongoing artifact review, because that review determines which grids are scientifically necessary rather than merely computationally possible.
+- Decision / Action:
+  - Added `docs/production_execution_plan.md` as the staged roadmap from current draft to Oikos-ready manuscript.
+  - Treat the first code-producing task as building and testing the production harness, after the current planning checkpoint is clean.
+  - Keep the ecologist-facing walkthrough active in parallel so the production grid spec is driven by real interpretation/display needs.
+- Status: answered
+- Links: `docs/production_execution_plan.md`, `analysis/run_full_grid.py`, `docs/plan.md`
+
 ## Open action queue
 
+- Run the new ecologist-facing walkthrough in this order:
+  - `README.md`
+  - `analysis/reports/fig1_panels.png`
+  - `analysis/reports/fig3_imposed_vs_realised_panels.png`
+  - `analysis/reports/fig2_richness_scaling_mixed.png`
+  - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
 - Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
+- Design and run a focused high-resolution production grid for Figure 1 surfaces at 1000 replicates per scenario/slice, then compare against the current coarse/interim grid before changing display defaults.
+- Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics
 

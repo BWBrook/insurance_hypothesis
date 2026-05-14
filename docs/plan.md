@@ -36,6 +36,14 @@
 - **Replicates per scenario**: mixed 150; positive 100; φ sweeps 80.
 - **Outputs stored**: parquet summaries under `data/sim/grid/<run_name>/summaries.parquet`.
 
+## 3.1 Production-scale grid extension (planned)
+
+- **Compute target**: run production-scale CPU grids on `deep-server`, using WSL as the control plane and `tmux` for long jobs. Use login-shell remote commands (`ssh deep-server 'bash -lc "..."'`) so `uv` resolves from `~/.local/bin`.
+- **Remote storage**: keep bulky run outputs, caches, and scratch material under `/data` on `deep-server`; keep scientific run definitions, summaries, interpretation notes, and reproducible code in this repository.
+- **Replicate convention**: use **1000 replicates per scenario/slice** for final-paper production grids unless a run is explicitly a smoke test, pilot, or stress-test subset.
+- **First production target**: high-resolution Figure 1 response surfaces for S=4 mixed vs positive slopes, `phi=0.4`, with denser `sigma_env`/`rho_env` values around the visible transition region and `rho_eff`-aware plotting.
+- **Acceptance check**: compare high-resolution surfaces against the current coarse/interim grids before replacing display defaults or making manuscript claims depend on the new surfaces.
+
 ## 4. Response metrics
 
 - Community mean, variance, and CV of total biomass (post burn-in).
@@ -57,6 +65,7 @@
 ## 6. Result Review Cycle (pointer)
 
 - Follow `docs/workflow.md`: for each key figure/table → run sanity checks → record interpretation bullets in `docs/interpretation_notes.md` → queue follow-ups → iterate until coherent.
+- Production-scale execution is staged in `docs/production_execution_plan.md`.
 
 ## 7. Manuscript plan (outline)
 
@@ -76,10 +85,12 @@
   7) makedoc profile finalised with dual profiles (`ih_draft` scoped lint; `ih_submission` strict lint) and single canonical bibliography (`paper/references/ih_references.yaml`); manuscript file references are now config-relative for cross-platform portability.
   8) Environment bootstrap QA rerun on 2026-03-06: `uv sync --dev`, `uv run pytest`, `uv run pyright`, and the README preview workflow all verified after fixing preview-schema compatibility and pandas-stub typing issues.
   9) Repo hardening pass on 2026-03-07: added GitHub Actions CI, expanded test coverage to runner/schema/validation/scientific-invariant checks (`uv run pytest` now 23 tests), moved durable reporting/figure helpers into `src/python/insurance_sim/`, and tightened config validation without changing the documented CLI/output contract.
+  10) Compute planning pass on 2026-05-14: reviewed `/home/bwbrook/work/nectar`, validated `deep-server` access/inventory with the control-plane scripts, and adopted `deep-server` plus 1000 replicates per scenario/slice as the default production-grid convention.
 - **Next steps if more work is requested**:
-  1) Keep manuscript text aligned with the corrected extinction/floor-occupancy interpretation as external edits continue.
-  2) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
-  3) Packaging/formatting tasks only (reference formatting, journal-specific figure/table assembly).
-  4) Approval-gated work only for changes that would alter RNG/seeding policy, scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
+  2) Sync the remote `deep-server` checkout, run a project-native smoke test there, and prepare the first high-resolution Figure 1 production grid at 1000 replicates per scenario/slice.
+  3) Compare new high-resolution surfaces against the current coarse/interim grid before replacing display defaults.
+  4) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
+  5) Approval-gated work only for changes that would alter RNG/seeding policy, scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._
