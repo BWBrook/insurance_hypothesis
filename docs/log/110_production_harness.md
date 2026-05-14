@@ -41,8 +41,8 @@ Date: 2026-05-14
 - `scripts/deep_server/sync_and_check.sh`:
   - fast-forwards the remote checkout,
   - runs `uv sync --dev`,
-  - runs `uv run pytest`,
-  - runs `uv run pyright`.
+  - runs `uv run python -m pytest`,
+  - runs `uv run python -m pyright`.
 - `scripts/deep_server/launch_smoke_tmux.sh`:
   - creates a tiny remote production manifest under `/data/codex/scratch/insurance_hypothesis/<run-id>`,
   - launches the smoke run inside a detached `tmux` session,
@@ -59,10 +59,20 @@ Date: 2026-05-14
 - `uv run pytest` -> 26 passed.
 - `uv run pyright` -> 0 errors.
 - `shellcheck scripts/deep_server/*.sh` -> passed.
+- Remote `deep-server` checkout check via `scripts/deep_server/sync_and_check.sh` -> remote `uv run python -m pytest` passed (26 tests) and remote `uv run python -m pyright` passed (0 errors).
+- Remote tmux smoke via `scripts/deep_server/launch_smoke_tmux.sh` -> passed:
+  - session: `ih_ih_smoke_20260514T055325Z`
+  - output path: `/data/codex/scratch/insurance_hypothesis/ih-smoke-20260514T055325Z`
+  - manifest: 8 scenarios, 16 shards, 32 expected rows
+  - validation: 32 rows, max mean extinction frequency 0.0
 
 ## Next
 
-- Commit and push the harness.
-- Use `scripts/deep_server/sync_and_check.sh` to update and validate the remote checkout.
-- Launch `scripts/deep_server/launch_smoke_tmux.sh` and verify the smoke run completes under tmux.
 - Benchmark a representative shard before choosing production `--jobs` and `replicates-per-shard`.
+- Freeze the first high-resolution Figure 1 grid specification before launching production-scale work.
+
+## Remote bootstrap note
+
+- The existing `deep-server` virtual environment had stale console-script shebangs pointing to an older checkout path under `/home/bwbrook/git/insurance_hypothesis`.
+- Running test/type tools via `uv run python -m ...` avoids those stale entry points and is the preferred remote check pattern.
+- Detached tmux jobs also need `~/.local/bin` on `PATH`; `launch_smoke_tmux.sh` now sets that explicitly and records `run_smoke.log` plus `exit_status.txt`.

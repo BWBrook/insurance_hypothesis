@@ -86,14 +86,13 @@
   8) Environment bootstrap QA rerun on 2026-03-06: `uv sync --dev`, `uv run pytest`, `uv run pyright`, and the README preview workflow all verified after fixing preview-schema compatibility and pandas-stub typing issues.
   9) Repo hardening pass on 2026-03-07: added GitHub Actions CI, expanded test coverage to runner/schema/validation/scientific-invariant checks (`uv run pytest` now 23 tests), moved durable reporting/figure helpers into `src/python/insurance_sim/`, and tightened config validation without changing the documented CLI/output contract.
   10) Compute planning pass on 2026-05-14: reviewed `/home/bwbrook/work/nectar`, validated `deep-server` access/inventory with the control-plane scripts, and adopted `deep-server` plus 1000 replicates per scenario/slice as the default production-grid convention.
-  11) Production harness Phase 3 implementation started on 2026-05-14: added a manifest/shard/combine/validate runner, deterministic production-only per-replicate seeding, tests, and `deep-server` helper scripts for sync/check, tmux smoke launch, status, and artifact retrieval.
+  11) Production harness Phase 3 implementation completed on 2026-05-14: added a manifest/shard/combine/validate runner, deterministic production-only per-replicate seeding, tests, and `deep-server` helper scripts for sync/check, tmux smoke launch, status, and artifact retrieval. Local tests/type checks passed, and a tiny tmux-managed remote smoke run completed on `deep-server`.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Commit/push the production harness, sync the remote `deep-server` checkout, and run the tmux-managed project-native smoke test there.
-  3) Benchmark a representative shard to size `--jobs` and shard width for the first production batch.
-  4) Freeze the high-resolution Figure 1 grid specification and launch the first S=4 mixed/positive production batch at 1000 replicates per scenario/slice.
-  5) Compare new high-resolution surfaces against the current coarse/interim grid before replacing display defaults.
-  6) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
-  7) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  2) Benchmark a representative production-sized shard on `deep-server` to size `--jobs` and `replicates-per-shard` for the first production batch.
+  3) Freeze the high-resolution Figure 1 grid specification and launch the first S=4 mixed/positive production batch at 1000 replicates per scenario/slice.
+  4) Compare new high-resolution surfaces against the current coarse/interim grid before replacing display defaults.
+  5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
+  6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

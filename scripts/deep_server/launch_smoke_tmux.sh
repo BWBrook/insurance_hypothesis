@@ -19,6 +19,7 @@ mkdir -p "$REMOTE_WORK"
 cat > "$REMOTE_WORK/run_smoke.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
+export PATH="\$HOME/.local/bin:\$PATH"
 cd "$REMOTE_REPO"
 uv sync --dev
 uv run python analysis/production_grid.py create-manifest \
@@ -44,12 +45,21 @@ uv run python analysis/production_grid.py validate \
   --combined "$REMOTE_WORK/summaries.parquet"
 EOF
 chmod +x "$REMOTE_WORK/run_smoke.sh"
+cat > "$REMOTE_WORK/run_with_status.sh" <<EOF
+#!/usr/bin/env bash
+set -uo pipefail
+"$REMOTE_WORK/run_smoke.sh" > "$REMOTE_WORK/run_smoke.log" 2>&1
+status=\$?
+printf "%s\n" "\$status" > "$REMOTE_WORK/exit_status.txt"
+exit "\$status"
+EOF
+chmod +x "$REMOTE_WORK/run_with_status.sh"
 
 if tmux has-session -t "$SESSION" 2>/dev/null; then
   echo "tmux session already exists: $SESSION" >&2
   exit 1
 fi
-tmux new-session -d -s "$SESSION" "$REMOTE_WORK/run_smoke.sh"
+tmux new-session -d -s "$SESSION" "$REMOTE_WORK/run_with_status.sh"
 echo "launched_session=$SESSION"
 echo "remote_work=$REMOTE_WORK"
 echo "attach_command=ssh $REMOTE_ALIAS 'tmux attach -t $SESSION'"

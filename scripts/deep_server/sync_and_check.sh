@@ -11,8 +11,8 @@ cd "$REMOTE_REPO"
 git fetch origin
 git pull --ff-only origin "$BRANCH"
 uv sync --dev
-uv run pytest
-uv run pyright
+uv run python -m pytest
+uv run python -m pyright
 EOF
 
 # shellcheck disable=SC2029
