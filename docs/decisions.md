@@ -91,6 +91,20 @@ For each entry, include:
 - **Rationale**: Production runs must be shardable and resumable across many independent worker processes on `deep-server`. Per-replicate deterministic seeds let shards run in any order or be re-run independently without changing already-completed replicate identities, while preserving the older exploratory runner as a compatibility surface.
 - **Status**: active
 
+### DEC-012 – First-batch production shard size and concurrency
+
+- **Date**: 2026-05-14
+- **Decision**: Use 100 replicates per shard and launch the first production batch with `run-pending --jobs 48` on `deep-server`.
+- **Rationale**: Remote benchmarks with S=4, 600/300-step, 1000-replicate-per-scenario workloads validated cleanly. A 48-worker benchmark processed 10000 replicate summaries across 10 scenarios in 6.85 seconds of `run-pending` wall time with low memory use. Forty-eight workers use most of the 64 logical CPUs while leaving conservative headroom for OS, SSH/tmux, and filesystem activity; `--jobs 56` remains a later option if the first full grid shows no contention.
+- **Status**: active
+
+### DEC-013 – First high-resolution Figure 1 production grid
+
+- **Date**: 2026-05-14
+- **Decision**: Use `analysis/production_specs/fig1_s4_highres_v1.json` as the first production batch: S=4, `phi=0.4`, mixed and positive slope modes, 19 `sigma_env` values from 0.0 to 2.0, 15 `rho_env` values from -0.3 to 1.0, and 1000 replicates per scenario.
+- **Rationale**: This grid directly addresses the ecologist-facing concern that the interim Figure 1 surfaces were blocky and that visual change was compressed at high `sigma_env`. It densifies the displayed gradients without expanding to other richness levels or controls before the main S=4 story is rechecked.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

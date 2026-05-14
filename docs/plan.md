@@ -42,6 +42,7 @@
 - **Remote storage**: keep bulky run outputs, caches, and scratch material under `/data` on `deep-server`; keep scientific run definitions, summaries, interpretation notes, and reproducible code in this repository.
 - **Replicate convention**: use **1000 replicates per scenario/slice** for final-paper production grids unless a run is explicitly a smoke test, pilot, or stress-test subset.
 - **First production target**: high-resolution Figure 1 response surfaces for S=4 mixed vs positive slopes, `phi=0.4`, with denser `sigma_env`/`rho_env` values around the visible transition region and `rho_eff`-aware plotting.
+- **Frozen first-batch spec**: `analysis/production_specs/fig1_s4_highres_v1.json` defines 570 scenarios (S=4; mixed and positive slopes; 19 `sigma_env` values from 0.0 to 2.0; 15 `rho_env` values from -0.3 to 1.0), 5700 shards, and 570000 expected replicate-summary rows.
 - **Acceptance check**: compare high-resolution surfaces against the current coarse/interim grids before replacing display defaults or making manuscript claims depend on the new surfaces.
 
 ## 4. Response metrics
@@ -87,12 +88,13 @@
   9) Repo hardening pass on 2026-03-07: added GitHub Actions CI, expanded test coverage to runner/schema/validation/scientific-invariant checks (`uv run pytest` now 23 tests), moved durable reporting/figure helpers into `src/python/insurance_sim/`, and tightened config validation without changing the documented CLI/output contract.
   10) Compute planning pass on 2026-05-14: reviewed `/home/bwbrook/work/nectar`, validated `deep-server` access/inventory with the control-plane scripts, and adopted `deep-server` plus 1000 replicates per scenario/slice as the default production-grid convention.
   11) Production harness Phase 3 implementation completed on 2026-05-14: added a manifest/shard/combine/validate runner, deterministic production-only per-replicate seeding, tests, and `deep-server` helper scripts for sync/check, tmux smoke launch, status, and artifact retrieval. Local tests/type checks passed, and a tiny tmux-managed remote smoke run completed on `deep-server`.
+  12) Remote production benchmark completed on 2026-05-14: two S=4, 1000-replicate-per-scenario benchmark runs validated on `deep-server`; the wider 48-worker scout processed 10000 production-shaped replicate summaries across 10 scenarios in 6.85 seconds of `run-pending` wall time.
+  13) First production grid spec frozen on 2026-05-14: `analysis/production_specs/fig1_s4_highres_v1.json` now defines the S=4 high-resolution Figure 1 batch, and `analysis/production_grid.py create-manifest-from-spec` can generate manifests directly from versioned JSON specs.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Benchmark a representative production-sized shard on `deep-server` to size `--jobs` and `replicates-per-shard` for the first production batch.
-  3) Freeze the high-resolution Figure 1 grid specification and launch the first S=4 mixed/positive production batch at 1000 replicates per scenario/slice.
-  4) Compare new high-resolution surfaces against the current coarse/interim grid before replacing display defaults.
-  5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
-  6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  2) Launch the first S=4 mixed/positive production batch at 1000 replicates per scenario/slice, 100 replicates per shard, and `run-pending --jobs 48`.
+  3) Validate and compare new high-resolution surfaces against the current coarse/interim grid before replacing display defaults.
+  4) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
+  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

@@ -1,0 +1,83 @@
+{
+  "spec_version": 1,
+  "run_id": "fig1-s4-highres-v1",
+  "title": "High-resolution S=4 Figure 1 response surfaces",
+  "purpose": "Production-scale mixed-vs-positive response surfaces for the main environmental variance and synchrony figure.",
+  "rationale": [
+    "Keep the first production batch focused on the current Figure 1 comparison: S=4 mixed slopes versus positive aligned slopes.",
+    "Use 1000 replicates per scenario to make Monte Carlo uncertainty visually and rhetorically negligible for the final paper.",
+    "Densify sigma_env across the current coarse range and add extra resolution above 1.0, where the interim display concentrated much of the visual change.",
+    "Use feasible negative rho_env values for S=4 and a finer positive-correlation gradient, while retaining rho_env=1.0 as the aligned endpoint with rho_eff recorded in outputs."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "base_seed": 2026051401,
+    "sigma_vals": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0,
+      1.1,
+      1.2,
+      1.3,
+      1.4,
+      1.5,
+      1.6,
+      1.8,
+      2.0
+    ],
+    "rho_vals": [
+      -0.3,
+      -0.2,
+      -0.1,
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      1.0
+    ],
+    "species_vals": [
+      4
+    ],
+    "slope_modes": [
+      "mixed",
+      "positive"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 570,
+    "shard_count": 5700,
+    "expected_rows": 570000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 570000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "Mean extinction or floor occupancy patterns at high sigma_env are inspected before using high-sigma regions in manuscript claims.",
+    "New surfaces are compared with the current coarse Figure 1 before replacing display defaults."
+  ]
+}

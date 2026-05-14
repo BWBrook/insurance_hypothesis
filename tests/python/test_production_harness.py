@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -55,6 +56,50 @@ def test_create_manifest_counts_and_replicate_seeds_are_stable() -> None:
     assert seed_for_replicate(12345, 0, 0) == seed_for_replicate(12345, 0, 0)
     assert seed_for_replicate(12345, 0, 0) != seed_for_replicate(12345, 0, 1)
     assert seed_for_replicate(12345, 0, 0) != seed_for_replicate(12345, 1, 0)
+
+
+def test_create_manifest_from_spec_cli_checks_expected_counts(tmp_path: Path) -> None:
+    spec_path = tmp_path / "spec.json"
+    manifest_path = tmp_path / "manifest.json"
+    spec = {
+        "spec_version": 1,
+        "run_id": "spec_smoke",
+        "manifest": {
+            "reps_per_scenario": 5,
+            "replicates_per_shard": 2,
+            "steps": 30,
+            "burn": 10,
+            "phi": 0.4,
+            "alpha_inter": 0.3,
+            "base_seed": 12345,
+            "sigma_vals": [0.0, 0.5],
+            "rho_vals": [0.0],
+            "species_vals": [2],
+            "slope_modes": ["mixed", "positive"],
+        },
+        "expected": {
+            "scenario_count": 4,
+            "shard_count": 12,
+            "expected_rows": 20,
+        },
+    }
+    spec_path.write_text(json.dumps(spec), encoding="utf-8")
+
+    create = _run_production_script(
+        "create-manifest-from-spec",
+        "--spec",
+        str(spec_path),
+        "--output",
+        str(manifest_path),
+        cwd=tmp_path,
+    )
+    assert create.returncode == 0, create.stderr or create.stdout
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["run_id"] == "spec_smoke"
+    assert manifest["scenario_count"] == 4
+    assert manifest["shard_count"] == 12
+    assert manifest["expected_rows"] == 20
 
 
 def test_production_cli_smoke_runs_combines_and_validates(tmp_path: Path) -> None:
@@ -126,6 +171,11 @@ def test_production_cli_smoke_runs_combines_and_validates(tmp_path: Path) -> Non
     assert set(df["replicate"]) == {0, 1, 2}
     assert set(df["slope_mode"]) == {"mixed", "positive"}
     assert validation_path.exists()
+
+    done_markers = sorted((manifest_path.parent / "shards").glob("*.done.json"))
+    assert done_markers
+    done_payload = json.loads(done_markers[0].read_text())
+    assert done_payload["duration_seconds"] >= 0
 
 
 def test_combine_fails_clearly_when_shards_are_missing(tmp_path: Path) -> None:

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from insurance_sim.production import (
     combine_shards,
     create_manifest,
+    create_manifest_from_spec,
     iter_shard_ids,
     load_manifest,
     parse_float_list,
@@ -51,6 +53,14 @@ def parse_args() -> argparse.Namespace:
         default="mixed,positive",
         help="Comma-separated slope modes",
     )
+
+    manifest_spec = subparsers.add_parser(
+        "create-manifest-from-spec",
+        help="Write a production grid manifest from a JSON spec",
+    )
+    manifest_spec.add_argument("--spec", type=Path, required=True, help="Path to production spec JSON")
+    manifest_spec.add_argument("--output", type=Path, required=True, help="Path to manifest JSON")
+    manifest_spec.add_argument("--run-id", default=None, help="Optional run ID override")
 
     run_one = subparsers.add_parser("run-shard", help="Run one shard from an existing manifest")
     run_one.add_argument("--manifest", type=Path, required=True)
@@ -98,6 +108,20 @@ def main() -> None:
             alpha_inter=args.alpha_inter,
             base_seed=args.base_seed,
         )
+        write_manifest(manifest, args.output)
+        print(
+            "Wrote {path} with {scenarios} scenarios, {shards} shards, {rows} expected rows".format(
+                path=args.output,
+                scenarios=manifest["scenario_count"],
+                shards=manifest["shard_count"],
+                rows=manifest["expected_rows"],
+            )
+        )
+        return
+
+    if args.command == "create-manifest-from-spec":
+        spec = json.loads(args.spec.read_text(encoding="utf-8"))
+        manifest = create_manifest_from_spec(spec, run_id_override=args.run_id)
         write_manifest(manifest, args.output)
         print(
             "Wrote {path} with {scenarios} scenarios, {shards} shards, {rows} expected rows".format(

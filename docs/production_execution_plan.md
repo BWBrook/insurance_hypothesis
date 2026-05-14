@@ -85,6 +85,13 @@ Exit criteria:
 - A reviewer could reconstruct why each production grid exists.
 - Expected outputs and success checks are known before execution.
 
+Status, 2026-05-14:
+
+- Complete for the first S=4 Figure 1 production batch.
+- Machine-readable spec: `analysis/production_specs/fig1_s4_highres_v1.json`.
+- Expected size: 570 scenarios, 5700 shards, 570000 replicate-summary rows.
+- Execution defaults: 1000 replicates per scenario, 100 replicates per shard, `run-pending --jobs 48`.
+
 ## Phase 3: Build The Production Harness
 
 Goal: make large runs reproducible, resumable, and easy to monitor.
@@ -127,6 +134,13 @@ Exit criteria:
 - A `tmux` smoke job survives detachment and produces validated outputs.
 - We have a credible runtime estimate for the first production batch.
 
+Status, 2026-05-14:
+
+- Complete for the initial S=4 production batch.
+- Remote tests and a tiny tmux smoke passed in `docs/log/110_production_harness.md`.
+- Two production-shaped benchmarks passed in `docs/log/120_remote_benchmark.md`.
+- Recommended first-batch defaults: 100 replicates per shard, `run-pending --jobs 48`.
+
 ## Phase 5: Production Batch 1
 
 Goal: generate the first high-resolution production surfaces without overcommitting to the full campaign.
@@ -141,6 +155,7 @@ Run:
 
 Tasks:
 
+- Freeze the high-resolution `sigma_env` and `rho_env` values in a machine-readable grid specification.
 - Launch under `tmux` on `deep-server`.
 - Monitor logs and shard completion.
 - Validate combined output.

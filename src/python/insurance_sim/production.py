@@ -11,6 +11,7 @@ from pathlib import Path
 import platform
 import subprocess
 import tempfile
+import time
 from typing import Any, Iterable, Sequence
 
 import numpy as np
@@ -309,6 +310,39 @@ def create_manifest(
     }
 
 
+def create_manifest_from_spec(
+    spec: dict[str, Any],
+    *,
+    run_id_override: str | None = None,
+) -> dict[str, Any]:
+    """Create a production manifest from a versioned JSON-style spec."""
+    if int(spec.get("spec_version", -1)) != 1:
+        raise ValueError(f"Unsupported spec_version: {spec.get('spec_version')}")
+    manifest_spec = spec["manifest"]
+    manifest = create_manifest(
+        run_id=str(run_id_override or spec["run_id"]),
+        reps_per_scenario=int(manifest_spec["reps_per_scenario"]),
+        replicates_per_shard=int(manifest_spec["replicates_per_shard"]),
+        sigma_vals=[float(value) for value in manifest_spec["sigma_vals"]],
+        rho_vals=[float(value) for value in manifest_spec["rho_vals"]],
+        species_vals=[int(value) for value in manifest_spec["species_vals"]],
+        slope_modes=[str(value) for value in manifest_spec["slope_modes"]],
+        phi=float(manifest_spec["phi"]),
+        steps=int(manifest_spec["steps"]),
+        burn=int(manifest_spec["burn"]),
+        alpha_inter=float(manifest_spec["alpha_inter"]),
+        base_seed=int(manifest_spec["base_seed"]),
+    )
+    expected = spec.get("expected")
+    if expected is not None:
+        for key in ("scenario_count", "shard_count", "expected_rows"):
+            if int(expected[key]) != int(manifest[key]):
+                raise ValueError(
+                    f"Spec expected {key}={expected[key]}, but manifest has {manifest[key]}."
+                )
+    return manifest
+
+
 def write_manifest(manifest: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -421,6 +455,7 @@ def run_shard(
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     started_at = utc_now_iso()
+    started_monotonic = time.perf_counter()
     records = []
     base_seed = int(manifest["base_seed"])
     run_id = str(manifest["run_id"])
@@ -438,6 +473,7 @@ def run_shard(
 
     frame = pd.DataFrame.from_records(records)
     _atomic_write_parquet(frame, out_path)
+    finished_at = utc_now_iso()
     done_payload = {
         "run_id": run_id,
         "shard_id": shard.shard_id,
@@ -446,7 +482,8 @@ def run_shard(
         "replicate_end": shard.replicate_end,
         "rows": int(len(frame)),
         "started_at_utc": started_at,
-        "finished_at_utc": utc_now_iso(),
+        "finished_at_utc": finished_at,
+        "duration_seconds": round(time.perf_counter() - started_monotonic, 6),
         "host": platform.node(),
         "pid": os.getpid(),
         "git_commit": current_git_commit(Path.cwd()),
