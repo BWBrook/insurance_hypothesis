@@ -296,8 +296,13 @@ For each question, we add one entry with:
   - Add a labelled high-sigma extension spec for S=4 mixed and positive slopes, reusing the same 1000-replicate and 48-worker production defaults.
   - Extend beyond the existing grid with `sigma_env` values above 2.0 up to 4.0.
   - Validate and summarise extinction/floor occupancy before deciding whether the high-sigma region belongs in the main Figure 1 display, an inset, or supplementary stress-region panel.
-- Status: open
-- Links: `analysis/production_specs/fig1_s4_highres_v1.json`, `docs/log/140_fig1_production_batch.md`, `analysis/reports/production/fig1_s4_highres_v1_cv_surfaces.png`
+- Follow-up result:
+  - `fig1-s4-highsigma-v1` validated cleanly on `deep-server` with 180 scenarios, 1800 shards, and 180000 rows.
+  - The extension confirms your read: mixed slopes become visibly dynamic above `sigma_env=2`, rising from mean CV ~0.78 at 2.0 to ~4.39 at 4.0; positive slopes rise from ~3.36 to ~11.13 over the same range.
+  - The insurance contrast persists but narrows at the extreme end: positive/mixed mean-CV ratio is ~4.5 near `sigma_env=2.5`, ~4.0 at 3.0, and ~2.5 at 4.0.
+  - Floor/extinction frequency also rises, especially for positive slopes: by `sigma_env=4.0`, mean floor frequency averaged across the `rho_env` grid is ~0.030 for mixed slopes and ~0.102 for positive slopes. This supports treating `sigma_env > 3` as a stress region unless further diagnostics justify otherwise.
+- Status: actioned
+- Links: `analysis/production_specs/fig1_s4_highres_v1.json`, `analysis/production_specs/fig1_s4_highsigma_v1.json`, `docs/log/140_fig1_production_batch.md`, `analysis/reports/production/fig1_s4_combined_highsigma_v1_mean_cv_by_sigma.png`
 
 ## Open action queue
 
@@ -308,7 +313,7 @@ For each question, we add one entry with:
   - `analysis/reports/fig2_richness_scaling_mixed.png`
   - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
 - Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
-- Design and run a labelled high-sigma extension of the S=4 production Figure 1 surface, then decide how to display the `sigma_env > 2` stress region.
+- Decide how to display the `sigma_env > 2` stress region now that the labelled high-sigma S=4 extension has validated.
 - Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics

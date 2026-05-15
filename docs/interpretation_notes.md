@@ -154,6 +154,23 @@
   - [ ] Decide whether `sigma_env=2.0` belongs in the main panel, an inset/extended axis, or supplementary stress-region display.
   - [ ] Compare production surfaces directly with the coarse/interim Figure 1 before replacing display defaults.
 
+### PROD_fig1_s4_highsigma_v1
+
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig1-s4-highsigma-v1`; local retrieved summary `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet`; combined quicklooks under `analysis/reports/production/fig1_s4_combined_highsigma_v1_*`.
+- **Summary (plain language)**:
+  - The high-sigma extension validated cleanly: 180 scenarios, 1800 shards, 180000 replicate-summary rows, 1000 replicates per scenario.
+  - Extending to `sigma_env=4.0` confirms that mixed-slope communities eventually enter a high-CV regime too. Mean CV across the `rho_env` grid rises from ~0.78 at `sigma_env=2.0` to ~2.04 at 3.0 and ~4.39 at 4.0.
+  - Positive aligned slopes remain substantially more variable, rising from mean CV ~3.36 at `sigma_env=2.0` to ~8.09 at 3.0 and ~11.13 at 4.0.
+  - The insurance contrast persists but narrows at the most extreme forcing: positive/mixed mean-CV ratio is ~4.5 around `sigma_env=2.5`, ~4.0 at 3.0, and ~2.5 at 4.0.
+  - Floor/extinction frequency is now scientifically non-negligible at the high end: averaged across `rho_env`, by `sigma_env=4.0` it is ~0.030 for mixed slopes and ~0.102 for positive slopes, with worst replicate-level positive-slope floor frequency ~0.194.
+- **Relation to hypothesis**:
+  - Strongly supports the main conditional-insurance claim over a wider forcing range: heterogeneous responses continue to buffer aggregate biomass relative to aligned responses.
+  - Also identifies a plausible stress-boundary: at extreme environmental forcing, both regimes become highly variable and floor effects become part of the system behaviour, so interpretation should shift from clean low-extinction insurance to stress-regime dynamics.
+- **Follow-up tasks**:
+  - [ ] Build display variants that show the high-sigma extension without flattening the core 0-2 surface, probably using a split axis, inset, or separate stress-panel rather than one linear shared colour scale.
+  - [ ] Decide whether the main text should stop at `sigma_env=3.0` and place 3.5-4.0 in supplementary stress diagnostics.
+  - [ ] Consider adding a small numerical-guard diagnostic for representative `sigma_env=4.0` scenarios before any strong claims are made about that edge.
+
 _(Add new sections for subsequent artefacts.)_
 
 ## Summary
