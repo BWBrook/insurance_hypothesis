@@ -304,6 +304,24 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/production_specs/fig1_s4_highres_v1.json`, `analysis/production_specs/fig1_s4_highsigma_v1.json`, `docs/log/140_fig1_production_batch.md`, `analysis/reports/production/fig1_s4_combined_highsigma_v1_mean_cv_by_sigma.png`
 
+### QA-019
+
+- Context: redesigning Figure 1 after the core and high-sigma S=4 production runs showed weak `rho_eff` structure relative to the strong `sigma_env` gradient and mixed-vs-positive contrast.
+- Question: Given the weak effect of `rho_eff` on Figure 1, should we leave out the current mixed-slopes subplot and instead use the positive-slope surface as subplot A and a positive-vs-mixed divergence across `sigma_env` as subplot B? Or should we use a core surface plus stress-extension inset/split-axis approach?
+- Response:
+  - I agree that the mixed-slope heatmap is not earning main-panel space. Its ecological message is mostly “buffered across the surface,” and the `rho_eff` variation is secondary compared with the `sigma_env` gradient.
+  - The best main-text candidate is therefore a two-panel figure:
+    - Panel A: aligned positive-slope response surface, retaining `rho_eff` as context because this is the regime where synchronised responses should be most visibly destabilising.
+    - Panel B: mixed versus aligned mean `CV_tot` across `sigma_env`, averaged over `rho_eff`, with the range across `rho_eff` shown as a faint band and the aligned-minus-mixed CV gap on a secondary axis.
+  - The high-sigma region is shaded as a stress extension rather than being hidden or treated as the core regime. The full mixed-slope heatmap and floor/extinction surfaces should remain diagnostic or supplementary.
+- Decision / Action:
+  - Added `analysis/plot_production_fig1.py` and `src/python/insurance_sim/production_figures.py`.
+  - Wrote a review-ready candidate to `analysis/reports/fig1_production_candidate.png` and `.pdf`.
+  - Wrote the scenario-level summary to `analysis/reports/fig1_production_candidate_summary.csv`.
+  - Added focused tests for the production Figure 1 summary/plotting helper.
+- Status: actioned
+- Links: `analysis/plot_production_fig1.py`, `src/python/insurance_sim/production_figures.py`, `analysis/reports/fig1_production_candidate.png`, `analysis/reports/fig1_production_candidate.pdf`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:
@@ -313,7 +331,7 @@ For each question, we add one entry with:
   - `analysis/reports/fig2_richness_scaling_mixed.png`
   - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
 - Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
-- Decide how to display the `sigma_env > 2` stress region now that the labelled high-sigma S=4 extension has validated.
+- Review the new `analysis/reports/fig1_production_candidate.png` layout and decide whether to promote it as the new Figure 1 basis.
 - Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics

@@ -167,9 +167,23 @@
   - Strongly supports the main conditional-insurance claim over a wider forcing range: heterogeneous responses continue to buffer aggregate biomass relative to aligned responses.
   - Also identifies a plausible stress-boundary: at extreme environmental forcing, both regimes become highly variable and floor effects become part of the system behaviour, so interpretation should shift from clean low-extinction insurance to stress-regime dynamics.
 - **Follow-up tasks**:
-  - [ ] Build display variants that show the high-sigma extension without flattening the core 0-2 surface, probably using a split axis, inset, or separate stress-panel rather than one linear shared colour scale.
+  - [x] Build a first display variant that drops the mixed-slope heatmap from the main panel, shows the aligned-response surface, and uses a `sigma_env` gradient panel for the mixed-vs-positive contrast.
   - [ ] Decide whether the main text should stop at `sigma_env=3.0` and place 3.5-4.0 in supplementary stress diagnostics.
   - [ ] Consider adding a small numerical-guard diagnostic for representative `sigma_env=4.0` scenarios before any strong claims are made about that edge.
+
+### PROD_fig1_display_candidate
+
+- **Artefacts**: `analysis/reports/fig1_production_candidate.png`, `analysis/reports/fig1_production_candidate.pdf`, and `analysis/reports/fig1_production_candidate_summary.csv`.
+- **Summary (plain language)**:
+  - The revised candidate drops the mixed-slope heatmap from the main Figure 1 because `rho_eff` structure is weak relative to the environmental-variability gradient.
+  - Panel A shows the aligned positive-slope response surface, where the combination of high `sigma_env` and response synchrony is most destabilising.
+  - Panel B makes the insurance contrast explicit: mixed and aligned mean `CV_tot` trajectories across `sigma_env`, averaged over the `rho_eff` grid with faint ranges across `rho_eff`, plus the aligned-minus-mixed CV gap.
+  - The `sigma_env > 3` region is shaded as a stress extension, preserving the ecological distinction between the main response surface and extreme/boom-bust forcing regimes.
+- **Relation to hypothesis**:
+  - This layout foregrounds the main paper claim more directly than the earlier side-by-side mixed/positive heatmaps: aligned responses destabilise rapidly with environmental variability, while mixed responses remain buffered until much more extreme forcing.
+- **Follow-up tasks**:
+  - [ ] Human review of the candidate layout, labels, and whether the stress extension should remain in panel B or move to an inset/supplement.
+  - [ ] If accepted, update the main Figure 1 generation/promotion path and manuscript caption.
 
 _(Add new sections for subsequent artefacts.)_
 

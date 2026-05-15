@@ -92,10 +92,11 @@
   13) First production grid spec frozen on 2026-05-14: `analysis/production_specs/fig1_s4_highres_v1.json` now defines the S=4 high-resolution Figure 1 batch, and `analysis/production_grid.py create-manifest-from-spec` can generate manifests directly from versioned JSON specs.
   14) First production batch completed on 2026-05-14: `fig1-s4-highres-v1` validated on `deep-server` with 570000 rows across 570 scenarios, then compact outputs were retrieved locally under `data/sim/production/fig1_s4_highres_v1/` and quicklook figures were generated under `analysis/reports/production/`.
   15) High-sigma extension completed on 2026-05-15: Barry's first read of the production surface indicated that the mixed-slope response likely needs `sigma_env > 2`; `fig1-s4-highsigma-v1` validated on `deep-server` with 180000 rows and shows the insurance contrast persists but narrows by `sigma_env=4.0`, while floor/extinction frequency rises enough to treat `sigma_env > 3` as a stress region.
+  16) Figure 1 display candidate revised on 2026-05-15: added `analysis/plot_production_fig1.py` and `src/python/insurance_sim/production_figures.py` to build a two-panel production Figure 1 candidate that foregrounds the aligned-response surface and the mixed-vs-aligned divergence across `sigma_env`.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Build a manuscript-quality production Figure 1 from the core and high-sigma S=4 runs, with careful colour scaling and explicit treatment of the high-variance stress edge.
-  3) Compare the production Figure 1 against the current coarse/interim grid before replacing display defaults.
+  2) Review `analysis/reports/fig1_production_candidate.png` and decide whether to promote it as the new Figure 1 basis.
+  3) If accepted, update the Figure 1 generation/promotion path and manuscript caption.
   4) Decide whether to extend production surfaces to S=2/S=8 or instead prioritise figure/manuscript revision around the new S=4 evidence first.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
