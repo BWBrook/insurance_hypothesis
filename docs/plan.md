@@ -98,9 +98,9 @@
   19) Figure 2 production run completed on 2026-05-15: `fig2-richness-mixed-v1` validated on `deep-server` with 210000 rows across 210 scenarios and 2100 shards; compact outputs were retrieved locally and production Figure 2 was rebuilt under `analysis/reports/`.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Review the rebuilt production Figure 2 display and decide whether the faint `rho_eff` range bands should remain in the main panel.
-  3) Re-review the manuscript Results text against the production Figure 1 and Figure 2 artefacts.
-  4) Decide whether to extend production surfaces to S=2/S=8 for mixed-vs-aligned contrasts or instead prioritise the remaining manuscript/figure revision around the new Figure 1 and Figure 2 evidence.
+  2) Freeze and run a focused production-scale imposed-vs-realised synchrony grid for Figure 3, so the mechanism figure is supported by the same 1000-replicate convention as Figures 1 and 2.
+  3) Rebuild Figure 3 from production synchrony outputs, then opportunistically rebuild Figure 4 from existing production mixed-slope outputs if the plotted scope remains scientifically coherent.
+  4) Re-review the manuscript Results text against the production Figure 1, Figure 2, and mechanism artefacts.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 

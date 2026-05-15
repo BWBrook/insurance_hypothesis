@@ -200,7 +200,8 @@
   - [x] Launch and validate `fig2-richness-mixed-v1` on `deep-server`.
   - [x] Summarise floor/extinction frequencies across `sigma_env` and richness.
   - [x] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
-  - [ ] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic.
+  - [x] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic. Barry prefers to keep them in the main panel.
+  - [ ] Next production reinforcement: refresh the imposed-vs-realised synchrony mechanism figure at production scale.
 
 _(Add new sections for subsequent artefacts.)_
 

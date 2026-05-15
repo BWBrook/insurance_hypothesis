@@ -341,6 +341,18 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/production_specs/fig2_richness_mixed_v1.json`, `analysis/plot_production_fig1.py`, `analysis/plot_production_fig2.py`, `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `paper/manuscript/text/figure_captions_v2.md`
 
+### QA-021
+
+- Context: Barry reviewed the rebuilt production Figure 2 and said the `rho_eff` range bands are visually striking and should remain.
+- Question: What should be the next production-level reinforcement/improvement after Figures 1 and 2?
+- Response:
+  - Keep Figure 2 unchanged.
+  - The next cab should be the mechanism display: refresh Figure 3, the imposed-vs-realised synchrony figure, with production-scale simulations.
+  - Proposed production grid: `sigma_env=0.5`, `phi=0.4`, S=2,4,8, mixed and positive slope modes, non-negative `rho_env` grid from 0 to 1, and 1000 replicates per scenario.
+  - Rationale: Figures 1 and 2 now establish the headline pattern and richness buffering; Figure 3 is the causal/mechanistic bridge showing how response direction decouples imposed environmental covariance from realised growth synchrony.
+- Status: proposed
+- Links: `analysis/reports/fig3_imposed_vs_realised_panels.png`, `src/python/insurance_sim/figures.py`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:
