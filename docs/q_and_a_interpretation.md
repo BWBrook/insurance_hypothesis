@@ -283,6 +283,22 @@ For each question, we add one entry with:
 - Status: answered
 - Links: `docs/production_execution_plan.md`, `analysis/run_full_grid.py`, `docs/plan.md`
 
+### QA-018
+
+- Context: first scientific read of production quicklooks from `fig1-s4-highres-v1`, especially the fact that the current surface only extends to `sigma_env=2.0`.
+- Question: My first pass on this result is that we need to push out further in the `sigma_env` magnitude. Interesting things are really only happening in Figure 1 at about `sigma_env > 1` for positive slopes and `sigma_env > 1.8` for mixed slopes. Should we go up to 3 or even 4? High variability regimes may be less common in many taxa but plausible for invertebrates, for instance?
+- Response:
+  - Yes, this is a sensible next scientific probe. The first production grid shows that `sigma_env=2.0` is not yet enough to reveal the full mixed-slope response surface, even though the positive aligned-slope surface is already entering a high-CV region.
+  - Ecologically, extending to `sigma_env=3-4` is defensible as a high-variability or boom-bust regime, especially for short-lived taxa with strong environmental forcing. It should not be presented as the typical regime for all communities, but it is useful for stress-testing where the insurance effect bends, saturates, or breaks down.
+  - Technically, `sigma_env` is the innovation standard deviation of the AR(1) environmental driver. With `phi=0.4`, the stationary environmental SD is about 1.09 times `sigma_env`, so `sigma_env=4` is a genuinely extreme forcing regime.
+  - Interpretation should explicitly separate the core response-surface regime from the high-sigma extension, because high positive-slope scenarios may increasingly reflect floor occupancy and nonlinear Ricker/floor dynamics rather than clean low-extinction insurance dynamics.
+- Decision / Action:
+  - Add a labelled high-sigma extension spec for S=4 mixed and positive slopes, reusing the same 1000-replicate and 48-worker production defaults.
+  - Extend beyond the existing grid with `sigma_env` values above 2.0 up to 4.0.
+  - Validate and summarise extinction/floor occupancy before deciding whether the high-sigma region belongs in the main Figure 1 display, an inset, or supplementary stress-region panel.
+- Status: open
+- Links: `analysis/production_specs/fig1_s4_highres_v1.json`, `docs/log/140_fig1_production_batch.md`, `analysis/reports/production/fig1_s4_highres_v1_cv_surfaces.png`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:
@@ -292,7 +308,7 @@ For each question, we add one entry with:
   - `analysis/reports/fig2_richness_scaling_mixed.png`
   - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
 - Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
-- Design and run a focused high-resolution production grid for Figure 1 surfaces at 1000 replicates per scenario/slice, then compare against the current coarse/interim grid before changing display defaults.
+- Design and run a labelled high-sigma extension of the S=4 production Figure 1 surface, then decide how to display the `sigma_env > 2` stress region.
 - Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics

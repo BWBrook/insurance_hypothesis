@@ -1,0 +1,70 @@
+{
+  "spec_version": 1,
+  "run_id": "fig1-s4-highsigma-v1",
+  "title": "High-sigma S=4 Figure 1 stress-extension surfaces",
+  "purpose": "Production-scale extension beyond sigma_env=2.0 to locate where mixed-slope buffering bends, saturates, or enters a high-variability stress regime.",
+  "rationale": [
+    "The first high-resolution S=4 production surface shows positive aligned slopes changing strongly above sigma_env=1.0, while mixed slopes remain comparatively buffered through sigma_env=2.0.",
+    "Extending to sigma_env=3.0 and 4.0 is ecologically plausible as a high-variability or boom-bust regime for taxa such as many invertebrates, but should be labelled as a stress extension rather than a universal community baseline.",
+    "The extension starts above the previous production grid to avoid recomputing already validated sigma_env values.",
+    "The same rho_env grid, replicate count, shard size, and execution defaults are retained so the extension can be merged or compared cleanly with fig1-s4-highres-v1 summaries."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "base_seed": 2026051501,
+    "sigma_vals": [
+      2.25,
+      2.5,
+      2.75,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "rho_vals": [
+      -0.3,
+      -0.2,
+      -0.1,
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      1.0
+    ],
+    "species_vals": [
+      4
+    ],
+    "slope_modes": [
+      "mixed",
+      "positive"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 180,
+    "shard_count": 1800,
+    "expected_rows": 180000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 180000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "Floor/extinction frequency is summarised before any high-sigma panel is used in main-text inference.",
+    "High-sigma results are compared with fig1-s4-highres-v1 before deciding whether to extend the main Figure 1 axis, use an inset, or move the stress region to supplementary material."
+  ]
+}

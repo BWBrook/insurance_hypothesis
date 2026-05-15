@@ -105,6 +105,13 @@ For each entry, include:
 - **Rationale**: This grid directly addresses the ecologist-facing concern that the interim Figure 1 surfaces were blocky and that visual change was compressed at high `sigma_env`. It densifies the displayed gradients without expanding to other richness levels or controls before the main S=4 story is rechecked.
 - **Status**: active
 
+### DEC-014 – Label high-sigma Figure 1 work as a stress extension
+
+- **Date**: 2026-05-15
+- **Decision**: Add `analysis/production_specs/fig1_s4_highsigma_v1.json` as a separate S=4 production extension from `sigma_env=2.25` to `4.0`, rather than expanding the core Figure 1 grid in place.
+- **Rationale**: The first production surface indicates that the mixed-slope response is still buffered at `sigma_env=2.0`, while positive slopes are already entering a high-CV/high-floor edge. Extending to `sigma_env=3-4` is ecologically plausible for high-variability taxa such as many invertebrates, but should be explicitly treated as a high-variability stress regime until floor occupancy and nonlinear dynamics are inspected.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---
