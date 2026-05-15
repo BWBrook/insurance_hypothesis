@@ -187,30 +187,27 @@ def make_production_fig1_candidate(
 
     wide_cv = mean_cv.pivot(index="sigma_env", columns="slope_mode", values="cv_mean")
     gap = wide_cv["positive"] - wide_cv["mixed"]
-    ax_gap = ax_gradient.twinx()
-    ax_gap.plot(
+    ax_gradient.plot(
         gap.index.to_numpy(dtype=float),
         gap.to_numpy(dtype=float),
         color="0.25",
-        lw=1.8,
+        lw=1.9,
         marker="s",
         ms=3.5,
         alpha=0.85,
         label="aligned - mixed gap",
     )
-    ax_gap.set_ylabel(r"Aligned $-$ mixed mean CV", color="0.25")
-    ax_gap.tick_params(axis="y", colors="0.25")
 
     ax_gradient.axvline(2.0, color="0.35", lw=1.1, ls=":")
     ax_gradient.axvspan(3.0, max(sigmas), color="#8c2d04", alpha=0.08, lw=0)
     ax_gradient.text(
         3.04,
-        ax_gradient.get_ylim()[1] * 0.92,
+        6.0,
         "stress\nextension",
         color="#8c2d04",
         fontsize=8,
         ha="left",
-        va="top",
+        va="center",
     )
     ax_gradient.set(
         title="Insurance contrast across environmental variability",
@@ -219,7 +216,6 @@ def make_production_fig1_candidate(
     )
     ax_gradient.set_xlim(min(sigmas) - 0.05, max(sigmas) + 0.05)
     ax_gradient.legend(loc="upper left", fontsize=8, frameon=True)
-    ax_gap.legend(loc="center right", fontsize=8, frameon=True)
     _add_panel_label(ax_gradient, "B")
 
     fig.suptitle("Production Figure 1 candidate: aligned variability and biodiversity insurance", fontsize=12)

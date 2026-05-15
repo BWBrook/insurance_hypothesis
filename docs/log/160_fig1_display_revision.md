@@ -15,9 +15,10 @@ Date: 2026-05-15
 
 - The main candidate now uses two panels:
   - Panel A: aligned positive-slope `CV_tot` surface across `sigma_env` and `rho_eff`.
-  - Panel B: mixed versus aligned mean `CV_tot` across `sigma_env`, averaged over the `rho_eff` grid, with faint bands showing the range across `rho_eff` and a grey aligned-minus-mixed CV gap on a secondary axis.
+  - Panel B: mixed versus aligned mean `CV_tot` across `sigma_env`, averaged over the `rho_eff` grid, with faint bands showing the range across `rho_eff` and a grey aligned-minus-mixed CV gap on the same primary CV axis.
 - The mixed-slope heatmap is deliberately omitted from the main candidate because its message is mostly “buffered across the surface” and the `rho_eff` structure is weak.
 - The high-sigma region is shaded as a stress extension rather than treated as part of the core low-stress response surface.
+- Barry's follow-up readability tweaks were applied: the gap line is part of the top-left legend, the confusing secondary y-axis was removed, and the "stress extension" annotation was moved down to avoid the plotted lines.
 
 ## Outputs
 
