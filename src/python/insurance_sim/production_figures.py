@@ -201,12 +201,12 @@ def make_production_fig1_candidate(
     ax_gradient.axvline(2.0, color="0.35", lw=1.1, ls=":")
     ax_gradient.axvspan(3.0, max(sigmas), color="#8c2d04", alpha=0.08, lw=0)
     ax_gradient.text(
-        3.04,
-        6.0,
+        max(sigmas) - 0.08,
+        5.0,
         "stress\nextension",
         color="#8c2d04",
         fontsize=8,
-        ha="left",
+        ha="right",
         va="center",
     )
     ax_gradient.set(

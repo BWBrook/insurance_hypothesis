@@ -319,7 +319,7 @@ For each question, we add one entry with:
   - Wrote a review-ready candidate to `analysis/reports/fig1_production_candidate.png` and `.pdf`.
   - Wrote the scenario-level summary to `analysis/reports/fig1_production_candidate_summary.csv`.
   - Added focused tests for the production Figure 1 summary/plotting helper.
-  - Follow-up display refinement: moved the aligned-minus-mixed gap onto the primary Panel B y-axis, merged it into the upper-left legend below the mixed/aligned entries, and moved the "stress extension" label down to about y=6.
+  - Follow-up display refinement: moved the aligned-minus-mixed gap onto the primary Panel B y-axis, merged it into the upper-left legend below the mixed/aligned entries, and right-aligned the "stress extension" label within the shaded band at about y=5.
 - Status: actioned
 - Links: `analysis/plot_production_fig1.py`, `src/python/insurance_sim/production_figures.py`, `analysis/reports/fig1_production_candidate.png`, `analysis/reports/fig1_production_candidate.pdf`
 
