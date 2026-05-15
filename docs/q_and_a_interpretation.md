@@ -312,7 +312,7 @@ For each question, we add one entry with:
   - I agree that the mixed-slope heatmap is not earning main-panel space. Its ecological message is mostly “buffered across the surface,” and the `rho_eff` variation is secondary compared with the `sigma_env` gradient.
   - The best main-text candidate is therefore a two-panel figure:
     - Panel A: aligned positive-slope response surface, retaining `rho_eff` as context because this is the regime where synchronised responses should be most visibly destabilising.
-    - Panel B: mixed versus aligned mean `CV_tot` across `sigma_env`, averaged over `rho_eff`, with the range across `rho_eff` shown as a faint band and the aligned-minus-mixed CV gap on a secondary axis.
+    - Panel B: mixed versus aligned mean `CV_tot` across `sigma_env`, averaged over `rho_eff`, with the range across `rho_eff` shown as a faint band and the aligned-minus-mixed CV gap on the same primary y-axis.
   - The high-sigma region is shaded as a stress extension rather than being hidden or treated as the core regime. The full mixed-slope heatmap and floor/extinction surfaces should remain diagnostic or supplementary.
 - Decision / Action:
   - Added `analysis/plot_production_fig1.py` and `src/python/insurance_sim/production_figures.py`.
@@ -323,6 +323,22 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/plot_production_fig1.py`, `src/python/insurance_sim/production_figures.py`, `analysis/reports/fig1_production_candidate.png`, `analysis/reports/fig1_production_candidate.pdf`
 
+### QA-020
+
+- Context: Barry approved the revised production Figure 1 display and asked to proceed with both Figure 1 completion and production-run work on Figure 2.
+- Question: What should be done next to complete Figure 1 and move Figure 2 onto production-scale evidence?
+- Response:
+  - Promote the accepted Figure 1 display to the canonical `fig1_panels` outputs and update the caption/manuscript references so they no longer describe the superseded four-panel interim figure.
+  - Keep `analysis/run_all.py` compatible with fresh/interim checkouts by using production Figure 1/Figure 2 inputs when present and falling back to existing cached exploratory grids otherwise.
+  - Freeze Figure 2 as a focused mixed-slope richness production grid: S=2..8, `sigma_env` up to 2.0, non-negative `rho_env`, `phi=0.4`, and 1000 replicates per scenario.
+  - Launch the Figure 2 production grid on `deep-server` under `tmux`, retrieve compact outputs, rebuild the Figure 2 display, and record the ecological sanity check before relying on it in the manuscript.
+- Actions:
+  - Added `analysis/production_specs/fig2_richness_mixed_v1.json`.
+  - Added production Figure 2 plotting hooks alongside the promoted Figure 1 production hooks.
+  - Updated Figure 1 and Figure 2 manuscript captions to match the production display plan.
+- Status: in progress
+- Links: `analysis/production_specs/fig2_richness_mixed_v1.json`, `analysis/plot_production_fig1.py`, `analysis/plot_production_fig2.py`, `analysis/run_all.py`, `paper/manuscript/text/figure_captions_v2.md`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:
@@ -332,7 +348,7 @@ For each question, we add one entry with:
   - `analysis/reports/fig2_richness_scaling_mixed.png`
   - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
 - Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
-- Review the new `analysis/reports/fig1_production_candidate.png` layout and decide whether to promote it as the new Figure 1 basis.
+- Use canonical `fig1_panels` outputs for future Figure 1 review; older `fig1_production_candidate` references are historical only.
 - Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics

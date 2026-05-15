@@ -112,6 +112,20 @@ For each entry, include:
 - **Rationale**: The first production surface indicates that the mixed-slope response is still buffered at `sigma_env=2.0`, while positive slopes are already entering a high-CV/high-floor edge. Extending to `sigma_env=3-4` is ecologically plausible for high-variability taxa such as many invertebrates, but should be explicitly treated as a high-variability stress regime until floor occupancy and nonlinear dynamics are inspected.
 - **Status**: active
 
+### DEC-015 – Promote the production Figure 1 display
+
+- **Date**: 2026-05-15
+- **Decision**: Promote the accepted S=4 production display to the canonical `fig1_panels` output. Main Figure 1 now uses an aligned positive-slope response surface as panel A and a mixed-vs-aligned $\sigma_{\mathrm{env}}$ gradient/gap panel as panel B; the full mixed-slope heatmap remains diagnostic/supplementary rather than central.
+- **Rationale**: Barry's review identified weak `rho_eff` structure relative to the strong `sigma_env` gradient, and the two-panel layout communicates the conditional-insurance contrast more directly than paired mixed/positive heatmaps. Keeping the high-sigma region shaded as a stress extension preserves the ecological boundary around extreme forcing.
+- **Status**: active
+
+### DEC-016 – Figure 2 production richness grid
+
+- **Date**: 2026-05-15
+- **Decision**: Use `analysis/production_specs/fig2_richness_mixed_v1.json` for Figure 2: mixed slopes only, S=2 through S=8, `phi=0.4`, `sigma_env` in {0.0, 0.2, 0.5, 1.0, 1.5, 2.0}, non-negative `rho_env` in {0.0, 0.25, 0.5, 0.75, 1.0}, and 1000 replicates per scenario.
+- **Rationale**: Figure 2 supports the richness-buffering claim rather than the mixed-vs-aligned contrast, so the production run should stay focused on mixed responses and the shared non-negative correlation subset used in the display. Extending to `sigma_env=2.0` aligns with the Figure 1 core boundary without adding the high-sigma stress extension.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

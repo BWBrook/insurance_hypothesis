@@ -171,9 +171,9 @@
   - [ ] Decide whether the main text should stop at `sigma_env=3.0` and place 3.5-4.0 in supplementary stress diagnostics.
   - [ ] Consider adding a small numerical-guard diagnostic for representative `sigma_env=4.0` scenarios before any strong claims are made about that edge.
 
-### PROD_fig1_display_candidate
+### PROD_fig1_display_promoted
 
-- **Artefacts**: `analysis/reports/fig1_production_candidate.png`, `analysis/reports/fig1_production_candidate.pdf`, and `analysis/reports/fig1_production_candidate_summary.csv`.
+- **Artefacts**: `analysis/reports/fig1_panels.png`, `analysis/reports/fig1_panels.pdf`, and `analysis/reports/fig1_panels_summary.csv`.
 - **Summary (plain language)**:
   - The revised candidate drops the mixed-slope heatmap from the main Figure 1 because `rho_eff` structure is weak relative to the environmental-variability gradient.
   - Panel A shows the aligned positive-slope response surface, where the combination of high `sigma_env` and response synchrony is most destabilising.
@@ -182,8 +182,22 @@
 - **Relation to hypothesis**:
   - This layout foregrounds the main paper claim more directly than the earlier side-by-side mixed/positive heatmaps: aligned responses destabilise rapidly with environmental variability, while mixed responses remain buffered until much more extreme forcing.
 - **Follow-up tasks**:
-  - [ ] Human review of the candidate layout, labels, and whether the stress extension should remain in panel B or move to an inset/supplement.
-  - [ ] If accepted, update the main Figure 1 generation/promotion path and manuscript caption.
+  - [x] Human review of the layout, labels, and stress-extension treatment.
+  - [x] Promote the display to the main Figure 1 generation path and update the manuscript caption.
+  - [ ] Re-review the manuscript Results text once Figure 2 production output is available.
+
+### PROD_fig2_richness_mixed_v1
+
+- **Artefacts**: planned production run `/data/codex/scratch/insurance_hypothesis/fig2-richness-mixed-v1`; local compact output target `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display target `analysis/reports/fig2_richness_scaling_mixed.png`.
+- **Summary (plain language)**:
+  - The production grid is designed to refresh the mixed-slope richness pattern with 1000 replicates per scenario, S=2..8, non-negative `rho_env`, and `sigma_env` up to 2.0.
+  - This deliberately supports the Figure 2 richness-buffering claim without expanding the mixed-vs-aligned contrast or entering the Figure 1 high-sigma stress-extension regime.
+- **Relation to hypothesis**:
+  - If validated, this figure should show whether increasing richness continues to lower community CV under mixed response directions after Monte Carlo noise is largely removed.
+- **Follow-up tasks**:
+  - [ ] Launch and validate `fig2-richness-mixed-v1` on `deep-server`.
+  - [ ] Summarise floor/extinction frequencies across `sigma_env` and richness.
+  - [ ] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
 
 _(Add new sections for subsequent artefacts.)_
 

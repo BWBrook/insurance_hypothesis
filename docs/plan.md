@@ -93,11 +93,13 @@
   14) First production batch completed on 2026-05-14: `fig1-s4-highres-v1` validated on `deep-server` with 570000 rows across 570 scenarios, then compact outputs were retrieved locally under `data/sim/production/fig1_s4_highres_v1/` and quicklook figures were generated under `analysis/reports/production/`.
   15) High-sigma extension completed on 2026-05-15: Barry's first read of the production surface indicated that the mixed-slope response likely needs `sigma_env > 2`; `fig1-s4-highsigma-v1` validated on `deep-server` with 180000 rows and shows the insurance contrast persists but narrows by `sigma_env=4.0`, while floor/extinction frequency rises enough to treat `sigma_env > 3` as a stress region.
   16) Figure 1 display candidate revised on 2026-05-15: added `analysis/plot_production_fig1.py` and `src/python/insurance_sim/production_figures.py` to build a two-panel production Figure 1 candidate that foregrounds the aligned-response surface and the mixed-vs-aligned divergence across `sigma_env`.
+  17) Figure 1 promotion started on 2026-05-15: the accepted two-panel production display is now the canonical `fig1_panels` target, with `analysis/run_all.py` set to prefer production Figure 1 inputs when local compact production summaries are present.
+  18) Figure 2 production spec frozen on 2026-05-15: `analysis/production_specs/fig2_richness_mixed_v1.json` defines a 210-scenario, 210000-row mixed-slope richness grid for S=2..8, non-negative `rho_env`, `sigma_env` up to 2.0, and 1000 replicates per scenario.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Review `analysis/reports/fig1_production_candidate.png` and decide whether to promote it as the new Figure 1 basis.
-  3) If accepted, update the Figure 1 generation/promotion path and manuscript caption.
-  4) Decide whether to extend production surfaces to S=2/S=8 or instead prioritise figure/manuscript revision around the new S=4 evidence first.
+  2) Launch and validate `fig2-richness-mixed-v1` on `deep-server`, then retrieve compact outputs locally.
+  3) Rebuild Figure 2 from the production richness summary and record the ecological interpretation/floor-occupancy sanity check.
+  4) Decide whether to extend production surfaces to S=2/S=8 for mixed-vs-aligned contrasts or instead prioritise the remaining manuscript/figure revision around the new Figure 1 and Figure 2 evidence.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 

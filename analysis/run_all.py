@@ -37,10 +37,14 @@ from insurance_sim.reporting import (
     validate_phi_run_lengths,
     write_guard_summary_markdown,
 )
+from insurance_sim.production_figures import write_production_fig1, write_production_fig2_richness
 
 REPORTS = Path("analysis/reports")
 FIG_DIR = Path("paper/manuscript/figures")
 DATA_RUNS = DEFAULT_DATA_RUNS
+FIG1_PRODUCTION_CORE = Path("data/sim/production/fig1_s4_highres_v1/summaries.parquet")
+FIG1_PRODUCTION_HIGHSIGMA = Path("data/sim/production/fig1_s4_highsigma_v1/summaries.parquet")
+FIG2_PRODUCTION_RICHNESS = Path("data/sim/production/fig2_richness_mixed_v1/summaries.parquet")
 
 
 def run_command(cmd: list[str]) -> None:
@@ -107,8 +111,17 @@ def main() -> None:
 
     # Panels
     panel_path = REPORTS / "fig1_panels.png"
-    make_panel(summary_mixed, summary_pos, panel_path)
     panel_pdf_path = panel_path.with_suffix(".pdf")
+    if FIG1_PRODUCTION_CORE.exists() and FIG1_PRODUCTION_HIGHSIGMA.exists():
+        write_production_fig1(
+            core_path=FIG1_PRODUCTION_CORE,
+            highsigma_path=FIG1_PRODUCTION_HIGHSIGMA,
+            out_png=panel_path,
+            out_pdf=panel_pdf_path,
+            summary_out=REPORTS / "fig1_panels_summary.csv",
+        )
+    else:
+        make_panel(summary_mixed, summary_pos, panel_path)
 
     sync_panel_path = REPORTS / "fig3_imposed_vs_realised_panels.png"
     make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
@@ -126,7 +139,16 @@ def main() -> None:
     else:
         richness_df = summary_mixed
     richness_fig_path = REPORTS / "fig2_richness_scaling_mixed.png"
-    make_richness_scaling(richness_df, richness_fig_path)
+    richness_fig_pdf_path = richness_fig_path.with_suffix(".pdf")
+    if FIG2_PRODUCTION_RICHNESS.exists():
+        write_production_fig2_richness(
+            production_path=FIG2_PRODUCTION_RICHNESS,
+            out_png=richness_fig_path,
+            out_pdf=richness_fig_pdf_path,
+            summary_out=REPORTS / "fig2_richness_scaling_mixed_summary.csv",
+        )
+    else:
+        make_richness_scaling(richness_df, richness_fig_path)
 
     species_cv_path = REPORTS / "figS4_species_cv_vs_rho.png"
     make_species_cv_diagnostic(
@@ -165,6 +187,7 @@ def main() -> None:
         supp_phi_path,
         species_cv_path,
         richness_fig_path,
+        richness_fig_pdf_path,
     ]
     if matched_path is not None:
         figure_paths.append(matched_path)

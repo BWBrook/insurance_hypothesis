@@ -1,0 +1,66 @@
+{
+  "spec_version": 1,
+  "run_id": "fig2-richness-mixed-v1",
+  "title": "Production mixed-slope richness scaling for Figure 2",
+  "purpose": "Production-scale richness-scaling run for the main Figure 2 comparison under mixed response directions.",
+  "rationale": [
+    "Refresh the Figure 2 richness pattern with the same 1000-replicate production convention used for Figure 1.",
+    "Keep this batch focused on the manuscript claim that richness buffers community variability when response directions are mixed.",
+    "Use S=2 through S=8 to preserve the current display range while removing Monte Carlo roughness from the richness curves.",
+    "Average over a shared non-negative rho_env grid so cross-richness comparisons avoid infeasible negative-correlation clipping and remain easy to explain.",
+    "Extend the core sigma_env range to 2.0, matching the high-resolution Figure 1 core boundary without folding in the Figure 1 stress-extension regime."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "base_seed": 2026051502,
+    "sigma_vals": [
+      0.0,
+      0.2,
+      0.5,
+      1.0,
+      1.5,
+      2.0
+    ],
+    "rho_vals": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "species_vals": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "slope_modes": [
+      "mixed"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 210,
+    "shard_count": 2100,
+    "expected_rows": 210000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 210000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "Mean extinction or floor occupancy is summarised by sigma_env and richness before replacing the Figure 2 display.",
+    "The production Figure 2 curve preserves the expected monotonic decline in mean CV_total with richness for sigma_env > 0."
+  ]
+}
