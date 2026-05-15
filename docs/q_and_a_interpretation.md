@@ -336,8 +336,10 @@ For each question, we add one entry with:
   - Added `analysis/production_specs/fig2_richness_mixed_v1.json`.
   - Added production Figure 2 plotting hooks alongside the promoted Figure 1 production hooks.
   - Updated Figure 1 and Figure 2 manuscript captions to match the production display plan.
-- Status: in progress
-- Links: `analysis/production_specs/fig2_richness_mixed_v1.json`, `analysis/plot_production_fig1.py`, `analysis/plot_production_fig2.py`, `analysis/run_all.py`, `paper/manuscript/text/figure_captions_v2.md`
+  - Launched `fig2-richness-mixed-v1` on `deep-server` under tmux; the run validated with 210000 rows across 210 scenarios.
+  - Retrieved compact outputs and rebuilt `analysis/reports/fig2_richness_scaling_mixed.png` and `.pdf`.
+- Status: actioned
+- Links: `analysis/production_specs/fig2_richness_mixed_v1.json`, `analysis/plot_production_fig1.py`, `analysis/plot_production_fig2.py`, `analysis/run_all.py`, `analysis/reports/fig2_richness_scaling_mixed.png`, `paper/manuscript/text/figure_captions_v2.md`
 
 ## Open action queue
 

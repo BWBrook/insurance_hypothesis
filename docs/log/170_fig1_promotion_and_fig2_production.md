@@ -34,3 +34,30 @@ Date: 2026-05-15
 - Run local tests/type checks and validate that the Figure 2 manifest generated from the spec matches expected counts.
 - Push the launch-ready state.
 - Sync `deep-server`, launch `fig2-richness-mixed-v1` under `tmux`, validate, retrieve compact output, and rebuild Figure 2.
+
+## Completion Update
+
+- Commit `6ba8a53` was pushed to `main`, then `deep-server` was fast-forwarded to that commit.
+- Remote checks passed on `deep-server`:
+  - `uv run python -m pytest` -> 31 passed.
+  - `uv run python -m pyright` -> 0 errors.
+- Launch:
+  - Session: `ih_fig2_richness_mixed_v1`.
+  - Remote work directory: `/data/codex/scratch/insurance_hypothesis/fig2-richness-mixed-v1`.
+  - Jobs: 48.
+- Validation:
+  - Exit status: 0.
+  - Rows: 210000.
+  - Scenarios: 210.
+  - Shards: 2100.
+  - `run-pending` wall time: 1:48.54.
+  - Maximum replicate-level `mean_extinction_freq`: 0.02375.
+  - Maximum scenario-mean `mean_extinction_freq`: ~0.00143.
+- Retrieved compact local outputs under `data/sim/production/fig2_richness_mixed_v1/`.
+- Rebuilt production Figure 2:
+  - `analysis/reports/fig2_richness_scaling_mixed.png`
+  - `analysis/reports/fig2_richness_scaling_mixed.pdf`
+  - `analysis/reports/fig2_richness_scaling_mixed_summary.csv`
+- First sanity check:
+  - All non-zero `sigma_env` curves decline monotonically from S=2 to S=8.
+  - Mean CV S=2 to S=8 ratios are ~2.77 at `sigma_env=0.2`, ~2.41 at 0.5, ~2.20 at 1.0, ~2.22 at 1.5, and ~2.29 at 2.0.

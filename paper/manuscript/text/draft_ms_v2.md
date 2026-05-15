@@ -164,7 +164,7 @@ A suite of automated numerical and ecological checks is used to verify the simul
 Synchrony metrics are checked using toy examples with perfectly synchronous and perfectly asynchronous trajectories: the Loreau–de Mazancourt index $\phi_{\mathrm{LdM}}$ and mean pairwise growth-rate correlations approach their expected extreme values, and $\phi_{\mathrm{LdM}}$ always lies in $[0,1]$ after clipping. Bookkeeping checks ensure that replicate simulation wrappers return arrays and data frames of the expected shapes and summary statistics.
 Numerical-guard diagnostics showed exponent clipping was rare (high-side clipping rates effectively zero and low-side clipping rates generally below $0.01$), while floor occupancy remained low in most scenarios but increased in high-persistence/high-variance stress-test corners (summary in `analysis/reports/numerical_guard_rates_summary.md`).
 
-Extinction frequencies are monitored in scenario summaries and remain very low (mean $\bar{e} \lesssim 0.003$ across all grids), confirming that the reported patterns are not driven by widespread numerical extinction.
+Extinction frequencies are monitored in scenario summaries and remain very low in the main inference grids. In the production richness grid for Figure 2, the maximum scenario-mean floor/extinction frequency is $\approx 0.0014$ even at $\sigma_{\mathrm{env}}=2.0$, confirming that the reported richness pattern is not driven by widespread numerical extinction.
 
 ## Results
 

@@ -95,10 +95,11 @@
   16) Figure 1 display candidate revised on 2026-05-15: added `analysis/plot_production_fig1.py` and `src/python/insurance_sim/production_figures.py` to build a two-panel production Figure 1 candidate that foregrounds the aligned-response surface and the mixed-vs-aligned divergence across `sigma_env`.
   17) Figure 1 promotion started on 2026-05-15: the accepted two-panel production display is now the canonical `fig1_panels` target, with `analysis/run_all.py` set to prefer production Figure 1 inputs when local compact production summaries are present.
   18) Figure 2 production spec frozen on 2026-05-15: `analysis/production_specs/fig2_richness_mixed_v1.json` defines a 210-scenario, 210000-row mixed-slope richness grid for S=2..8, non-negative `rho_env`, `sigma_env` up to 2.0, and 1000 replicates per scenario.
+  19) Figure 2 production run completed on 2026-05-15: `fig2-richness-mixed-v1` validated on `deep-server` with 210000 rows across 210 scenarios and 2100 shards; compact outputs were retrieved locally and production Figure 2 was rebuilt under `analysis/reports/`.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Launch and validate `fig2-richness-mixed-v1` on `deep-server`, then retrieve compact outputs locally.
-  3) Rebuild Figure 2 from the production richness summary and record the ecological interpretation/floor-occupancy sanity check.
+  2) Review the rebuilt production Figure 2 display and decide whether the faint `rho_eff` range bands should remain in the main panel.
+  3) Re-review the manuscript Results text against the production Figure 1 and Figure 2 artefacts.
   4) Decide whether to extend production surfaces to S=2/S=8 for mixed-vs-aligned contrasts or instead prioritise the remaining manuscript/figure revision around the new Figure 1 and Figure 2 evidence.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.

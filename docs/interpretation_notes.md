@@ -188,16 +188,19 @@
 
 ### PROD_fig2_richness_mixed_v1
 
-- **Artefacts**: planned production run `/data/codex/scratch/insurance_hypothesis/fig2-richness-mixed-v1`; local compact output target `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display target `analysis/reports/fig2_richness_scaling_mixed.png`.
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig2-richness-mixed-v1`; local compact output `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig2_richness_scaling_mixed.png` and `.pdf`.
 - **Summary (plain language)**:
-  - The production grid is designed to refresh the mixed-slope richness pattern with 1000 replicates per scenario, S=2..8, non-negative `rho_env`, and `sigma_env` up to 2.0.
-  - This deliberately supports the Figure 2 richness-buffering claim without expanding the mixed-vs-aligned contrast or entering the Figure 1 high-sigma stress-extension regime.
+  - The production grid validated cleanly: 210 scenarios, 2100 shards, 210000 replicate-summary rows, 1000 replicates per scenario.
+  - All non-zero `sigma_env` curves show a monotone decline in mean `CV_tot` from S=2 to S=8 after averaging across the non-negative `rho_eff` grid.
+  - Richness buffering remains substantial across the production range: S=2/S=8 mean-CV ratios are ~2.77 at `sigma_env=0.2`, ~2.41 at 0.5, ~2.20 at 1.0, ~2.22 at 1.5, and ~2.29 at 2.0.
+  - Floor/extinction is not driving the pattern. The maximum replicate-level `mean_extinction_freq` is 0.02375, but the maximum scenario-mean value is only ~0.00143, occurring at `sigma_env=2.0`, high `rho_eff`, S=8.
 - **Relation to hypothesis**:
-  - If validated, this figure should show whether increasing richness continues to lower community CV under mixed response directions after Monte Carlo noise is largely removed.
+  - Strongly supports the richness component of the conditional-insurance story: when response directions are mixed, adding species lowers aggregate variability across the environmental-variability gradient.
 - **Follow-up tasks**:
-  - [ ] Launch and validate `fig2-richness-mixed-v1` on `deep-server`.
-  - [ ] Summarise floor/extinction frequencies across `sigma_env` and richness.
-  - [ ] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
+  - [x] Launch and validate `fig2-richness-mixed-v1` on `deep-server`.
+  - [x] Summarise floor/extinction frequencies across `sigma_env` and richness.
+  - [x] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
+  - [ ] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic.
 
 _(Add new sections for subsequent artefacts.)_
 
