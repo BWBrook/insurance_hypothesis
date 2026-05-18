@@ -375,6 +375,21 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/plot_production_fig4.py`, `analysis/reports/fig4_cv_vs_synchrony_mixed.png`, `analysis/reports/fig4_cv_vs_synchrony_mixed_summary.csv`, `paper/manuscript/figures/fig4_cv_vs_synchrony_mixed.png`, `src/python/insurance_sim/production_figures.py`
 
+### QA-023
+
+- Context: Barry accepted the production Figure 4 display, noted that embedded short figure titles should be removed for final submission, and approved the next three-step tranche: display hygiene, manuscript reconciliation, and Figure 5 production persistence work.
+- Question: What should be done next to finish this tranche?
+- Response:
+  - Remove embedded figure-title/suptitle text from production Figure 1-4 builders and regenerate the analysis and manuscript figure copies.
+  - Re-check Results and captions against production Figure 1-4 artefacts, tightening `rho_eff` wording and stale rounded values where needed.
+  - Freeze and run a focused production Figure 5 persistence grid at `sigma_env=0.5`, using mixed slopes, S=2/4, four `phi` values, a modestly denser `rho_env` grid, and 1000 replicates per scenario.
+- Actions:
+  - Regenerated title-free production Figures 1-4 in `analysis/reports/` and `paper/manuscript/figures/`.
+  - Added `analysis/production_specs/fig5_persistence_mixed_v1.json`.
+  - Extended the production manifest path to support `phi_vals` in JSON specs.
+- Status: in progress
+- Links: `analysis/production_specs/fig5_persistence_mixed_v1.json`, `analysis/plot_production_fig5.py`, `src/python/insurance_sim/production.py`, `src/python/insurance_sim/production_figures.py`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:

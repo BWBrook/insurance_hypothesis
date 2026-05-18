@@ -1,0 +1,65 @@
+{
+  "spec_version": 1,
+  "run_id": "fig5-persistence-mixed-v1",
+  "title": "Production mixed-slope persistence sensitivity for Figure 5",
+  "purpose": "Production-scale persistence-sensitivity run for the main Figure 5 comparison under mixed response directions.",
+  "rationale": [
+    "Refresh the remaining main persistence figure with the same 1000-replicate production convention used for Figures 1-4.",
+    "Keep the run focused on the manuscript claim that mixed-slope richness buffering persists as environmental autocorrelation increases.",
+    "Use sigma_env=0.5 so the figure remains a direct persistence sensitivity rather than a broad environmental-variance surface.",
+    "Retain S=2 and S=4 from the existing Figure 5 because they show the low-richness stress contrast and the richer-community buffering contrast without overloading the display.",
+    "Include a denser rho_env grid than the exploratory sensitivity runs while preserving the negative-correlation endpoint used to show the full imposed-correlation gradient."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi_vals": [
+      0.0,
+      0.7,
+      0.9,
+      0.95
+    ],
+    "alpha_inter": 0.3,
+    "base_seed": 2026051802,
+    "sigma_vals": [
+      0.5
+    ],
+    "rho_vals": [
+      -0.5,
+      -0.25,
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      0.9,
+      1.0
+    ],
+    "species_vals": [
+      2,
+      4
+    ],
+    "slope_modes": [
+      "mixed"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 64,
+    "shard_count": 640,
+    "expected_rows": 64000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 64000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "For both S=2 and S=4, mean CV_total increases with phi at fixed sigma_env=0.5 and comparable rho_eff.",
+    "Richer mixed-slope communities remain less variable than S=2 communities across the production persistence grid.",
+    "Mean extinction or floor occupancy is summarised before replacing the Figure 5 display."
+  ]
+}

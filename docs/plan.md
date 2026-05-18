@@ -99,11 +99,13 @@
   20) Figure 3 production spec frozen on 2026-05-18: `analysis/production_specs/fig3_synchrony_v1.json` defines a focused 66-scenario, 66000-row imposed-vs-realised synchrony grid at `sigma_env=0.5` for mixed and positive slopes, S=2/4/8, non-negative `rho_env`, and 1000 replicates per scenario.
   21) Figure 3 production run completed on 2026-05-18: `fig3-synchrony-v1` validated on `deep-server` with 66000 rows across 66 scenarios and 660 shards; compact outputs were retrieved locally and production Figure 3 was rebuilt under `analysis/reports/`.
   22) Figure 4 production rebuild completed on 2026-05-18: the validated `fig2-richness-mixed-v1` production grid is now used as the production source for CV-vs-synchrony scenario means, avoiding a redundant new run; production PNG/PDF and a scenario summary CSV were rebuilt under `analysis/reports/`.
+  23) Submission-display polish started on 2026-05-18: production Figure 1-4 builders now omit embedded figure titles/suptitles so caption text, not PNG text, carries the short-title information.
+  24) Figure 5 production spec frozen on 2026-05-18: `analysis/production_specs/fig5_persistence_mixed_v1.json` defines a focused 64-scenario, 64000-row mixed-slope persistence grid at `sigma_env=0.5`, S=2/4, `phi` in {0, 0.7, 0.9, 0.95}, and 1000 replicates per scenario.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Review the rebuilt production Figure 4 display and decide whether the richness colour scale and `sigma_env` point-size encoding should remain.
-  3) Re-review the manuscript Results text against the production Figure 1-4 artefacts.
-  4) Decide whether Figure 5 needs a production-scale persistence refresh or whether the current sensitivity evidence is sufficient for the main/supplementary role it plays.
+  2) Launch, validate, retrieve, and plot the Figure 5 production persistence run.
+  3) Re-review the manuscript Results text against the production Figure 1-5 artefacts.
+  4) Decide whether any supplementary/control figures need production-scale refreshes or can remain as robustness diagnostics.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 

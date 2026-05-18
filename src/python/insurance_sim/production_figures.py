@@ -163,7 +163,6 @@ def make_production_fig1(
         vmin=0.0,
         vmax=vmax,
     )
-    ax_surface.set_title("Aligned responses: community variability")
     _label_heatmap_axes(ax_surface, sigmas, rhos)
     if 2.0 in sigmas:
         ax_surface.axvline(sigmas.index(2.0), color="white", lw=1.2, ls=":", alpha=0.9)
@@ -219,7 +218,6 @@ def make_production_fig1(
         va="center",
     )
     ax_gradient.set(
-        title="Insurance contrast across environmental variability",
         xlabel=r"Environmental variability, $\sigma_{\mathrm{env}}$",
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$ across $\rho_{\mathrm{eff}}$",
     )
@@ -227,7 +225,6 @@ def make_production_fig1(
     ax_gradient.legend(loc="upper left", fontsize=8, frameon=True)
     _add_panel_label(ax_gradient, "B")
 
-    fig.suptitle("Figure 1: aligned variability and biodiversity insurance", fontsize=12)
     fig.savefig(out_png, dpi=300)
     if out_pdf is not None:
         fig.savefig(out_pdf)
@@ -333,7 +330,6 @@ def make_production_fig2_richness(
         )
 
     ax.set(
-        title="Richness buffers community variability under mixed responses",
         xlabel=r"Species richness, $S$",
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$ across non-negative $\rho_{\mathrm{eff}}$",
         xticks=sorted(int(value) for value in summary["n_species"].unique()),
@@ -448,7 +444,6 @@ def make_production_fig3_synchrony(
         ax.plot([0, 1], [0, 1], color="0.25", lw=0.9, ls="--", label="y=x")
         ax.axhline(0, color="0.55", lw=0.8, ls=":")
         ax.set(
-            title=labels[slope_mode],
             xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
             ylabel="Realised mean growth correlation",
             xlim=(-0.02, 1.02),
@@ -491,7 +486,6 @@ def make_production_fig3_synchrony(
         )
     ax.axhline(0, color="0.25", lw=0.9, ls="--")
     ax.set(
-        title="Realised - imposed correlation",
         xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
         ylabel=r"$\Delta$ growth correlation",
         xlim=(-0.02, 1.02),
@@ -499,7 +493,6 @@ def make_production_fig3_synchrony(
     ax.legend(fontsize=8, frameon=False)
     _add_panel_label(ax, "C")
 
-    fig.suptitle(r"Figure 3: response direction controls realised synchrony at $\sigma_{\mathrm{env}}=0.5$", fontsize=12)
     fig.savefig(out_png, dpi=300)
     if out_pdf is not None:
         fig.savefig(out_pdf)
@@ -608,7 +601,6 @@ def make_production_fig4_cv_synchrony(
 
     axes[0].scatter(summary["phi_ldm_mean"], summary["cv_total_mean"], **scatter_kwargs)
     axes[0].set(
-        title="Abundance synchrony",
         xlabel=r"Loreau-de Mazancourt synchrony, $\phi_{\mathrm{LdM}}$",
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
     )
@@ -616,7 +608,6 @@ def make_production_fig4_cv_synchrony(
     points = axes[1].scatter(summary["pair_corr_mean"], summary["cv_total_mean"], **scatter_kwargs)
     axes[1].axvline(0, color="0.55", lw=0.9, ls=":")
     axes[1].set(
-        title="Growth-rate synchrony",
         xlabel="Mean pairwise growth correlation",
     )
 
@@ -651,7 +642,6 @@ def make_production_fig4_cv_synchrony(
     for label, ax in zip(["A", "B"], axes):
         _add_panel_label(ax, label)
 
-    fig.suptitle("Figure 4: lower realised synchrony corresponds to lower community variability", fontsize=12)
     fig.savefig(out_png, dpi=300)
     if out_pdf is not None:
         fig.savefig(out_pdf)
@@ -669,6 +659,128 @@ def write_production_fig4_cv_synchrony(
     df = _load_required_parquet(production_path, label="Figure 4 CV-synchrony")
     summary = summarize_fig4_cv_synchrony_production(df)
     make_production_fig4_cv_synchrony(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )
+
+
+def summarize_fig5_persistence_production(df: pd.DataFrame, *, sigma_target: float = 0.5) -> pd.DataFrame:
+    """Aggregate mixed-slope production rows for the persistence-sensitivity figure."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "phi",
+        "cv_total",
+        "mean_extinction_freq",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    sigma_mask = np.isclose(np.asarray(df["sigma_env"], dtype=float), sigma_target)
+    mixed = pd.DataFrame(df.loc[df["slope_mode"].eq("mixed") & sigma_mask, :].copy())
+    if mixed.empty:
+        raise ValueError(f"No mixed-slope production rows found for sigma_env={sigma_target:g}.")
+
+    summary = (
+        mixed.groupby(["n_species", "phi", "sigma_env", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            cv_total_mean=("cv_total", "mean"),
+            cv_total_sd=("cv_total", "std"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            extinction_max=("mean_extinction_freq", "max"),
+            replicate_rows=("cv_total", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    order = np.lexsort(
+        (
+            np.asarray(out["rho_eff"], dtype=float),
+            np.asarray(out["phi"], dtype=float),
+            np.asarray(out["n_species"], dtype=int),
+        )
+    )
+    return out.iloc[order].reset_index(drop=True)
+
+
+def _phi_legend_label(phi: float, sigma_env: float) -> str:
+    sigma_eff = sigma_env / np.sqrt(1.0 - phi**2)
+    return rf"$\phi={phi:g}$ ($\sigma_{{eff}}\approx {sigma_eff:.2f}$)"
+
+
+def make_production_fig5_persistence(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write production Figure 5: mixed-slope sensitivity to environmental persistence."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    species_values = sorted(int(value) for value in summary["n_species"].unique())
+    phi_values = sorted(float(value) for value in summary["phi"].unique())
+    colors = plt.get_cmap("cividis")(np.linspace(0.12, 0.88, len(phi_values)))
+    markers = ["o", "s", "^", "D", "v", "P"]
+
+    fig, axes = plt.subplots(1, len(species_values), figsize=(10.5, 4.4), constrained_layout=True, sharey=True)
+    axes_arr = np.asarray(axes).ravel()
+
+    for ax, n_species, panel_label in zip(axes_arr, species_values, ["A", "B", "C", "D"]):
+        species = pd.DataFrame(summary[summary["n_species"].eq(n_species)].copy())
+        for idx, phi in enumerate(phi_values):
+            sub = pd.DataFrame(species[np.isclose(np.asarray(species["phi"], dtype=float), phi)].copy())
+            if sub.empty:
+                continue
+            sub = sub.iloc[np.argsort(np.asarray(sub["rho_eff"], dtype=float))].reset_index(drop=True)
+            sigma_env = float(np.asarray(sub["sigma_env"], dtype=float)[0])
+            ax.plot(
+                sub["rho_eff"],
+                sub["cv_total_mean"],
+                marker=markers[idx % len(markers)],
+                lw=2.0,
+                ms=4.8,
+                color=colors[idx],
+                label=_phi_legend_label(phi, sigma_env),
+            )
+        ax.set(
+            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            xlim=(
+                float(np.min(np.asarray(species["rho_eff"], dtype=float))) - 0.03,
+                float(np.max(np.asarray(species["rho_eff"], dtype=float))) + 0.03,
+            ),
+        )
+        if ax is axes_arr[0]:
+            ax.set_ylabel(r"Mean $\mathrm{CV}_{\mathrm{tot}}$")
+            ax.legend(fontsize=8, frameon=False)
+        _add_panel_label(ax, panel_label)
+
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_fig5_persistence(
+    *,
+    production_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    sigma_target: float = 0.5,
+) -> None:
+    """Load production persistence outputs and write Figure 5."""
+    df = _load_required_parquet(production_path, label="Figure 5 persistence")
+    summary = summarize_fig5_persistence_production(df, sigma_target=sigma_target)
+    make_production_fig5_persistence(
         summary,
         out_png,
         out_pdf=out_pdf,

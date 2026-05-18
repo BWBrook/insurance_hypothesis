@@ -196,32 +196,38 @@ def build_scenarios(
     species_vals: Sequence[int],
     slope_modes: Sequence[str],
     phi: float,
+    phi_vals: Sequence[float] | None = None,
     steps: int,
     burn: int,
     alpha_inter: float,
 ) -> list[ProductionScenario]:
+    phis = [float(phi)] if phi_vals is None else [float(value) for value in phi_vals]
+    if not phis:
+        raise ValueError("Expected at least one phi value.")
+
     scenarios: list[ProductionScenario] = []
     for slope_mode in slope_modes:
         for n_species in species_vals:
             # Validate the slope mode/species combination early.
             slopes_for_mode(slope_mode, int(n_species))
-            for sigma_env in sigma_vals:
-                for rho_env in rho_vals:
-                    scenario_index = len(scenarios)
-                    scenarios.append(
-                        ProductionScenario(
-                            scenario_id=f"sc{scenario_index:05d}",
-                            scenario_index=scenario_index,
-                            sigma_env=float(sigma_env),
-                            rho_env=float(rho_env),
-                            n_species=int(n_species),
-                            slope_mode=str(slope_mode),
-                            phi=float(phi),
-                            steps=int(steps),
-                            burn=int(burn),
-                            alpha_inter=float(alpha_inter),
+            for phi_value in phis:
+                for sigma_env in sigma_vals:
+                    for rho_env in rho_vals:
+                        scenario_index = len(scenarios)
+                        scenarios.append(
+                            ProductionScenario(
+                                scenario_id=f"sc{scenario_index:05d}",
+                                scenario_index=scenario_index,
+                                sigma_env=float(sigma_env),
+                                rho_env=float(rho_env),
+                                n_species=int(n_species),
+                                slope_mode=str(slope_mode),
+                                phi=float(phi_value),
+                                steps=int(steps),
+                                burn=int(burn),
+                                alpha_inter=float(alpha_inter),
+                            )
                         )
-                    )
     return scenarios
 
 
@@ -267,6 +273,7 @@ def create_manifest(
     species_vals: Sequence[int],
     slope_modes: Sequence[str],
     phi: float,
+    phi_vals: Sequence[float] | None = None,
     steps: int,
     burn: int,
     alpha_inter: float,
@@ -285,6 +292,7 @@ def create_manifest(
         species_vals=species_vals,
         slope_modes=slope_modes,
         phi=phi,
+        phi_vals=phi_vals,
         steps=steps,
         burn=burn,
         alpha_inter=alpha_inter,
@@ -304,7 +312,11 @@ def create_manifest(
         "scenario_count": len(scenarios),
         "shard_count": len(shards),
         "expected_rows": len(scenarios) * int(reps_per_scenario),
-        "scenario_order": ["slope_mode", "n_species", "sigma_env", "rho_env"],
+        "scenario_order": (
+            ["slope_mode", "n_species", "phi", "sigma_env", "rho_env"]
+            if phi_vals is not None
+            else ["slope_mode", "n_species", "sigma_env", "rho_env"]
+        ),
         "scenarios": [scenario.to_dict() for scenario in scenarios],
         "shards": [shard.to_dict() for shard in shards],
     }
@@ -319,6 +331,8 @@ def create_manifest_from_spec(
     if int(spec.get("spec_version", -1)) != 1:
         raise ValueError(f"Unsupported spec_version: {spec.get('spec_version')}")
     manifest_spec = spec["manifest"]
+    phi_values = manifest_spec.get("phi_vals")
+    phi = float(manifest_spec["phi"] if "phi" in manifest_spec else phi_values[0])
     manifest = create_manifest(
         run_id=str(run_id_override or spec["run_id"]),
         reps_per_scenario=int(manifest_spec["reps_per_scenario"]),
@@ -327,7 +341,8 @@ def create_manifest_from_spec(
         rho_vals=[float(value) for value in manifest_spec["rho_vals"]],
         species_vals=[int(value) for value in manifest_spec["species_vals"]],
         slope_modes=[str(value) for value in manifest_spec["slope_modes"]],
-        phi=float(manifest_spec["phi"]),
+        phi=phi,
+        phi_vals=None if phi_values is None else [float(value) for value in phi_values],
         steps=int(manifest_spec["steps"]),
         burn=int(manifest_spec["burn"]),
         alpha_inter=float(manifest_spec["alpha_inter"]),

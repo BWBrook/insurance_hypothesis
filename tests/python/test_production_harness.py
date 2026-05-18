@@ -102,6 +102,50 @@ def test_create_manifest_from_spec_cli_checks_expected_counts(tmp_path: Path) ->
     assert manifest["expected_rows"] == 20
 
 
+def test_create_manifest_from_spec_cli_accepts_phi_values(tmp_path: Path) -> None:
+    spec_path = tmp_path / "spec_phi.json"
+    manifest_path = tmp_path / "manifest_phi.json"
+    spec = {
+        "spec_version": 1,
+        "run_id": "spec_phi_smoke",
+        "manifest": {
+            "reps_per_scenario": 5,
+            "replicates_per_shard": 5,
+            "steps": 30,
+            "burn": 10,
+            "phi_vals": [0.0, 0.9],
+            "alpha_inter": 0.3,
+            "base_seed": 12345,
+            "sigma_vals": [0.5],
+            "rho_vals": [0.0, 0.5],
+            "species_vals": [2],
+            "slope_modes": ["mixed"],
+        },
+        "expected": {
+            "scenario_count": 4,
+            "shard_count": 4,
+            "expected_rows": 20,
+        },
+    }
+    spec_path.write_text(json.dumps(spec), encoding="utf-8")
+
+    create = _run_production_script(
+        "create-manifest-from-spec",
+        "--spec",
+        str(spec_path),
+        "--output",
+        str(manifest_path),
+        cwd=tmp_path,
+    )
+    assert create.returncode == 0, create.stderr or create.stdout
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    observed_phis = sorted({scenario["phi"] for scenario in manifest["scenarios"]})
+    assert observed_phis == [0.0, 0.9]
+    assert manifest["scenario_order"] == ["slope_mode", "n_species", "phi", "sigma_env", "rho_env"]
+    assert manifest["scenario_count"] == 4
+
+
 def test_production_cli_smoke_runs_combines_and_validates(tmp_path: Path) -> None:
     manifest_path = tmp_path / "prod_smoke/manifest.json"
     combined_path = tmp_path / "prod_smoke/summaries.parquet"

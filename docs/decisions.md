@@ -140,6 +140,13 @@ For each entry, include:
 - **Rationale**: Figure 4 needs mixed-slope scenario means for $\mathrm{CV}_{\mathrm{tot}}$, $\phi_{\mathrm{LdM}}$, and mean pairwise growth correlation across richness and environmental forcing. The Figure 2 production grid already provides these quantities for S=2..8, `sigma_env` up to 2.0, non-negative `rho_eff`, and 1000 replicates per scenario, so a new run would be redundant.
 - **Status**: active
 
+### DEC-019 – Production persistence grid for Figure 5
+
+- **Date**: 2026-05-18
+- **Decision**: Use `analysis/production_specs/fig5_persistence_mixed_v1.json` for Figure 5: mixed slopes only, S=2 and S=4, `sigma_env=0.5`, `phi` in {0, 0.7, 0.9, 0.95}, `rho_env` in {-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0}, 600 steps with 300 burn-in, and 1000 replicates per scenario.
+- **Rationale**: Figure 5 is the remaining main persistence-sensitivity figure not yet supported by a production-scale run. The focused grid preserves the current ecological comparison while replacing the 80-replicate exploratory sensitivity data with the final 1000-replicate convention and modestly denser correlation resolution.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

@@ -10,10 +10,12 @@ from insurance_sim.production_figures import (
     make_production_fig2_richness,
     make_production_fig3_synchrony,
     make_production_fig4_cv_synchrony,
+    make_production_fig5_persistence,
     summarize_fig2_richness_production,
     summarize_fig1_production,
     summarize_fig3_synchrony_production,
     summarize_fig4_cv_synchrony_production,
+    summarize_fig5_persistence_production,
 )
 
 
@@ -226,6 +228,65 @@ def test_make_production_fig4_cv_synchrony_writes_outputs(tmp_path: Path) -> Non
     out_csv = tmp_path / "fig4_summary.csv"
 
     make_production_fig4_cv_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
+def test_summarize_fig5_persistence_production_filters_and_aggregates() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for sigma_env in [0.5, 1.0]:
+        for phi in [0.0, 0.9]:
+            for n_species in [2, 4]:
+                for rho_eff in [-0.5, 0.5]:
+                    for replicate in [0, 1]:
+                        rows.append(
+                            {
+                                "slope_mode": "mixed",
+                                "sigma_env": sigma_env,
+                                "rho_eff": rho_eff,
+                                "n_species": n_species,
+                                "phi": phi,
+                                "replicate": replicate,
+                                "cv_total": sigma_env + phi + (1.0 / n_species) + replicate * 0.1,
+                                "mean_extinction_freq": 0.0,
+                            }
+                        )
+
+    summary = summarize_fig5_persistence_production(pd.DataFrame.from_records(rows), sigma_target=0.5)
+
+    assert len(summary) == 8
+    assert set(summary["sigma_env"]) == {0.5}
+    row = summary[summary["n_species"].eq(4) & summary["phi"].eq(0.9) & summary["rho_eff"].eq(0.5)].iloc[0]
+    assert row["cv_total_mean"] == pytest.approx(1.7)
+    assert row["replicate_rows"] == 2
+
+
+def test_make_production_fig5_persistence_writes_outputs(tmp_path: Path) -> None:
+    rows: list[dict[str, float | int]] = []
+    for n_species in [2, 4]:
+        for phi in [0.0, 0.7, 0.9, 0.95]:
+            for rho_eff in [-0.5, 0.0, 0.5, 1.0]:
+                rows.append(
+                    {
+                        "n_species": n_species,
+                        "phi": phi,
+                        "sigma_env": 0.5,
+                        "rho_eff": rho_eff,
+                        "cv_total_mean": 0.1 + phi + (0.05 * n_species) - (0.03 * rho_eff),
+                        "cv_total_sd": 0.01,
+                        "extinction_mean": 0.0,
+                        "extinction_max": 0.0,
+                        "replicate_rows": 1000,
+                    }
+                )
+    summary = pd.DataFrame.from_records(rows)
+    out_png = tmp_path / "fig5.png"
+    out_pdf = tmp_path / "fig5.pdf"
+    out_csv = tmp_path / "fig5_summary.csv"
+
+    make_production_fig5_persistence(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
 
     assert out_png.exists()
     assert out_pdf.exists()

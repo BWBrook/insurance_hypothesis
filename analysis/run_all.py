@@ -42,6 +42,7 @@ from insurance_sim.production_figures import (
     write_production_fig2_richness,
     write_production_fig3_synchrony,
     write_production_fig4_cv_synchrony,
+    write_production_fig5_persistence,
 )
 
 REPORTS = Path("analysis/reports")
@@ -51,6 +52,7 @@ FIG1_PRODUCTION_CORE = Path("data/sim/production/fig1_s4_highres_v1/summaries.pa
 FIG1_PRODUCTION_HIGHSIGMA = Path("data/sim/production/fig1_s4_highsigma_v1/summaries.parquet")
 FIG2_PRODUCTION_RICHNESS = Path("data/sim/production/fig2_richness_mixed_v1/summaries.parquet")
 FIG3_PRODUCTION_SYNCHRONY = Path("data/sim/production/fig3_synchrony_v1/summaries.parquet")
+FIG5_PRODUCTION_PERSISTENCE = Path("data/sim/production/fig5_persistence_mixed_v1/summaries.parquet")
 
 
 def run_command(cmd: list[str]) -> None:
@@ -142,7 +144,16 @@ def main() -> None:
         make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
 
     phi_overlay_path = REPORTS / "fig5_phi_sensitivity_sigma0.5_extended.png"
-    make_phi_overlay(phi_runs, phi_overlay_path)
+    phi_overlay_pdf_path = phi_overlay_path.with_suffix(".pdf")
+    if FIG5_PRODUCTION_PERSISTENCE.exists():
+        write_production_fig5_persistence(
+            production_path=FIG5_PRODUCTION_PERSISTENCE,
+            out_png=phi_overlay_path,
+            out_pdf=phi_overlay_pdf_path,
+            summary_out=REPORTS / "fig5_phi_sensitivity_sigma0.5_extended_summary.csv",
+        )
+    else:
+        make_phi_overlay(phi_runs, phi_overlay_path)
 
     cv_sync_path = REPORTS / "fig4_cv_vs_synchrony_mixed.png"
     cv_sync_pdf_path = cv_sync_path.with_suffix(".pdf")
@@ -209,6 +220,7 @@ def main() -> None:
         cv_sync_path,
         cv_sync_pdf_path,
         phi_overlay_path,
+        phi_overlay_pdf_path,
         supp_cv_path,
         supp_phi_path,
         species_cv_path,
