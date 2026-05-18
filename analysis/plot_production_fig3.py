@@ -1,0 +1,51 @@
+"""Build production Figure 3 from the synchrony production run.
+
+Run:
+  uv run python analysis/plot_production_fig3.py
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from insurance_sim.production_figures import write_production_fig3_synchrony
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build the production Figure 3 synchrony panels")
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=Path("data/sim/production/fig3_synchrony_v1/summaries.parquet"),
+        help="Figure 3 production summary parquet",
+    )
+    parser.add_argument(
+        "--out-prefix",
+        type=Path,
+        default=Path("analysis/reports/fig3_imposed_vs_realised_panels"),
+        help="Output prefix for PNG, PDF, and summary CSV",
+    )
+    parser.add_argument(
+        "--sigma-target",
+        type=float,
+        default=0.5,
+        help="sigma_env value to plot",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    write_production_fig3_synchrony(
+        production_path=args.input,
+        out_png=args.out_prefix.with_suffix(".png"),
+        out_pdf=args.out_prefix.with_suffix(".pdf"),
+        summary_out=args.out_prefix.with_name(args.out_prefix.name + "_summary.csv"),
+        sigma_target=args.sigma_target,
+    )
+    print(f"Wrote production Figure 3 to {args.out_prefix.parent}")
+
+
+if __name__ == "__main__":
+    main()

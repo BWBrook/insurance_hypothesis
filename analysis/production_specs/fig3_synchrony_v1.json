@@ -1,0 +1,64 @@
+{
+  "spec_version": 1,
+  "run_id": "fig3-synchrony-v1",
+  "title": "Production imposed-vs-realised synchrony grid for Figure 3",
+  "purpose": "Production-scale mechanism run for the main Figure 3 synchrony comparison.",
+  "rationale": [
+    "Refresh the mechanism figure with the same 1000-replicate production convention used for Figures 1 and 2.",
+    "Keep the grid focused on sigma_env=0.5, where the manuscript currently explains how response direction maps imposed driver correlation to realised growth synchrony.",
+    "Include mixed and positive slope modes at S=2,4,8 so richness-specific lines are directly comparable across regimes.",
+    "Use a non-negative rho_env grid from 0 to 1 to avoid cross-richness complications from infeasible negative equicorrelations while retaining the synchrony gradient needed for the mechanism display."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "base_seed": 2026051801,
+    "sigma_vals": [
+      0.5
+    ],
+    "rho_vals": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "species_vals": [
+      2,
+      4,
+      8
+    ],
+    "slope_modes": [
+      "mixed",
+      "positive"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 66,
+    "shard_count": 660,
+    "expected_rows": 66000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 66000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "Mixed-slope realised growth correlations decline relative to imposed rho_eff as rho_eff increases.",
+    "Positive-slope realised growth correlations remain positive and closer to the imposed rho_eff gradient than mixed slopes.",
+    "Mean extinction or floor occupancy is summarised before replacing the Figure 3 display."
+  ]
+}

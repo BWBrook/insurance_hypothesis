@@ -96,10 +96,11 @@
   17) Figure 1 promotion started on 2026-05-15: the accepted two-panel production display is now the canonical `fig1_panels` target, with `analysis/run_all.py` set to prefer production Figure 1 inputs when local compact production summaries are present.
   18) Figure 2 production spec frozen on 2026-05-15: `analysis/production_specs/fig2_richness_mixed_v1.json` defines a 210-scenario, 210000-row mixed-slope richness grid for S=2..8, non-negative `rho_env`, `sigma_env` up to 2.0, and 1000 replicates per scenario.
   19) Figure 2 production run completed on 2026-05-15: `fig2-richness-mixed-v1` validated on `deep-server` with 210000 rows across 210 scenarios and 2100 shards; compact outputs were retrieved locally and production Figure 2 was rebuilt under `analysis/reports/`.
+  20) Figure 3 production spec frozen on 2026-05-18: `analysis/production_specs/fig3_synchrony_v1.json` defines a focused 66-scenario, 66000-row imposed-vs-realised synchrony grid at `sigma_env=0.5` for mixed and positive slopes, S=2/4/8, non-negative `rho_env`, and 1000 replicates per scenario.
 - **Next steps if more work is requested**:
   1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Freeze and run a focused production-scale imposed-vs-realised synchrony grid for Figure 3, so the mechanism figure is supported by the same 1000-replicate convention as Figures 1 and 2.
-  3) Rebuild Figure 3 from production synchrony outputs, then opportunistically rebuild Figure 4 from existing production mixed-slope outputs if the plotted scope remains scientifically coherent.
+  2) Launch and validate `fig3-synchrony-v1` on `deep-server`, retrieve compact outputs, and rebuild Figure 3.
+  3) Opportunistically rebuild Figure 4 from existing production mixed-slope outputs if the plotted scope remains scientifically coherent.
   4) Re-review the manuscript Results text against the production Figure 1, Figure 2, and mechanism artefacts.
   5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
   6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.

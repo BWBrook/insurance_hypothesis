@@ -126,6 +126,13 @@ For each entry, include:
 - **Rationale**: Figure 2 supports the richness-buffering claim rather than the mixed-vs-aligned contrast, so the production run should stay focused on mixed responses and the shared non-negative correlation subset used in the display. Extending to `sigma_env=2.0` aligns with the Figure 1 core boundary without adding the high-sigma stress extension.
 - **Status**: active
 
+### DEC-017 – Figure 3 production synchrony grid
+
+- **Date**: 2026-05-18
+- **Decision**: Use `analysis/production_specs/fig3_synchrony_v1.json` for Figure 3: mixed and positive slope modes, S=2,4,8, `phi=0.4`, `sigma_env=0.5`, non-negative `rho_env` from 0.0 to 1.0 in 0.1 increments, and 1000 replicates per scenario.
+- **Rationale**: Figure 3 is the mechanism figure linking imposed environmental correlation to realised growth synchrony. A focused production run gives it the same replicate standard as Figures 1 and 2 without launching an unnecessary broad parameter sweep, and the non-negative `rho_env` grid avoids cross-richness complications from infeasible negative equicorrelations.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

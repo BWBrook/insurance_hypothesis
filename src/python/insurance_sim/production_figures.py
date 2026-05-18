@@ -361,3 +361,165 @@ def write_production_fig2_richness(
         out_pdf=out_pdf,
         summary_out=summary_out,
     )
+
+
+def summarize_fig3_synchrony_production(df: pd.DataFrame, *, sigma_target: float = 0.5) -> pd.DataFrame:
+    """Aggregate production rows for the imposed-vs-realised synchrony figure."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "mean_pairwise_corr",
+        "phi_ldm",
+        "cv_total",
+        "mean_extinction_freq",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    sigma_mask = np.isclose(np.asarray(df["sigma_env"], dtype=float), sigma_target)
+    sub = pd.DataFrame(df.loc[sigma_mask, :].copy())
+    rho_mask = np.asarray(sub["rho_eff"], dtype=float) >= -1e-12
+    sub = pd.DataFrame(sub.loc[rho_mask, :].copy())
+    if sub.empty:
+        raise ValueError(f"No production rows found for sigma_env={sigma_target:g}.")
+
+    summary = (
+        sub.groupby(["slope_mode", "n_species", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            pair_corr_mean=("mean_pairwise_corr", "mean"),
+            pair_corr_sd=("mean_pairwise_corr", "std"),
+            phi_ldm_mean=("phi_ldm", "mean"),
+            cv_total_mean=("cv_total", "mean"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            replicate_rows=("mean_pairwise_corr", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    out["delta_corr"] = out["pair_corr_mean"] - out["rho_eff"]
+    order = np.lexsort(
+        (
+            np.asarray(out["rho_eff"], dtype=float),
+            np.asarray(out["n_species"], dtype=int),
+            np.asarray(out["slope_mode"], dtype=str),
+        )
+    )
+    return out.iloc[order].reset_index(drop=True)
+
+
+def make_production_fig3_synchrony(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write production Figure 3: imposed versus realised synchrony."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    colors = {"mixed": "#1f77b4", "positive": "#d95f02"}
+    labels = {"mixed": "mixed responses", "positive": "aligned responses"}
+    markers = {2: "o", 4: "s", 8: "^"}
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.5), constrained_layout=True)
+
+    for ax, slope_mode, panel_label in zip(axes[:2], ["mixed", "positive"], ["A", "B"]):
+        mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
+        for n_species, group in mode.groupby("n_species", observed=True):
+            group = pd.DataFrame(group).copy()
+            group = group.iloc[np.argsort(np.asarray(group["rho_eff"], dtype=float))].reset_index(drop=True)
+            species_count = int(np.asarray(group["n_species"], dtype=int)[0])
+            ax.plot(
+                group["rho_eff"],
+                group["pair_corr_mean"],
+                marker=markers.get(species_count, "o"),
+                lw=2.0,
+                ms=4.6,
+                color=colors[slope_mode],
+                alpha=0.55 + 0.05 * species_count,
+                label=f"S={species_count}",
+            )
+        ax.plot([0, 1], [0, 1], color="0.25", lw=0.9, ls="--", label="y=x")
+        ax.axhline(0, color="0.55", lw=0.8, ls=":")
+        ax.set(
+            title=labels[slope_mode],
+            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            ylabel="Realised mean growth correlation",
+            xlim=(-0.02, 1.02),
+            ylim=(-1.02, 1.02),
+        )
+        ax.legend(fontsize=8, frameon=False)
+        _add_panel_label(ax, panel_label)
+
+    ax = axes[2]
+    for slope_mode, marker in [("mixed", "o"), ("positive", "s")]:
+        mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
+        regime = (
+            mode.groupby("rho_eff", as_index=False, observed=True)
+            .agg(
+                delta_mean=("delta_corr", "mean"),
+                delta_min=("delta_corr", "min"),
+                delta_max=("delta_corr", "max"),
+            )
+            .reset_index(drop=True)
+        )
+        regime = pd.DataFrame(regime)
+        regime = regime.iloc[np.argsort(np.asarray(regime["rho_eff"], dtype=float))].reset_index(drop=True)
+        x = np.asarray(regime["rho_eff"], dtype=float)
+        ax.fill_between(
+            x,
+            np.asarray(regime["delta_min"], dtype=float),
+            np.asarray(regime["delta_max"], dtype=float),
+            color=colors[slope_mode],
+            alpha=0.12,
+            linewidth=0,
+        )
+        ax.plot(
+            x,
+            np.asarray(regime["delta_mean"], dtype=float),
+            marker=marker,
+            lw=2.0,
+            ms=4.6,
+            color=colors[slope_mode],
+            label=labels[slope_mode],
+        )
+    ax.axhline(0, color="0.25", lw=0.9, ls="--")
+    ax.set(
+        title="Realised - imposed correlation",
+        xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+        ylabel=r"$\Delta$ growth correlation",
+        xlim=(-0.02, 1.02),
+    )
+    ax.legend(fontsize=8, frameon=False)
+    _add_panel_label(ax, "C")
+
+    fig.suptitle(r"Figure 3: response direction controls realised synchrony at $\sigma_{\mathrm{env}}=0.5$", fontsize=12)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_fig3_synchrony(
+    *,
+    production_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    sigma_target: float = 0.5,
+) -> None:
+    """Load production synchrony outputs and write Figure 3."""
+    df = _load_required_parquet(production_path, label="Figure 3 synchrony")
+    summary = summarize_fig3_synchrony_production(df, sigma_target=sigma_target)
+    make_production_fig3_synchrony(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )

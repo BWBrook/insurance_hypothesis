@@ -350,8 +350,12 @@ For each question, we add one entry with:
   - The next cab should be the mechanism display: refresh Figure 3, the imposed-vs-realised synchrony figure, with production-scale simulations.
   - Proposed production grid: `sigma_env=0.5`, `phi=0.4`, S=2,4,8, mixed and positive slope modes, non-negative `rho_env` grid from 0 to 1, and 1000 replicates per scenario.
   - Rationale: Figures 1 and 2 now establish the headline pattern and richness buffering; Figure 3 is the causal/mechanistic bridge showing how response direction decouples imposed environmental covariance from realised growth synchrony.
-- Status: proposed
-- Links: `analysis/reports/fig3_imposed_vs_realised_panels.png`, `src/python/insurance_sim/figures.py`
+- Actions:
+  - Added `analysis/production_specs/fig3_synchrony_v1.json`.
+  - Added `analysis/plot_production_fig3.py` and production Figure 3 helpers.
+  - Updated `analysis/run_all.py` to prefer production Figure 3 data when available.
+- Status: in progress
+- Links: `analysis/production_specs/fig3_synchrony_v1.json`, `analysis/plot_production_fig3.py`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `src/python/insurance_sim/production_figures.py`
 
 ## Open action queue
 

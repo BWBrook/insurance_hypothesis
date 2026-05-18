@@ -8,8 +8,10 @@ import pytest
 from insurance_sim.production_figures import (
     make_production_fig1,
     make_production_fig2_richness,
+    make_production_fig3_synchrony,
     summarize_fig2_richness_production,
     summarize_fig1_production,
+    summarize_fig3_synchrony_production,
 )
 
 
@@ -108,6 +110,66 @@ def test_make_production_fig2_richness_writes_outputs(tmp_path: Path) -> None:
     out_csv = tmp_path / "fig2_summary.csv"
 
     make_production_fig2_richness(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
+def test_summarize_fig3_synchrony_production_computes_delta() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for slope_mode in ["mixed", "positive"]:
+        for n_species in [2, 4]:
+            for rho_eff in [0.0, 0.5]:
+                for replicate in [0, 1]:
+                    pair_corr = (0.2 if slope_mode == "positive" else -0.2) + rho_eff + replicate * 0.01
+                    rows.append(
+                        {
+                            "slope_mode": slope_mode,
+                            "sigma_env": 0.5,
+                            "rho_env": rho_eff,
+                            "rho_eff": rho_eff,
+                            "n_species": n_species,
+                            "replicate": replicate,
+                            "mean_pairwise_corr": pair_corr,
+                            "phi_ldm": 0.2 + rho_eff,
+                            "cv_total": 0.1 + rho_eff,
+                            "mean_extinction_freq": 0.0,
+                        }
+                    )
+
+    summary = summarize_fig3_synchrony_production(pd.DataFrame.from_records(rows))
+
+    assert len(summary) == 8
+    row = summary[
+        summary["slope_mode"].eq("mixed")
+        & summary["n_species"].eq(2)
+        & summary["rho_eff"].eq(0.5)
+    ].iloc[0]
+    assert row["pair_corr_mean"] == pytest.approx(0.305)
+    assert row["delta_corr"] == pytest.approx(-0.195)
+
+
+def test_make_production_fig3_synchrony_writes_outputs(tmp_path: Path) -> None:
+    summary = pd.DataFrame(
+        {
+            "slope_mode": ["mixed", "mixed", "positive", "positive"],
+            "n_species": [2, 4, 2, 4],
+            "rho_eff": [0.0, 1.0, 0.0, 1.0],
+            "pair_corr_mean": [-0.1, -0.4, 0.2, 0.8],
+            "pair_corr_sd": [0.01, 0.01, 0.01, 0.01],
+            "phi_ldm_mean": [0.2, 0.3, 0.4, 0.5],
+            "cv_total_mean": [0.1, 0.2, 0.3, 0.4],
+            "extinction_mean": [0.0, 0.0, 0.0, 0.0],
+            "replicate_rows": [1000, 1000, 1000, 1000],
+            "delta_corr": [-0.1, -1.4, 0.2, -0.2],
+        }
+    )
+    out_png = tmp_path / "fig3.png"
+    out_pdf = tmp_path / "fig3.pdf"
+    out_csv = tmp_path / "fig3_summary.csv"
+
+    make_production_fig3_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
 
     assert out_png.exists()
     assert out_pdf.exists()

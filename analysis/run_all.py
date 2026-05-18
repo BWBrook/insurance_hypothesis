@@ -37,7 +37,11 @@ from insurance_sim.reporting import (
     validate_phi_run_lengths,
     write_guard_summary_markdown,
 )
-from insurance_sim.production_figures import write_production_fig1, write_production_fig2_richness
+from insurance_sim.production_figures import (
+    write_production_fig1,
+    write_production_fig2_richness,
+    write_production_fig3_synchrony,
+)
 
 REPORTS = Path("analysis/reports")
 FIG_DIR = Path("paper/manuscript/figures")
@@ -45,6 +49,7 @@ DATA_RUNS = DEFAULT_DATA_RUNS
 FIG1_PRODUCTION_CORE = Path("data/sim/production/fig1_s4_highres_v1/summaries.parquet")
 FIG1_PRODUCTION_HIGHSIGMA = Path("data/sim/production/fig1_s4_highsigma_v1/summaries.parquet")
 FIG2_PRODUCTION_RICHNESS = Path("data/sim/production/fig2_richness_mixed_v1/summaries.parquet")
+FIG3_PRODUCTION_SYNCHRONY = Path("data/sim/production/fig3_synchrony_v1/summaries.parquet")
 
 
 def run_command(cmd: list[str]) -> None:
@@ -124,7 +129,16 @@ def main() -> None:
         make_panel(summary_mixed, summary_pos, panel_path)
 
     sync_panel_path = REPORTS / "fig3_imposed_vs_realised_panels.png"
-    make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
+    sync_panel_pdf_path = sync_panel_path.with_suffix(".pdf")
+    if FIG3_PRODUCTION_SYNCHRONY.exists():
+        write_production_fig3_synchrony(
+            production_path=FIG3_PRODUCTION_SYNCHRONY,
+            out_png=sync_panel_path,
+            out_pdf=sync_panel_pdf_path,
+            summary_out=REPORTS / "fig3_imposed_vs_realised_panels_summary.csv",
+        )
+    else:
+        make_synchrony_panels(summary_mixed, summary_pos, sync_panel_path)
 
     phi_overlay_path = REPORTS / "fig5_phi_sensitivity_sigma0.5_extended.png"
     make_phi_overlay(phi_runs, phi_overlay_path)
@@ -181,6 +195,7 @@ def main() -> None:
         panel_path,
         panel_pdf_path,
         sync_panel_path,
+        sync_panel_pdf_path,
         cv_sync_path,
         phi_overlay_path,
         supp_cv_path,
