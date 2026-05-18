@@ -12,6 +12,11 @@ from pathlib import Path
 from insurance_sim.production_figures import write_production_fig5_persistence
 
 
+def with_literal_suffix(prefix: Path, suffix: str) -> Path:
+    """Append a file suffix without treating dots in parameter labels as extensions."""
+    return prefix.parent / f"{prefix.name}{suffix}"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the production Figure 5 persistence panels")
     parser.add_argument(
@@ -39,8 +44,8 @@ def main() -> None:
     args = parse_args()
     write_production_fig5_persistence(
         production_path=args.input,
-        out_png=args.out_prefix.with_suffix(".png"),
-        out_pdf=args.out_prefix.with_suffix(".pdf"),
+        out_png=with_literal_suffix(args.out_prefix, ".png"),
+        out_pdf=with_literal_suffix(args.out_prefix, ".pdf"),
         summary_out=args.out_prefix.with_name(args.out_prefix.name + "_summary.csv"),
         sigma_target=args.sigma_target,
     )

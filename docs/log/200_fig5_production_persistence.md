@@ -25,3 +25,19 @@ Refresh Figure 5, the environmental-persistence sensitivity display, using produ
 
 - Local spec creation validated before remote launch.
 - Focused tests for the new manifest and Figure 5 plotting path pass.
+- Remote run completed on `deep-server` under tmux with exit status 0.
+- Combined output validated: 64000 rows across 64 scenarios and 640 shards.
+- Compact outputs were retrieved to `data/sim/production/fig5_persistence_mixed_v1/`.
+- Figure 5 was rebuilt as:
+  - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
+  - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.pdf`
+  - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended_summary.csv`
+  - `paper/manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.png`
+  - `paper/manuscript/figures/fig5_phi_sensitivity_sigma0.5_extended.pdf`
+
+## First Sanity Check
+
+- At `sigma_env=0.5` and `rho_eff=0.5`, mean `CV_tot` rises from ~0.137 at `phi=0` to ~0.581 at `phi=0.95` for S=2.
+- At the same point, mean `CV_tot` rises from ~0.074 to ~0.346 for S=4.
+- S=2 remains more variable than S=4 across every shared `phi` and `rho_eff` combination.
+- Maximum scenario-mean floor/extinction frequency is ~0.049, concentrated in the `phi=0.95` high-persistence stress corner.

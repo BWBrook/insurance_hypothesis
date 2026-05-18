@@ -234,7 +234,24 @@
   - [x] Rebuild Figure 4 from production-scale scenario means.
   - [x] Add a focused test for the Figure 4 production summary and writer.
   - [x] Update the Figure 4 caption to describe the production-scale source, colour scale, and point-size encoding.
-  - [ ] Review production Figure 4 visually with Barry before deciding whether to keep the richness colour scale and `sigma_env` point-size encoding unchanged.
+  - [x] Review production Figure 4 visually with Barry before deciding whether to keep the richness colour scale and `sigma_env` point-size encoding unchanged. Barry accepted the display as looking good.
+
+### PROD_fig5_persistence_mixed_v1
+
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig5-persistence-mixed-v1`; local compact output `data/sim/production/fig5_persistence_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png` and `.pdf`; scenario summary `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended_summary.csv`.
+- **Summary (plain language)**:
+  - The production grid validated cleanly: 64 scenarios, 640 shards, 64000 replicate-summary rows, 1000 replicates per scenario.
+  - Increasing `phi` strongly inflates mean `CV_tot`, as expected from the AR(1) stationary-variance scaling at fixed innovation SD.
+  - At `sigma_env=0.5` and `rho_eff=0.5`, mean `CV_tot` rises from ~0.137 at `phi=0` to ~0.581 at `phi=0.95` for S=2, and from ~0.074 to ~0.346 for S=4.
+  - Richer mixed-slope communities remain less variable than S=2 communities at every shared `phi` and `rho_eff`; S=2/S=4 mean-CV ratios remain >1.38 across the shared grid.
+  - Floor/extinction is negligible for `phi <= 0.7`, low for `phi=0.9` (maximum scenario mean ~0.005), and non-negligible but still modest at `phi=0.95` (maximum scenario mean ~0.049; maximum replicate-level value 0.335).
+- **Relation to hypothesis**:
+  - Supports persistence robustness: temporal autocorrelation inflates absolute variability, but does not erase the relative richness-buffering pattern in mixed-slope communities.
+- **Follow-up tasks**:
+  - [x] Launch and validate `fig5-persistence-mixed-v1` on `deep-server`.
+  - [x] Retrieve compact outputs and rebuild Figure 5 from production output.
+  - [x] Update manuscript caption/results text for production Figure 5.
+  - [ ] Review production Figure 5 visually with Barry before deciding whether it needs any legend or panel-label polish.
 
 _(Add new sections for subsequent artefacts.)_
 
@@ -244,4 +261,4 @@ _(Add new sections for subsequent artefacts.)_
 - **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
 - **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95. Extinction/floor occupancy is negligible in the main inference grids, but becomes non-negligible in part of the high-φ stress grids (especially φ=0.95, S=2, σ_env=1.0).
 - **Key numbers** (mixed slopes, σ=0.5, ρ_env=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
-- **Next focus**: Review the production Figure 4 display, then re-check the manuscript narrative against the production Figure 1-4 artefacts before deciding whether Figure 5 needs a production-scale persistence refresh.
+- **Next focus**: Review the production Figure 5 display, then re-check the full manuscript narrative against the production Figure 1-5 artefacts and decide whether any supplementary/control figures need production-scale refreshes.

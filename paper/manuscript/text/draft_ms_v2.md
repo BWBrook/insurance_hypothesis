@@ -94,7 +94,7 @@ The positive-slope grid (aligned responses) uses the same $(\sigma_{\mathrm{env}
 
 To isolate response sign structure from slope-magnitude differences, an additional positive-matched control grid is run with aligned positive slopes whose magnitudes match the mixed regime ($b_i = |b_i^{\mathrm{mixed}}|$). This grid uses the same $(\sigma_{\mathrm{env}}, \rho_{\mathrm{env}})$ combinations as the positive-slope grid, with $S \in \{4, 8\}$, $\phi = 0.4$, $n_{\mathrm{steps}} = 600$, $n_{\mathrm{burn}} = 300$, and 100 replicates per scenario.
 
-To examine sensitivity to temporal autocorrelation, a $\phi$-sensitivity grid is run for mixed slopes on a reduced set of parameters: $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4\}$, and $\phi \in \{0, 0.7, 0.9, 0.95\}$. These runs use $n_{\mathrm{steps}} = 400$ with $n_{\mathrm{burn}} = 200$, and 80 replicates per scenario; the $\phi=0.4$ baseline is represented by the main mixed-slope grid.
+To examine sensitivity to temporal autocorrelation, a production $\phi$-sensitivity grid is run for mixed slopes at $\sigma_{\mathrm{env}} = 0.5$, with $\rho_{\mathrm{env}} \in \{-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0\}$, $S \in \{2, 4\}$, and $\phi \in \{0, 0.7, 0.9, 0.95\}$. These runs use $n_{\mathrm{steps}} = 600$, $n_{\mathrm{burn}} = 300$, and 1000 replicates per scenario; the $\phi=0.4$ baseline is represented by the main mixed-slope grid.
 
 No-competition controls set $\alpha_{\mathrm{inter}} = 0$ (with $\alpha_{\mathrm{intra}} = 1$) for both mixed and positive slopes. These controls use reduced grids with $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4, 8\}$, and $\phi = 0.4$, with 80 replicates per scenario.
 
@@ -155,7 +155,7 @@ Scenario-level summaries are obtained by averaging replicate-level statistics fo
 
 ### Monte Carlo uncertainty
 
-Across all scenario grids, Monte Carlo uncertainty in $\mathrm{CV}_{\mathrm{tot}}$ is small relative to the differences highlighted in the Results. In the main mixed-slope grid (150 replicates per scenario), the typical standard error of $\mathrm{CV}_{\mathrm{tot}}$ is $\approx 0.002$ (relative standard error $\approx 1%$). In the positive-slope grid (100 replicates), standard errors are $\approx 0.01$ (relative standard error $\approx 2%$). In the $\phi$-sensitivity and control grids (80 replicates), relative standard errors for $\mathrm{CV}_{\mathrm{tot}}$ are mostly below $5%$. These uncertainties are at least an order of magnitude smaller than the mixed–positive differences reported in the main text (for example, a difference of $\approx 0.18$ in $\mathrm{CV}_{\mathrm{tot}}$ at $\sigma_{\mathrm{env}} = 0.5$, $\rho_{\mathrm{env}} = 0.5$, $S = 4$), so Monte Carlo noise does not affect qualitative conclusions.
+Across the production grids used for the main figures, each scenario is represented by 1000 replicates. Monte Carlo uncertainty in $\mathrm{CV}_{\mathrm{tot}}$ is therefore small relative to the differences highlighted in the Results; for example, the mixed-versus-aligned difference in mean $\mathrm{CV}_{\mathrm{tot}}$ at $\sigma_{\mathrm{env}} = 0.5$, $\rho_{\mathrm{eff}} = 0.5$, and $S = 4$ is $\approx 0.18$, far larger than residual sampling variation in the scenario means. Lower-replicate exploratory and control grids are used only as robustness diagnostics, not as the primary source for the main production figures.
 
 ### Numerical and ecological checks
 
@@ -196,7 +196,7 @@ Increasing temporal autocorrelation $\phi$ inflates community variability in mix
 
 Despite this inflation, the qualitative insurance pattern within the mixed-slope regime persists across $\phi$: $\mathrm{CV}_{\mathrm{tot}}$ generally declines as $\rho_{\mathrm{env}}$ increases, and richer communities remain less variable than species-poor communities under the same forcing (Fig. 5). The decline with $\rho_{\mathrm{env}}$ weakens at the highest persistence ($\phi=0.95$) and can flatten at the most extreme $\rho_{\mathrm{env}}$ values, but the ordering by richness remains unchanged.
 
-Extinction frequencies remain negligible across the $\phi$-sensitivity scenarios (mean $\bar{e} \lesssim 0.01$), indicating that changes in $\mathrm{CV}_{\mathrm{tot}}$ reflect temporal variability rather than systematic species loss.
+Floor/extinction frequencies remain essentially absent for $\phi \le 0.7$ and low for $\phi=0.9$ (maximum scenario mean $\bar{e}\approx 0.005$), but rise in the highest-persistence stress case ($\phi=0.95$; maximum scenario mean $\bar{e}\approx 0.049$). Thus the strongest $\phi=0.95$ inflation should be read as a high-persistence stress regime, while the qualitative richness ordering remains intact across the full persistence grid.
 
 ### Controls: competition strength and slope magnitudes
 

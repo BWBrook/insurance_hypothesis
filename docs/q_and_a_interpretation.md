@@ -387,8 +387,11 @@ For each question, we add one entry with:
   - Regenerated title-free production Figures 1-4 in `analysis/reports/` and `paper/manuscript/figures/`.
   - Added `analysis/production_specs/fig5_persistence_mixed_v1.json`.
   - Extended the production manifest path to support `phi_vals` in JSON specs.
-- Status: in progress
-- Links: `analysis/production_specs/fig5_persistence_mixed_v1.json`, `analysis/plot_production_fig5.py`, `src/python/insurance_sim/production.py`, `src/python/insurance_sim/production_figures.py`
+  - Launched `fig5-persistence-mixed-v1` on `deep-server` under tmux; the run validated with 64000 rows across 64 scenarios.
+  - Retrieved compact outputs and rebuilt `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png` and `.pdf`.
+  - Updated the Figure 5 caption/results text, including the high-`phi` stress-regime caveat for floor/extinction.
+- Status: actioned
+- Links: `analysis/production_specs/fig5_persistence_mixed_v1.json`, `analysis/plot_production_fig5.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended_summary.csv`, `src/python/insurance_sim/production.py`, `src/python/insurance_sim/production_figures.py`
 
 ## Open action queue
 
