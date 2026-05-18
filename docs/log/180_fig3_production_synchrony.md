@@ -34,3 +34,19 @@ Refresh the main mechanism figure, Figure 3, with production-scale simulations s
 - Run local tests/type checks and validate manifest counts.
 - Push the launch-ready state.
 - Sync `deep-server`, launch `fig3-synchrony-v1` under `tmux`, validate, retrieve compact output, and rebuild Figure 3.
+
+## Launch-Ready Checkpoint
+
+- Commit `f0f43c7` pushed to `main`.
+- Local checks passed:
+  - `uv run python analysis/production_grid.py create-manifest-from-spec --spec analysis/production_specs/fig3_synchrony_v1.json --output /tmp/fig3_synchrony_manifest.json` -> 66 scenarios, 660 shards, 66000 expected rows.
+  - `uv run pytest -q` -> 33 passed.
+  - `uv run pyright` -> 0 errors.
+  - `git diff --check` -> clean.
+
+## Remote Launch Blocker
+
+- Attempted to connect to `deep-server` on 2026-05-18.
+- DNS/SSH behaviour was unstable from WSL: `deep-server` first resolved to `set-bio-2621gl2.zoo.utas.edu.au` but SSH returned `connection refused`; later `deep-server` temporarily failed DNS lookup.
+- Direct IP check to `131.217.90.193` showed ping success but TCP/22 refused connections repeatedly.
+- No production job was launched yet. The repository is launch-ready; next action is to retry SSH, fast-forward `deep-server`, then launch `fig3-synchrony-v1` with `SPEC_PATH=analysis/production_specs/fig3_synchrony_v1.json scripts/deep_server/launch_production_spec_tmux.sh`.
