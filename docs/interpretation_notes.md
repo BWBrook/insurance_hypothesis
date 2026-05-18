@@ -203,6 +203,23 @@
   - [x] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic. Barry prefers to keep them in the main panel.
   - [ ] Next production reinforcement: refresh the imposed-vs-realised synchrony mechanism figure at production scale.
 
+### PROD_fig3_synchrony_v1
+
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig3-synchrony-v1`; local compact output `data/sim/production/fig3_synchrony_v1/summaries.parquet`; display outputs `analysis/reports/fig3_imposed_vs_realised_panels.png` and `.pdf`.
+- **Summary (plain language)**:
+  - The production grid validated cleanly: 66 scenarios, 660 shards, 66000 replicate-summary rows, 1000 replicates per scenario.
+  - The mechanism is very clear. As `rho_eff` rises, mixed responses fall well below the imposed-correlation line, whereas positive responses rise with `rho_eff` and remain strongly positive.
+  - At `rho_eff≈1`, mixed responses have mean growth correlations of ~-0.81 (S=2), ~-0.16 (S=4), and ~0.08 (S=8). Positive responses at the same endpoint remain positive: ~0.64 (S=2), ~0.81 (S=4), and ~0.86 (S=8).
+  - Richness-averaged `delta_corr` changes from ~0.13 to ~-1.30 for mixed responses as `rho_eff` moves from 0 to 1, while positive responses change only from ~0.26 to ~-0.23.
+  - Floor/extinction is absent in this focused mechanism run: maximum `mean_extinction_freq` is 0.
+- **Relation to hypothesis**:
+  - Strongly supports the mechanistic interpretation of the insurance effect: response-direction heterogeneity turns increasingly shared environmental forcing into compensatory or weakly synchronised realised growth, rather than simply transmitting the imposed covariance to aggregate biomass.
+- **Follow-up tasks**:
+  - [x] Launch and validate `fig3-synchrony-v1` on `deep-server`.
+  - [x] Rebuild Figure 3 from production output.
+  - [x] Update manuscript caption/results text for production Figure 3.
+  - [ ] Review production Figure 3 visually with Barry before deciding whether to tune labels, legends, or the panel C band display.
+
 _(Add new sections for subsequent artefacts.)_
 
 ## Summary

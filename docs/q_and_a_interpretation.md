@@ -354,7 +354,9 @@ For each question, we add one entry with:
   - Added `analysis/production_specs/fig3_synchrony_v1.json`.
   - Added `analysis/plot_production_fig3.py` and production Figure 3 helpers.
   - Updated `analysis/run_all.py` to prefer production Figure 3 data when available.
-- Status: in progress
+  - Launched `fig3-synchrony-v1` on `deep-server` after the GlobalProtect VPN refresh restored SSH.
+  - Retrieved compact outputs and rebuilt `analysis/reports/fig3_imposed_vs_realised_panels.png` and `.pdf`.
+- Status: actioned
 - Links: `analysis/production_specs/fig3_synchrony_v1.json`, `analysis/plot_production_fig3.py`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `src/python/insurance_sim/production_figures.py`
 
 ## Open action queue
