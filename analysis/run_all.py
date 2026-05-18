@@ -41,6 +41,7 @@ from insurance_sim.production_figures import (
     write_production_fig1,
     write_production_fig2_richness,
     write_production_fig3_synchrony,
+    write_production_fig4_cv_synchrony,
 )
 
 REPORTS = Path("analysis/reports")
@@ -144,7 +145,16 @@ def main() -> None:
     make_phi_overlay(phi_runs, phi_overlay_path)
 
     cv_sync_path = REPORTS / "fig4_cv_vs_synchrony_mixed.png"
-    make_cv_vs_synchrony(summary_mixed, cv_sync_path)
+    cv_sync_pdf_path = cv_sync_path.with_suffix(".pdf")
+    if FIG2_PRODUCTION_RICHNESS.exists():
+        write_production_fig4_cv_synchrony(
+            production_path=FIG2_PRODUCTION_RICHNESS,
+            out_png=cv_sync_path,
+            out_pdf=cv_sync_pdf_path,
+            summary_out=REPORTS / "fig4_cv_vs_synchrony_mixed_summary.csv",
+        )
+    else:
+        make_cv_vs_synchrony(summary_mixed, cv_sync_path)
 
     # Richness scaling curve (prefer dedicated richness sweep if available)
     richness_path = Path("data/sim/grid/run1_richness/summaries.parquet")
@@ -197,6 +207,7 @@ def main() -> None:
         sync_panel_path,
         sync_panel_pdf_path,
         cv_sync_path,
+        cv_sync_pdf_path,
         phi_overlay_path,
         supp_cv_path,
         supp_phi_path,

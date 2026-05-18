@@ -201,7 +201,7 @@
   - [x] Summarise floor/extinction frequencies across `sigma_env` and richness.
   - [x] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
   - [x] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic. Barry prefers to keep them in the main panel.
-  - [ ] Next production reinforcement: refresh the imposed-vs-realised synchrony mechanism figure at production scale.
+  - [x] Next production reinforcement: refresh the imposed-vs-realised synchrony mechanism figure at production scale.
 
 ### PROD_fig3_synchrony_v1
 
@@ -218,7 +218,23 @@
   - [x] Launch and validate `fig3-synchrony-v1` on `deep-server`.
   - [x] Rebuild Figure 3 from production output.
   - [x] Update manuscript caption/results text for production Figure 3.
-  - [ ] Review production Figure 3 visually with Barry before deciding whether to tune labels, legends, or the panel C band display.
+  - [x] Review production Figure 3 visually with Barry before deciding whether to tune labels, legends, or the panel C band display. Barry accepted the rebuilt Figure 3 as excellent.
+
+### PROD_fig4_cv_synchrony_mixed
+
+- **Artefacts**: source compact output `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig4_cv_vs_synchrony_mixed.png` and `.pdf`; scenario summary `analysis/reports/fig4_cv_vs_synchrony_mixed_summary.csv`.
+- **Summary (plain language)**:
+  - No new production run was needed. The validated Figure 2 richness grid already contains the mixed-slope `CV_tot`, `phi_ldm`, and mean pairwise growth-correlation summaries required for Figure 4.
+  - The rebuilt figure uses 175 non-zero-`sigma_env` scenario means from S=2..8, `sigma_env` from 0.2 to 2.0, and non-negative `rho_eff`.
+  - Across these scenario means, `CV_tot` is strongly associated with abundance synchrony (`phi_LdM`, Pearson r ~0.85) and moderately associated with mean pairwise growth correlation (r ~0.57).
+  - The lowest community variability occurs mostly in higher-richness, low-synchrony mixed-slope scenarios. The highest values are concentrated at S=2 and high environmental variability.
+- **Relation to hypothesis**:
+  - Supports the synchrony-mediated interpretation of mixed-slope insurance: low realised synchrony, especially at higher richness, corresponds to lower aggregate variability.
+- **Follow-up tasks**:
+  - [x] Rebuild Figure 4 from production-scale scenario means.
+  - [x] Add a focused test for the Figure 4 production summary and writer.
+  - [x] Update the Figure 4 caption to describe the production-scale source, colour scale, and point-size encoding.
+  - [ ] Review production Figure 4 visually with Barry before deciding whether to keep the richness colour scale and `sigma_env` point-size encoding unchanged.
 
 _(Add new sections for subsequent artefacts.)_
 
@@ -228,4 +244,4 @@ _(Add new sections for subsequent artefacts.)_
 - **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
 - **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95. Extinction/floor occupancy is negligible in the main inference grids, but becomes non-negligible in part of the high-φ stress grids (especially φ=0.95, S=2, σ_env=1.0).
 - **Key numbers** (mixed slopes, σ=0.5, ρ_env=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
-- **Next focus**: Refine manuscript narrative around **relative** stabilisation (buffering) and clearly separate imposed environmental correlation from realised synchrony metrics.
+- **Next focus**: Review the production Figure 4 display, then re-check the manuscript narrative against the production Figure 1-4 artefacts before deciding whether Figure 5 needs a production-scale persistence refresh.

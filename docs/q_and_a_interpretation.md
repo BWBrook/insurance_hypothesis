@@ -359,6 +359,22 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/production_specs/fig3_synchrony_v1.json`, `analysis/plot_production_fig3.py`, `analysis/reports/fig3_imposed_vs_realised_panels.png`, `src/python/insurance_sim/production_figures.py`
 
+### QA-022
+
+- Context: Barry reviewed the production Figure 3 and said it looks excellent, then asked whether to continue with production-level work on Figure 4.
+- Question: Should we move next to Figure 4, and does it require a new production run?
+- Response:
+  - Yes, Figure 4 is the next natural production-level reinforcement because it links community variability directly to realised synchrony metrics.
+  - A new run is not necessary: the completed `fig2-richness-mixed-v1` production grid already contains mixed-slope `CV_tot`, `phi_ldm`, and mean pairwise growth-correlation summaries across S=2..8, `sigma_env` up to 2.0, and non-negative `rho_eff`.
+  - Rebuild Figure 4 from those scenario means, excluding the deterministic `sigma_env=0` baseline. Use colour for species richness and point size for `sigma_env` so both dimensions remain visible.
+- Actions:
+  - Added `analysis/plot_production_fig4.py`.
+  - Added production Figure 4 summary/plotting helpers.
+  - Updated `analysis/run_all.py` to prefer production Figure 4 data when available.
+  - Rebuilt `analysis/reports/fig4_cv_vs_synchrony_mixed.png` and `.pdf`, copied both into `paper/manuscript/figures/`, and wrote the scenario-level summary CSV.
+- Status: actioned
+- Links: `analysis/plot_production_fig4.py`, `analysis/reports/fig4_cv_vs_synchrony_mixed.png`, `analysis/reports/fig4_cv_vs_synchrony_mixed_summary.csv`, `paper/manuscript/figures/fig4_cv_vs_synchrony_mixed.png`, `src/python/insurance_sim/production_figures.py`
+
 ## Open action queue
 
 - Run the new ecologist-facing walkthrough in this order:

@@ -133,6 +133,13 @@ For each entry, include:
 - **Rationale**: Figure 3 is the mechanism figure linking imposed environmental correlation to realised growth synchrony. A focused production run gives it the same replicate standard as Figures 1 and 2 without launching an unnecessary broad parameter sweep, and the non-negative `rho_env` grid avoids cross-richness complications from infeasible negative equicorrelations.
 - **Status**: active
 
+### DEC-018 – Reuse Figure 2 production grid for Figure 4
+
+- **Date**: 2026-05-18
+- **Decision**: Rebuild Figure 4 from the validated `fig2-richness-mixed-v1` production output rather than launching a separate production run.
+- **Rationale**: Figure 4 needs mixed-slope scenario means for $\mathrm{CV}_{\mathrm{tot}}$, $\phi_{\mathrm{LdM}}$, and mean pairwise growth correlation across richness and environmental forcing. The Figure 2 production grid already provides these quantities for S=2..8, `sigma_env` up to 2.0, non-negative `rho_eff`, and 1000 replicates per scenario, so a new run would be redundant.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

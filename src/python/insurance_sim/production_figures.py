@@ -523,3 +523,154 @@ def write_production_fig3_synchrony(
         out_pdf=out_pdf,
         summary_out=summary_out,
     )
+
+
+def summarize_fig4_cv_synchrony_production(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate mixed-slope production rows for the CV-vs-synchrony figure."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "cv_total",
+        "phi_ldm",
+        "mean_pairwise_corr",
+        "mean_extinction_freq",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    mixed = pd.DataFrame(df[df["slope_mode"].eq("mixed")].copy())
+    sigma_positive = np.asarray(mixed["sigma_env"], dtype=float) > 0
+    mixed = pd.DataFrame(mixed.loc[sigma_positive, :].copy())
+    rho_nonnegative = np.asarray(mixed["rho_eff"], dtype=float) >= -1e-12
+    mixed = pd.DataFrame(mixed.loc[rho_nonnegative, :].copy())
+    if mixed.empty:
+        raise ValueError("No mixed-slope production rows with sigma_env > 0 were found.")
+
+    summary = (
+        mixed.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            cv_total_mean=("cv_total", "mean"),
+            phi_ldm_mean=("phi_ldm", "mean"),
+            pair_corr_mean=("mean_pairwise_corr", "mean"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            replicate_rows=("cv_total", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    order = np.lexsort(
+        (
+            np.asarray(out["rho_eff"], dtype=float),
+            np.asarray(out["sigma_env"], dtype=float),
+            np.asarray(out["n_species"], dtype=int),
+        )
+    )
+    return out.iloc[order].reset_index(drop=True)
+
+
+def _sigma_size_values(summary: pd.DataFrame) -> np.ndarray:
+    sigma = np.asarray(summary["sigma_env"], dtype=float)
+    sigma_max = float(np.max(sigma))
+    if sigma_max <= 0:
+        return np.full_like(sigma, 42.0)
+    return 30.0 + 75.0 * (sigma / sigma_max)
+
+
+def make_production_fig4_cv_synchrony(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write production Figure 4: community variability versus synchrony."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.8), constrained_layout=True, sharey=True)
+    sizes = _sigma_size_values(summary)
+    richness = np.asarray(summary["n_species"], dtype=float)
+    scatter_kwargs = {
+        "c": richness,
+        "cmap": "viridis",
+        "vmin": float(np.min(richness)),
+        "vmax": float(np.max(richness)),
+        "s": sizes,
+        "alpha": 0.78,
+        "edgecolors": "white",
+        "linewidths": 0.45,
+    }
+
+    axes[0].scatter(summary["phi_ldm_mean"], summary["cv_total_mean"], **scatter_kwargs)
+    axes[0].set(
+        title="Abundance synchrony",
+        xlabel=r"Loreau-de Mazancourt synchrony, $\phi_{\mathrm{LdM}}$",
+        ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
+    )
+
+    points = axes[1].scatter(summary["pair_corr_mean"], summary["cv_total_mean"], **scatter_kwargs)
+    axes[1].axvline(0, color="0.55", lw=0.9, ls=":")
+    axes[1].set(
+        title="Growth-rate synchrony",
+        xlabel="Mean pairwise growth correlation",
+    )
+
+    cbar = fig.colorbar(points, ax=axes, shrink=0.92, pad=0.015)
+    cbar.set_label(r"Species richness, $S$")
+
+    sigma_values = [0.2, 1.0, 2.0]
+    sigma_max = float(np.max(np.asarray(summary["sigma_env"], dtype=float)))
+    handles = [
+        axes[1].scatter(
+            [],
+            [],
+            s=30.0 + 75.0 * (value / sigma_max),
+            facecolors="0.65",
+            edgecolors="white",
+            linewidths=0.45,
+            label=f"{value:g}",
+        )
+        for value in sigma_values
+        if value <= sigma_max + 1e-12
+    ]
+    if handles:
+        axes[1].legend(
+            handles=handles,
+            title=r"$\sigma_{\mathrm{env}}$",
+            fontsize=8,
+            title_fontsize=9,
+            frameon=False,
+            loc="upper left",
+        )
+
+    for label, ax in zip(["A", "B"], axes):
+        _add_panel_label(ax, label)
+
+    fig.suptitle("Figure 4: lower realised synchrony corresponds to lower community variability", fontsize=12)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_fig4_cv_synchrony(
+    *,
+    production_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Load production mixed-slope richness outputs and write Figure 4."""
+    df = _load_required_parquet(production_path, label="Figure 4 CV-synchrony")
+    summary = summarize_fig4_cv_synchrony_production(df)
+    make_production_fig4_cv_synchrony(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )

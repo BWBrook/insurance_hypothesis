@@ -9,9 +9,11 @@ from insurance_sim.production_figures import (
     make_production_fig1,
     make_production_fig2_richness,
     make_production_fig3_synchrony,
+    make_production_fig4_cv_synchrony,
     summarize_fig2_richness_production,
     summarize_fig1_production,
     summarize_fig3_synchrony_production,
+    summarize_fig4_cv_synchrony_production,
 )
 
 
@@ -170,6 +172,60 @@ def test_make_production_fig3_synchrony_writes_outputs(tmp_path: Path) -> None:
     out_csv = tmp_path / "fig3_summary.csv"
 
     make_production_fig3_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
+def test_summarize_fig4_cv_synchrony_production_filters_and_aggregates() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for sigma_env in [0.0, 0.5]:
+        for n_species in [2, 4]:
+            for rho_eff in [0.0, 0.5]:
+                for replicate in [0, 1]:
+                    rows.append(
+                        {
+                            "slope_mode": "mixed",
+                            "sigma_env": sigma_env,
+                            "rho_eff": rho_eff,
+                            "n_species": n_species,
+                            "replicate": replicate,
+                            "cv_total": sigma_env + (1.0 / n_species) + replicate * 0.1,
+                            "phi_ldm": 0.1 + rho_eff,
+                            "mean_pairwise_corr": -0.2 + rho_eff,
+                            "mean_extinction_freq": 0.0,
+                        }
+                    )
+
+    summary = summarize_fig4_cv_synchrony_production(pd.DataFrame.from_records(rows))
+
+    assert len(summary) == 4
+    assert set(summary["sigma_env"]) == {0.5}
+    row = summary[summary["n_species"].eq(4) & summary["rho_eff"].eq(0.5)].iloc[0]
+    assert row["cv_total_mean"] == pytest.approx(0.8)
+    assert row["phi_ldm_mean"] == pytest.approx(0.6)
+    assert row["pair_corr_mean"] == pytest.approx(0.3)
+
+
+def test_make_production_fig4_cv_synchrony_writes_outputs(tmp_path: Path) -> None:
+    summary = pd.DataFrame(
+        {
+            "n_species": [2, 4, 6, 8],
+            "sigma_env": [0.2, 0.5, 1.0, 2.0],
+            "rho_eff": [0.0, 0.25, 0.5, 1.0],
+            "cv_total_mean": [0.05, 0.12, 0.3, 0.7],
+            "phi_ldm_mean": [0.05, 0.1, 0.2, 0.35],
+            "pair_corr_mean": [-0.2, -0.05, 0.1, 0.25],
+            "extinction_mean": [0.0, 0.0, 0.0, 0.001],
+            "replicate_rows": [1000, 1000, 1000, 1000],
+        }
+    )
+    out_png = tmp_path / "fig4.png"
+    out_pdf = tmp_path / "fig4.pdf"
+    out_csv = tmp_path / "fig4_summary.csv"
+
+    make_production_fig4_cv_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
 
     assert out_png.exists()
     assert out_pdf.exists()
