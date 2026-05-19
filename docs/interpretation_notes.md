@@ -251,7 +251,7 @@
   - [x] Launch and validate `fig5-persistence-mixed-v1` on `deep-server`.
   - [x] Retrieve compact outputs and rebuild Figure 5 from production output.
   - [x] Update manuscript caption/results text for production Figure 5.
-  - [ ] Review production Figure 5 visually with Barry before deciding whether it needs any legend or panel-label polish.
+  - [x] Review production Figure 5 visually with Barry; accepted without further display changes.
 
 _(Add new sections for subsequent artefacts.)_
 
@@ -259,6 +259,6 @@ _(Add new sections for subsequent artefacts.)_
 
 - **Headline**: Environmental variability tends to destabilise individual species, but heterogeneous responses and higher richness **buffer** this variability at the community level relative to single-species or aligned-response baselines. When responses are aligned (positive slopes), community biomass closely tracks the environment and variability remains high.
 - **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
-- **Robustness**: Patterns persist across σ_env up to 1.5, ρ_env up to 1.0, richness up to 8, and environmental persistence φ from 0 to 0.95. Extinction/floor occupancy is negligible in the main inference grids, but becomes non-negligible in part of the high-φ stress grids (especially φ=0.95, S=2, σ_env=1.0).
-- **Key numbers** (mixed slopes, σ=0.5, ρ_env=0.5): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at same conditions.
-- **Next focus**: Review the production Figure 5 display, then re-check the full manuscript narrative against the production Figure 1-5 artefacts and decide whether any supplementary/control figures need production-scale refreshes.
+- **Robustness**: Production-backed main figures now span core `sigma_env` values up to 2.0, a labelled Figure 1 stress extension to 4.0, `rho_eff` from moderately negative to near one where feasible, richness up to S=8, and environmental persistence `phi` from 0 to 0.95. Extinction/floor occupancy is negligible in the main low-stress inference grids but rises in labelled high-`sigma_env` and high-`phi` stress regimes.
+- **Key numbers** (mixed slopes, `sigma_env=0.5`, `rho_eff=0.5`): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at the same forcing. Figure 5 persistence check at the same `sigma_env` and `rho_eff` gives S=2 CV ~0.14 at `phi=0` and ~0.58 at `phi=0.95`, with S=4 remaining lower (~0.07 to ~0.35).
+- **Next focus**: Create the production-aligned Table 1, then sweep supplementary figures and create supplementary tables before the final manuscript build/lint pass.

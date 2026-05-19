@@ -393,17 +393,28 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `analysis/production_specs/fig5_persistence_mixed_v1.json`, `analysis/plot_production_fig5.py`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`, `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended_summary.csv`, `src/python/insurance_sim/production.py`, `src/python/insurance_sim/production_figures.py`
 
+### QA-024
+
+- Context: Barry accepted Figure 5 and agreed that uncertainty fans are not needed because scenario-mean standard errors mostly reflect the deliberately large replicate count rather than ecological variability.
+- Question: What should happen next before moving to Table 1, supplementary figures, and supplementary tables?
+- Response:
+  - Treat Figures 1-5 as the accepted production-backed main figure set.
+  - Run a careful manuscript and figure-caption reconciliation pass against those accepted figures before creating the parameter table and supplementary artefacts.
+  - Tighten stale wording around production replicate counts, grid ranges, stress-regime interpretation, and requested `rho_env` versus effective `rho_eff`.
+  - Keep Table 1, supplementary figures, and supplementary tables as the next ordered tranche after the draft/caption reconciliation.
+- Actions:
+  - Checked the manuscript draft and figure captions against the production Figure 1-5 artefacts and scenario summaries.
+  - Updated the draft Methods, Results, Discussion, and Reproducibility notes so the main-figure descriptions match the production grids and compact production-summary locations.
+  - Updated the living plan and interpretation notes so the next action sequence is Table 1, supplementary figures, supplementary tables, then final build/lint.
+- Status: actioned
+- Links: `paper/manuscript/text/draft_ms_v2.md`, `paper/manuscript/text/figure_captions_v2.md`, `docs/plan.md`, `docs/interpretation_notes.md`
+
 ## Open action queue
 
-- Run the new ecologist-facing walkthrough in this order:
-  - `README.md`
-  - `analysis/reports/fig1_panels.png`
-  - `analysis/reports/fig3_imposed_vs_realised_panels.png`
-  - `analysis/reports/fig2_richness_scaling_mixed.png`
-  - `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`
-- Figure-by-figure numbered-filename transition completed for Figures 1–5. Continue with any additional display polish requested during manuscript integration.
-- Use canonical `fig1_panels` outputs for future Figure 1 review; older `fig1_production_candidate` references are historical only.
-- Before launching production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
+- Create a production-aligned Table 1 that distinguishes main production grids from exploratory/control diagnostics.
+- Sweep supplementary figures against the accepted main Figure 1-5 story, retiring stale diagnostics or updating captions before any production refresh decisions.
+- Create supplementary tables for run specifications, scenario counts, numerical/floor-occupancy checks, and control-grid summaries.
+- Before launching any further production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics
 

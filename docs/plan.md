@@ -25,25 +25,16 @@
 - **Numerical safeguards**: floor abundance at `1e-9`; cap exponent; φ_LdM clipped to [0,1]; checks for NaN/Inf each step.
 - **Tooling choice**: core simulations in **Python 3.12** (uv-managed); plotting with matplotlib.
 
-## 3. Experimental grid (completed)
+## 3. Experimental grid (production state)
 
-- **Environmental variance (σ_env)**: {0, 0.2, 0.5, 1.0, 1.5} (reduced to {0,0.5,1.0} for φ sensitivity).
-- **Imposed environmental correlation (ρ_env)**: {-0.5, 0, 0.5, 0.9, 1.0}; effective values stored as `rho_eff` when clipping is required for PD.
-- **Species richness (S)**: {2, 4, 8} for mixed slopes; {4, 8} for positive and positive_matched slopes (S=2 subset at σ=0.5,1.0 for positive pilot).
-- **Richness sweep for Figure 4**: additional mixed‑slope grid with S ∈ {2,3,4,5,6,7,8} on the full σ_env–ρ_env grid, stored as `data/sim/grid/run1_richness/summaries.parquet`.
-- **AR(1) persistence (φ)**: 0.4 main; sensitivity {0, 0.7, 0.9, 0.95}.
-- **Simulation length**: 600 steps (burn 300) for main/positive grids; 400 (burn 200) for φ sweeps.
-- **Replicates per scenario**: mixed 150; positive 100; φ sweeps 80.
-- **Outputs stored**: parquet summaries under `data/sim/grid/<run_name>/summaries.parquet`.
-
-## 3.1 Production-scale grid extension (planned)
-
-- **Compute target**: run production-scale CPU grids on `deep-server`, using WSL as the control plane and `tmux` for long jobs. Use login-shell remote commands (`ssh deep-server 'bash -lc "..."'`) so `uv` resolves from `~/.local/bin`.
-- **Remote storage**: keep bulky run outputs, caches, and scratch material under `/data` on `deep-server`; keep scientific run definitions, summaries, interpretation notes, and reproducible code in this repository.
-- **Replicate convention**: use **1000 replicates per scenario/slice** for final-paper production grids unless a run is explicitly a smoke test, pilot, or stress-test subset.
-- **First production target**: high-resolution Figure 1 response surfaces for S=4 mixed vs positive slopes, `phi=0.4`, with denser `sigma_env`/`rho_env` values around the visible transition region and `rho_eff`-aware plotting.
-- **Frozen first-batch spec**: `analysis/production_specs/fig1_s4_highres_v1.json` defines 570 scenarios (S=4; mixed and positive slopes; 19 `sigma_env` values from 0.0 to 2.0; 15 `rho_env` values from -0.3 to 1.0), 5700 shards, and 570000 expected replicate-summary rows.
-- **Acceptance check**: compare high-resolution surfaces against the current coarse/interim grids before replacing display defaults or making manuscript claims depend on the new surfaces.
+- **Compute target**: production-scale CPU grids run on `deep-server` under `tmux`, controlled from WSL. Bulky remote outputs and scratch material live under `/data` on `deep-server`; compact retrieved summaries live under `data/sim/production/` locally.
+- **Replicate convention**: final-paper production grids use **1000 replicates per scenario** unless a run is explicitly labelled as a pilot, smoke test, or exploratory control.
+- **Figure 1 production grid**: S=4 mixed and positive slopes, `phi=0.4`, 600 steps / 300 burn-in, 15 requested `rho_env` values from -0.3 to 1.0, 19 core `sigma_env` values from 0.0 to 2.0, plus a labelled high-variance stress extension to `sigma_env=4.0`.
+- **Figures 2 and 4 production grid**: mixed slopes, S=2..8, `phi=0.4`, 600 steps / 300 burn-in, `sigma_env` in {0, 0.2, 0.5, 1.0, 1.5, 2.0}, and non-negative requested `rho_env` in {0, 0.25, 0.5, 0.75, 1.0}. Figure 2 uses richness means; Figure 4 reuses the same scenario means for CV-synchrony relationships.
+- **Figure 3 production grid**: mixed and positive slopes, S in {2, 4, 8}, `sigma_env=0.5`, `phi=0.4`, requested `rho_env` from 0 to 1 in increments of 0.1, 600 steps / 300 burn-in.
+- **Figure 5 production grid**: mixed slopes, S in {2, 4}, `sigma_env=0.5`, `phi` in {0, 0.7, 0.9, 0.95}, requested `rho_env` in {-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0}, 600 steps / 300 burn-in.
+- **Exploratory and control grids**: positive-matched, no-competition, and mixed-narrow controls remain lower-replicate robustness diagnostics unless selected later for production refresh.
+- **Outputs stored**: versioned production specs under `analysis/production_specs/`; compact production parquet summaries under `data/sim/production/<run_name>/`; exploratory/control summaries under `data/sim/grid/<run_name>/`.
 
 ## 4. Response metrics
 
@@ -70,7 +61,7 @@
 
 ## 7. Manuscript plan (outline)
 
-- Target: short theoretical ecology note (Ecology Letters–style).
+- Target: concise theoretical ecology manuscript for Oikos.
 - Sections: Introduction (insurance hypothesis framing); Methods (model, grid, metrics); Results (figures: variance vs σ_env by ρ and S); Discussion (conditions for stabilisation, limitations, robustness); Methods appendix with parameter tables.
 
 ## 8. Current status & next steps
@@ -79,7 +70,7 @@
 - **Recently completed**:
   1) Full mixed and positive grids plus controls (`positive_matched`, `no_comp_*`, `mixed_narrow`) and φ sensitivity through 0.95.
   2) Numbered manuscript figure suite (`fig1_*` to `fig5_*`, `figS1_*` to `figS3_*`) and cached-data orchestration (`analysis/run_all.py`) with reproducible regeneration.
-  3) Pylance/type-hint cleanup, `rho_eff` handling in summaries/plots, and test suite expansion (`uv run pytest` currently 8 tests).
+  3) Pylance/type-hint cleanup, `rho_eff` handling in summaries/plots, and test suite expansion.
   4) Post-hiatus audit identifying that high-φ stress grids have non-negligible floor occupancy in a subset of scenarios, with documentation corrected accordingly.
   5) Manuscript v2 (`paper/manuscript/text/draft_ms_v2.md`) and captions (`paper/manuscript/text/figure_captions_v2.md`) aligned to implemented model conventions (`rho_env` requested vs `rho_eff` effective; `sigma_env` innovation SD; `sigma_eff` stationary SD in φ analyses).
   6) `paper/` hierarchy harmonised for makedoc handoff (`paper/settings/build.yaml`, `paper/manuscript/text/figures.md`, `paper/references/ih_references.yaml`) with path mapping rewritten away from legacy `manuscript/` references.
@@ -101,12 +92,12 @@
   22) Figure 4 production rebuild completed on 2026-05-18: the validated `fig2-richness-mixed-v1` production grid is now used as the production source for CV-vs-synchrony scenario means, avoiding a redundant new run; production PNG/PDF and a scenario summary CSV were rebuilt under `analysis/reports/`.
   23) Submission-display polish started on 2026-05-18: production Figure 1-4 builders now omit embedded figure titles/suptitles so caption text, not PNG text, carries the short-title information.
   24) Figure 5 production run completed on 2026-05-18: `fig5-persistence-mixed-v1` validated on `deep-server` with 64000 rows across 64 scenarios and 640 shards; compact outputs were retrieved locally and production Figure 5 was rebuilt under `analysis/reports/`.
+  25) Manuscript/caption reconciliation pass completed on 2026-05-18: Barry accepted Figure 5, and the draft Results/Methods/Discussion plus figure captions were checked against production Figures 1-5, with stale replicate-grid wording and requested-vs-effective correlation wording tightened.
 - **Next steps if more work is requested**:
-  1) Finish the ecologist-facing output walkthrough and collect figure/display/scientific sanity issues.
-  2) Review the rebuilt production Figure 5 display and decide whether the legend or panel-label treatment needs polish.
-  3) Re-review the manuscript Results text against the production Figure 1-5 artefacts.
-  4) Decide whether any supplementary/control figures need production-scale refreshes or can remain as robustness diagnostics.
-  5) Optional robustness extension beyond equicorrelated Σ (block/gradient covariance structures) on reduced grids.
-  6) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Create a production-aligned Table 1, replacing the stale placeholder parameter table with current main-figure grids and clearly labelled exploratory/control grids.
+  2) Sweep supplementary figures against the now-accepted main Figure 1-5 story, deciding which controls remain diagnostic supplements and which need production refresh or retirement.
+  3) Create supplementary tables for production run specs, scenario counts, numerical/floor-occupancy checks, and control-grid summaries.
+  4) Run a final manuscript/caption/table build/lint pass once Table 1 and supplementary artefacts are updated.
+  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._
