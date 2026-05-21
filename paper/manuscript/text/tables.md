@@ -1,5 +1,5 @@
 ### Table 1
-Core model parameters and production simulation grids used for the main figures. The five main figures use production-scale runs with 1000 replicates per scenario; production-backed supplementary runs and remaining lower-replicate controls are listed separately in Tables S1-S3.
+Core model parameters and production simulation grids used for the main figures. The five main figures use production-scale runs with 1000 replicates per scenario; production-backed supplementary runs and remaining lower-replicate controls are listed separately in the Supporting information.
 
 | Component | Setting | Values / role |
 | --- | --- | --- |

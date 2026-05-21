@@ -8,7 +8,10 @@ Scope: first numerical/prose consistency pass for the Oikos double-blind review 
 
 - Significance statement length: 872 characters including spaces after whitespace normalization, below the Oikos 1000-character limit.
 - Blinded main PDF and anonymous supplementary PDF scan clean for the main author/institution strings: `Barry`, `Brook`, `University`, `Tasmania`, `UTAS`, `utas`, `ORCID`, `barry.brook`, and `github.com/BWBrook`.
+- Blinded main DOCX and anonymous supplementary DOCX now pass `scripts/sanitize_docx_identity.py --check`; local build paths are stripped from invisible image/custom-property metadata.
 - Figure caption labels no longer render as duplicated `Fig. 1. Figure 1...` captions.
+- Build-facing main and supplementary figure sources now render full informative captions rather than one-line image alt text.
+- Main-text references to supplementary detail now use "Supporting information" rather than specific supplementary figure/table labels.
 - The stale `[To do in Zotero later]` placeholder no longer renders after the References heading.
 
 ## Numerical Spot Checks
@@ -34,9 +37,12 @@ All values below were recomputed from the current production summary CSV files u
 
 - The abstract now distinguishes production-backed main contrasts from focused lower-replicate competition/slope-magnitude controls.
 - The controls subsection now explicitly calls the no-competition and mixed-narrow grids lower-replicate controls.
+- A hard-coded `Wagg et al. 2022` citation string was replaced with the bibliography-backed Wagg et al. 2021 reference.
+- A separate editor-facing cover letter source and build profile were added.
 
 ## Remaining Review Risks
 
 - Funding and acknowledgements remain Barry-only placeholders on the title page.
 - The de-identified review-code package is planned but intentionally not yet built.
 - No-competition and mixed-narrow controls remain lower-replicate diagnostics; do not elevate them to central evidence unless refreshed at production scale.
+- makedoc submission profiles should be built sequentially, not in parallel, to avoid shared-cache races.

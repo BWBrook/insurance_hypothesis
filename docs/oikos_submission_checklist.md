@@ -10,6 +10,7 @@ Source: <https://www.oikosjournal.org/authors/author-guidelines>
 - `ih_submission`: double-blind main manuscript profile for review, with author metadata omitted.
 - `ih_supplementary_info`: anonymous supplementary information profile.
 - `ih_author_title_page`: separate unblinded title page and author-statement profile.
+- `ih_cover_letter`: separate editor-facing cover letter profile.
 
 ## Oikos-Facing Requirements
 
@@ -29,6 +30,7 @@ Source: <https://www.oikosjournal.org/authors/author-guidelines>
 - Main figures/tables and supplementary figures/tables are split into separate source files so the review manuscript and supplementary information can be built separately.
 - Anonymous statements are included in the blinded main manuscript.
 - A separate title-page source carries the unblinded author metadata and placeholders for Barry-only submission details.
+- A separate cover-letter source has been drafted for Barry's editorial pass.
 
 ## Barry-Only Confirmations Before Final Submission
 
@@ -36,16 +38,25 @@ Source: <https://www.oikosjournal.org/authors/author-guidelines>
 - Confirm conflict-of-interest wording.
 - Confirm whether acknowledgements are absent or should be supplied after review.
 - Confirm final data/code archive destination and whether the review package should later be mirrored to Dryad, Zenodo, OSF, or another permanent archive.
-- Confirm article type and any cover-letter text in the Oikos submission system.
+- Review and finalise the cover-letter text for tone, author voice, and any ScholarOne-specific fields.
 
 ## Local Build Commands
 
-Run from `/home/bwbrook/work/makedoc`:
+Run from `/home/bwbrook/work/makedoc`, sequentially rather than in parallel because the profiles share build cache state:
 
 ```bash
-make all CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_submission
-make all CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_supplementary_info
-make all CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_author_title_page
+make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_submission
+make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_supplementary_info
+make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_author_title_page
+make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_cover_letter
+```
+
+After building DOCX files, run the local metadata sanitizer from `/home/bwbrook/papers/insurance_hypothesis`:
+
+```bash
+uv run python scripts/sanitize_docx_identity.py --check \
+  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
+  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
 ```
 
 Run from `/home/bwbrook/papers/insurance_hypothesis`:

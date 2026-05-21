@@ -153,3 +153,37 @@ profiles:
       right: 2.5
       bottom: 2.0
       left: 2.5
+
+  ih_cover_letter:
+    description: Insurance hypothesis editor-facing cover letter profile
+    manuscript_sources:
+      - ../manuscript/text/cover_letter.md
+    lint_sources:
+      - ../manuscript/text/cover_letter.md
+
+    bibliography: ../references/ih_references.yaml
+    csl: ../csl/oikos.csl
+    journal: Oikos
+    csl_search_dirs:
+      - ../csl
+      - csl
+
+    output_dir: dist
+    output_stem: insurance_hypothesis_cover_letter
+
+    page_numbers: lower_right
+    line_spacing: 1.5
+    line_numbering: continuous
+
+    figures:
+      placement: captions_page
+      caption_position: top
+      placeholder_id: figures
+
+    margins:
+      unit: cm
+      paper_size: a4
+      top: 2.0
+      right: 2.5
+      bottom: 2.0
+      left: 2.5

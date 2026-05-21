@@ -175,6 +175,13 @@ For each entry, include:
 - **Rationale**: Oikos uses double-anonymised review and expects a separate title page. Keeping author metadata out of the review manuscript, while preserving an unblinded title-page profile and a deferred anonymous code package plan, reduces the risk of identity leakage without forcing premature packaging before the code is frozen.
 - **Status**: active
 
+### DEC-024 – Sanitize generated DOCX metadata for double-blind review
+
+- **Date**: 2026-05-21
+- **Decision**: Add `scripts/sanitize_docx_identity.py` and treat it as a required post-build step for the blinded main manuscript and anonymous supplementary DOCX outputs. Run makedoc submission profiles sequentially rather than in parallel.
+- **Rationale**: The PDF text scans were clean, but generated DOCX internals can retain local absolute image and bibliography paths such as `/home/bwbrook/...` in invisible XML metadata. The sanitizer strips those local-path leaks without changing visible text. Sequential builds avoid shared-cache races between makedoc profiles.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---
