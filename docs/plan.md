@@ -32,8 +32,9 @@
 - **Figure 1 production grid**: S=4 mixed and positive slopes, `phi=0.4`, 600 steps / 300 burn-in, 15 requested `rho_env` values from -0.3 to 1.0, 19 core `sigma_env` values from 0.0 to 2.0, plus a labelled high-variance stress extension to `sigma_env=4.0`.
 - **Figures 2 and 4 production grid**: mixed slopes, S=2..8, `phi=0.4`, 600 steps / 300 burn-in, `sigma_env` in {0, 0.2, 0.5, 1.0, 1.5, 2.0}, and non-negative requested `rho_env` in {0, 0.25, 0.5, 0.75, 1.0}. Figure 2 uses richness means; Figure 4 reuses the same scenario means for CV-synchrony relationships.
 - **Figure 3 production grid**: mixed and positive slopes, S in {2, 4, 8}, `sigma_env=0.5`, `phi=0.4`, requested `rho_env` from 0 to 1 in increments of 0.1, 600 steps / 300 burn-in.
+- **Figure S3 production control**: mixed, positive_matched, and positive slopes, S in {4, 8}, `sigma_env=0.5`, `phi=0.4`, requested `rho_env` from 0 to 1 in increments of 0.1, 600 steps / 300 burn-in.
 - **Figure 5 production grid**: mixed slopes, S in {2, 4}, `sigma_env=0.5`, `phi` in {0, 0.7, 0.9, 0.95}, requested `rho_env` in {-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0}, 600 steps / 300 burn-in.
-- **Exploratory and control grids**: positive-matched, no-competition, and mixed-narrow controls remain lower-replicate robustness diagnostics unless selected later for production refresh.
+- **Exploratory and control grids**: no-competition and mixed-narrow controls remain lower-replicate robustness diagnostics unless selected later for production refresh; the positive-matched sign-structure control is now production-backed for Figure S3.
 - **Outputs stored**: versioned production specs under `analysis/production_specs/`; compact production parquet summaries under `data/sim/production/<run_name>/`; exploratory/control summaries under `data/sim/grid/<run_name>/`.
 
 ## 4. Response metrics
@@ -93,11 +94,13 @@
   23) Submission-display polish started on 2026-05-18: production Figure 1-4 builders now omit embedded figure titles/suptitles so caption text, not PNG text, carries the short-title information.
   24) Figure 5 production run completed on 2026-05-18: `fig5-persistence-mixed-v1` validated on `deep-server` with 64000 rows across 64 scenarios and 640 shards; compact outputs were retrieved locally and production Figure 5 was rebuilt under `analysis/reports/`.
   25) Manuscript/caption reconciliation pass completed on 2026-05-18: Barry accepted Figure 5, and the draft Results/Methods/Discussion plus figure captions were checked against production Figures 1-5, with stale replicate-grid wording and requested-vs-effective correlation wording tightened.
+  26) Table and supplementary artefact sweep completed on 2026-05-19: Table 1 was replaced with a production-aligned parameter/run-spec table, Tables S1-S3 were added, and supplementary Figures S1/S2/S4 were rebuilt from production outputs.
+  27) Figure S3 production refresh completed on 2026-05-19: `figs3-positive-matched-control-v1` validated on `deep-server` with 66000 rows across 66 scenarios and 660 shards; compact outputs were retrieved locally and Figure S3 was rebuilt as a production-backed positive-matched sign-structure control.
+  28) Post-refresh validation completed on 2026-05-19: `uv run pytest -q`, `uv run pyright`, `git diff --check`, makedoc `make validate-config`, and makedoc `make check` all passed.
+  29) Cached-grid dependency wrinkle fixed on 2026-05-21: `analysis/run_all.py` can now regenerate the production-backed figure suite from `data/sim/production/` summaries without requiring untracked legacy `data/sim/grid/` caches; a regression test covers this production-only fast path.
 - **Next steps if more work is requested**:
-  1) Create a production-aligned Table 1, replacing the stale placeholder parameter table with current main-figure grids and clearly labelled exploratory/control grids.
-  2) Sweep supplementary figures against the now-accepted main Figure 1-5 story, deciding which controls remain diagnostic supplements and which need production refresh or retirement.
-  3) Create supplementary tables for production run specs, scenario counts, numerical/floor-occupancy checks, and control-grid summaries.
-  4) Run a final manuscript/caption/table build/lint pass once Table 1 and supplementary artefacts are updated.
-  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Review the compiled manuscript artefact after the production-backed supplementary set if Barry wants a final scientist-facing read-through.
+  2) Sweep the remaining lower-replicate no-competition and mixed-narrow controls only if the manuscript needs stronger robustness support.
+  3) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

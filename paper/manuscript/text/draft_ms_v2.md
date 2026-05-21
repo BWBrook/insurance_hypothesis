@@ -96,7 +96,7 @@ For the imposed-versus-realised synchrony mechanism (Fig. 3), production simulat
 
 To examine sensitivity to temporal autocorrelation, a production $\phi$-sensitivity grid is run for mixed slopes at $\sigma_{\mathrm{env}} = 0.5$, with $\rho_{\mathrm{env}} \in \{-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0\}$, $S \in \{2, 4\}$, and $\phi \in \{0, 0.7, 0.9, 0.95\}$. These runs use $n_{\mathrm{steps}} = 600$, $n_{\mathrm{burn}} = 300$, and 1000 replicates per scenario; the $\phi=0.4$ baseline is represented by the main mixed-slope grid.
 
-To isolate response sign structure from slope-magnitude differences, an additional positive-matched control grid is run with aligned positive slopes whose magnitudes match the mixed regime ($b_i = |b_i^{\mathrm{mixed}}|$). This grid uses the same exploratory $(\sigma_{\mathrm{env}}, \rho_{\mathrm{env}})$ combinations as the positive-slope control, with $S \in \{4, 8\}$, $\phi = 0.4$, $n_{\mathrm{steps}} = 600$, $n_{\mathrm{burn}} = 300$, and 100 replicates per scenario.
+To isolate response sign structure from slope-magnitude differences, an additional positive-matched production control is run with aligned positive slopes whose magnitudes match the mixed regime ($b_i = |b_i^{\mathrm{mixed}}|$). This focused control uses $S \in \{4,8\}$, $\sigma_{\mathrm{env}}=0.5$, $\phi=0.4$, requested $\rho_{\mathrm{env}}=0$ to 1 in increments of 0.1, $n_{\mathrm{steps}}=600$, $n_{\mathrm{burn}}=300$, and 1000 replicates per scenario.
 
 No-competition controls set $\alpha_{\mathrm{inter}} = 0$ (with $\alpha_{\mathrm{intra}} = 1$) for both mixed and positive slopes. These controls use reduced grids with $\sigma_{\mathrm{env}} \in \{0, 0.5, 1.0\}$, $\rho_{\mathrm{env}} \in \{-0.5, 0, 0.5, 0.9, 1.0\}$, $S \in \{2, 4, 8\}$, and $\phi = 0.4$, with 80 replicates per scenario.
 
@@ -127,7 +127,7 @@ An approximate mean species-level CV is then defined as
 \frac{\sqrt{\frac{1}{S}\sum_{i=1}^S v_i}}{\frac{1}{S}\sum_{i=1}^S m_i},
 \]
 treating the mean of species variances and the mean of species means as proxies for a “typical” species.
-A supplementary diagnostic of this metric versus imposed correlation is shown in Fig. S4.
+A supplementary diagnostic of this metric versus effective driver correlation is shown in Fig. S4.
 
 **Synchrony indices.** Abundance-based community synchrony is quantified using the Loreau–de Mazancourt index,
 \[
@@ -157,7 +157,7 @@ Scenario-level summaries are obtained by averaging replicate-level statistics fo
 
 ### Monte Carlo uncertainty
 
-Across the production grids used for the main figures, each scenario is represented by 1000 replicates. Monte Carlo uncertainty in $\mathrm{CV}_{\mathrm{tot}}$ is therefore small relative to the differences highlighted in the Results; for example, the mixed-versus-aligned difference in mean $\mathrm{CV}_{\mathrm{tot}}$ at $\sigma_{\mathrm{env}} = 0.5$, $\rho_{\mathrm{eff}} = 0.5$, and $S = 4$ is $\approx 0.18$, far larger than residual sampling variation in the scenario means. Lower-replicate exploratory and control grids are used only as robustness diagnostics, not as the primary source for the main production figures.
+Across the production grids used for the main figures and production-backed supplements, each scenario is represented by 1000 replicates. Monte Carlo uncertainty in $\mathrm{CV}_{\mathrm{tot}}$ is therefore small relative to the differences highlighted in the Results; for example, the mixed-versus-aligned difference in mean $\mathrm{CV}_{\mathrm{tot}}$ at $\sigma_{\mathrm{env}} = 0.5$, $\rho_{\mathrm{eff}} = 0.5$, and $S = 4$ is $\approx 0.18$, far larger than residual sampling variation in the scenario means. Lower-replicate exploratory and control grids are used only as robustness diagnostics, not as the primary source for the main production figures.
 
 ### Numerical and ecological checks
 

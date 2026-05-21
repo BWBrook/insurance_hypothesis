@@ -199,6 +199,12 @@ Exit criteria:
 - Every main-text claim rests on production-level outputs or explicitly labelled diagnostics.
 - Supplementary materials cover the main robustness questions without becoming a data dump.
 
+Status, 2026-05-19:
+
+- Complete for the currently selected production expansion set: Figures 2, 3, 5, and Supplementary Figure S3 now each have focused production specs and validated 1000-replicate outputs.
+- Figure 4 reuses the validated Figure 2 richness grid, avoiding a redundant production run.
+- Remaining lower-replicate controls are no-competition and mixed-narrow diagnostics; these should only be promoted to production if manuscript review identifies a specific robustness gap.
+
 ## Phase 7: Display Item Rebuild
 
 Goal: turn validated production outputs into submission-quality figures.

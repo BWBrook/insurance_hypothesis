@@ -30,9 +30,11 @@ If you have already read the paper, this README is your practical guide to repro
   - `run_small_grid.py` – very small preview grid (2 species, few scenarios).
   - `run_full_grid.py` – generic grid runner used for all main and control experiments.
   - `plot_grid.py` – summarise a single `summaries.parquet` to CSV + heatmaps.
+  - `plot_production_figS3.py` and `plot_production_supplementary.py` – rebuild production-backed supplementary figures from compact production summaries.
   - `run_all.py` – orchestration script that:
-    - optionally reruns a subset of grids (`--rerun-data`),
-    - reads cached simulation outputs under `data/sim/grid/`,
+    - optionally reruns legacy exploratory fallback grids (`--rerun-data`),
+    - reads production summaries under `data/sim/production/` when present,
+    - uses cached exploratory outputs under `data/sim/grid/` only for optional diagnostics and legacy fallbacks,
     - regenerates summary CSVs and all manuscript‑level figures into `analysis/reports/`,
     - copies key panels into `paper/manuscript/figures/`.
 
@@ -53,9 +55,10 @@ If you have already read the paper, this README is your practical guide to repro
     - `fig3_imposed_vs_realised_panels.png` – Figure 3 imposed (`ρ_env`) vs realised synchrony.
     - `fig4_cv_vs_synchrony_mixed.png` – Figure 4 link between synchrony metrics and `CV_total`.
     - `fig5_phi_sensitivity_sigma0.5_extended.png` – Figure 5 φ‑sensitivity overlay.
-    - `figS1_run1_cv_total.png` – Supplementary Figure S1 mixed-grid `CV Total` heatmaps.
-    - `figS2_run1_phi_ldm.png` – Supplementary Figure S2 mixed-grid `φ_LdM` heatmaps.
-    - `figS3_positive_matched_control.png` – Supplementary Figure S3 positive-matched control panel.
+    - `figS1_production_mixed_cv_total.png` – Supplementary Figure S1 production mixed-grid `CV Total` heatmaps.
+    - `figS2_production_mixed_phi_ldm.png` – Supplementary Figure S2 production mixed-grid `φ_LdM` heatmaps.
+    - `figS3_positive_matched_control.png` / `.pdf` – Supplementary Figure S3 production positive-matched control panel.
+    - `figS4_production_species_cv_vs_rho.png` – Supplementary Figure S4 production species-level CV diagnostic.
 
 - `paper/`
   - `paper/manuscript/text/draft_ms_v2.md` – full manuscript draft (Intro, Methods, Results, Discussion).
@@ -117,7 +120,7 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
 
 If you cloned the repository together with the `data/` directory (as in the archived project), you can reproduce all tables and figures **without rerunning the heavy simulations**.
 
-The main Git repository does **not** currently track `data/sim/grid/`, so a fresh clone of the code alone will usually need Section 4 or `--rerun-data` before this fast path works.
+The main Git repository does **not** currently track the bulky simulation data under `data/sim/`. For the final production figure suite, `analysis/run_all.py` now treats compact production summaries under `data/sim/production/` as the primary cache and uses the older `data/sim/grid/` summaries only for legacy fallbacks and per-grid diagnostic plots.
 
 From the repository root:
 
@@ -127,13 +130,9 @@ uv run python analysis/run_all.py
 
 What this does:
 
-- reads existing `.parquet` summaries from:
-  - `data/sim/grid/run1/summaries.parquet`,
-  - `data/sim/grid/pos_full/summaries.parquet`,
-  - `data/sim/grid/phi0_reduced/summaries.parquet`,
-  - `data/sim/grid/phi07_reduced/summaries.parquet`,
-  - `data/sim/grid/phi09_reduced/summaries.parquet`,
-  - `data/sim/grid/phi095_reduced/summaries.parquet`;
+- reads compact production `.parquet` summaries from `data/sim/production/<run_name>/summaries.parquet` for the production-backed main and supplementary figures;
+- if the older exploratory caches are also present, reads `data/sim/grid/<run_name>/summaries.parquet` to regenerate legacy per-grid diagnostic heatmaps;
+- if production summaries for a figure are missing, falls back to the corresponding cached exploratory grid and raises a targeted missing-data error if neither source is available;
 - regenerates per‑grid summary CSVs and heatmaps into `analysis/reports/`;
 - builds the combined panels (main manuscript figure, synchrony panels, φ‑sensitivity, CV vs synchrony scatter);
 - copies key panels into `paper/manuscript/figures/`.

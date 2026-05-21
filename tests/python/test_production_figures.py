@@ -11,11 +11,17 @@ from insurance_sim.production_figures import (
     make_production_fig3_synchrony,
     make_production_fig4_cv_synchrony,
     make_production_fig5_persistence,
+    make_production_figs3_positive_matched_control,
+    make_mixed_heatmap_supplement,
+    make_species_cv_supplement,
     summarize_fig2_richness_production,
     summarize_fig1_production,
     summarize_fig3_synchrony_production,
     summarize_fig4_cv_synchrony_production,
     summarize_fig5_persistence_production,
+    summarize_figs3_positive_matched_control,
+    summarize_mixed_heatmap_supplement,
+    summarize_species_cv_supplement,
 )
 
 
@@ -180,6 +186,80 @@ def test_make_production_fig3_synchrony_writes_outputs(tmp_path: Path) -> None:
     assert out_csv.exists()
 
 
+def test_summarize_figs3_positive_matched_control_filters_and_aggregates() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    offsets = {"mixed": -0.2, "positive_matched": 0.05, "positive": 0.2}
+    for slope_mode in ["mixed", "positive_matched", "positive"]:
+        for n_species in [4, 8]:
+            for sigma_env in [0.5, 1.0]:
+                for rho_eff in [0.0, 0.5]:
+                    for replicate in [0, 1]:
+                        rows.append(
+                            {
+                                "slope_mode": slope_mode,
+                                "sigma_env": sigma_env,
+                                "rho_eff": rho_eff,
+                                "n_species": n_species,
+                                "replicate": replicate,
+                                "mean_pairwise_corr": offsets[slope_mode] + rho_eff + replicate * 0.01,
+                                "phi_ldm": 0.2 + rho_eff,
+                                "cv_total": 0.1 + rho_eff + replicate * 0.1,
+                                "mean_extinction_freq": 0.0,
+                            }
+                        )
+
+    summary = summarize_figs3_positive_matched_control(pd.DataFrame.from_records(rows))
+
+    assert len(summary) == 12
+    assert set(summary["sigma_env"]) == {0.5}
+    row = summary[
+        summary["slope_mode"].eq("positive_matched")
+        & summary["n_species"].eq(8)
+        & summary["rho_eff"].eq(0.5)
+    ].iloc[0]
+    assert row["pair_corr_mean"] == pytest.approx(0.555)
+    assert row["cv_total_mean"] == pytest.approx(0.65)
+    assert row["replicate_rows"] == 2
+
+
+def test_make_production_figs3_positive_matched_control_writes_outputs(tmp_path: Path) -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for slope_mode, offset in [("mixed", -0.2), ("positive_matched", 0.05), ("positive", 0.2)]:
+        for n_species in [4, 8]:
+            for rho_eff in [0.0, 0.5, 1.0]:
+                rows.append(
+                    {
+                        "slope_mode": slope_mode,
+                        "n_species": n_species,
+                        "sigma_env": 0.5,
+                        "rho_eff": rho_eff,
+                        "cv_total_mean": 0.1 + rho_eff + offset,
+                        "cv_total_sd": 0.01,
+                        "pair_corr_mean": offset + rho_eff,
+                        "pair_corr_sd": 0.01,
+                        "phi_ldm_mean": 0.2 + rho_eff,
+                        "extinction_mean": 0.0,
+                        "extinction_max": 0.0,
+                        "replicate_rows": 1000,
+                    }
+                )
+    summary = pd.DataFrame.from_records(rows)
+    out_png = tmp_path / "figS3.png"
+    out_pdf = tmp_path / "figS3.pdf"
+    out_csv = tmp_path / "figS3_summary.csv"
+
+    make_production_figs3_positive_matched_control(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=out_csv,
+    )
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
 def test_summarize_fig4_cv_synchrony_production_filters_and_aggregates() -> None:
     rows: list[dict[str, float | int | str]] = []
     for sigma_env in [0.0, 0.5]:
@@ -287,6 +367,129 @@ def test_make_production_fig5_persistence_writes_outputs(tmp_path: Path) -> None
     out_csv = tmp_path / "fig5_summary.csv"
 
     make_production_fig5_persistence(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
+def test_summarize_mixed_heatmap_supplement_filters_species_and_rho() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for slope_mode in ["mixed", "positive"]:
+        for n_species in [2, 4, 6, 8]:
+            for sigma_env in [0.0, 0.5]:
+                for rho_eff in [-0.2, 0.0, 0.5]:
+                    for replicate in [0, 1]:
+                        rows.append(
+                            {
+                                "slope_mode": slope_mode,
+                                "n_species": n_species,
+                                "sigma_env": sigma_env,
+                                "rho_eff": rho_eff,
+                                "replicate": replicate,
+                                "cv_total": n_species + sigma_env + rho_eff + replicate * 0.1,
+                                "mean_extinction_freq": 0.0,
+                            }
+                        )
+
+    summary = summarize_mixed_heatmap_supplement(
+        pd.DataFrame.from_records(rows),
+        metric="cv_total",
+        species_values=(2, 8),
+    )
+
+    assert "slope_mode" not in summary.columns
+    assert set(summary["n_species"]) == {2, 8}
+    assert set(summary["rho_eff"]) == {0.0, 0.5}
+    row = summary[
+        summary["n_species"].eq(2)
+        & summary["sigma_env"].eq(0.5)
+        & summary["rho_eff"].eq(0.5)
+    ].iloc[0]
+    assert row["metric_mean"] == pytest.approx(3.05)
+    assert row["replicate_rows"] == 2
+
+
+def test_make_mixed_heatmap_supplement_writes_outputs(tmp_path: Path) -> None:
+    summary = pd.DataFrame(
+        {
+            "n_species": [2, 2, 4, 4, 8, 8],
+            "sigma_env": [0.0, 0.5, 0.0, 0.5, 0.0, 0.5],
+            "rho_eff": [0.0, 0.5, 0.0, 0.5, 0.0, 0.5],
+            "metric_mean": [0.0, 0.2, 0.0, 0.1, 0.0, 0.05],
+            "metric_sd": [0.0, 0.01, 0.0, 0.01, 0.0, 0.01],
+            "extinction_mean": [0.0] * 6,
+            "replicate_rows": [1000] * 6,
+            "metric": ["cv_total"] * 6,
+        }
+    )
+    out_png = tmp_path / "figS1.png"
+    out_pdf = tmp_path / "figS1.pdf"
+    out_csv = tmp_path / "figS1_summary.csv"
+
+    make_mixed_heatmap_supplement(
+        summary,
+        out_png,
+        metric_label=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
+        out_pdf=out_pdf,
+        summary_out=out_csv,
+    )
+
+    assert out_png.exists()
+    assert out_pdf.exists()
+    assert out_csv.exists()
+
+
+def test_summarize_species_cv_supplement_derives_cv_sp() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for slope_mode in ["mixed", "positive"]:
+        for n_species in [4, 8]:
+            for rho_eff in [0.0, 0.5]:
+                for replicate in [0, 1]:
+                    rows.append(
+                        {
+                            "slope_mode": slope_mode,
+                            "sigma_env": 0.5,
+                            "rho_eff": rho_eff,
+                            "n_species": n_species,
+                            "replicate": replicate,
+                            "mean_species_mean": 10.0,
+                            "mean_species_var": 4.0 + replicate,
+                            "mean_extinction_freq": 0.0,
+                        }
+                    )
+
+    summary = summarize_species_cv_supplement(pd.DataFrame.from_records(rows))
+
+    assert len(summary) == 8
+    row = summary[
+        summary["slope_mode"].eq("mixed")
+        & summary["n_species"].eq(4)
+        & summary["rho_eff"].eq(0.0)
+    ].iloc[0]
+    expected = ((4.0**0.5) / 10.0 + (5.0**0.5) / 10.0) / 2.0
+    assert row["cv_sp_mean"] == pytest.approx(expected)
+    assert row["replicate_rows"] == 2
+
+
+def test_make_species_cv_supplement_writes_outputs(tmp_path: Path) -> None:
+    summary = pd.DataFrame(
+        {
+            "slope_mode": ["mixed", "mixed", "positive", "positive"],
+            "n_species": [4, 8, 4, 8],
+            "sigma_env": [0.5, 0.5, 0.5, 0.5],
+            "rho_eff": [0.0, 0.5, 0.0, 0.5],
+            "cv_sp_mean": [0.2, 0.15, 0.25, 0.22],
+            "cv_sp_sd": [0.01, 0.01, 0.01, 0.01],
+            "extinction_mean": [0.0, 0.0, 0.0, 0.0],
+            "replicate_rows": [1000, 1000, 1000, 1000],
+        }
+    )
+    out_png = tmp_path / "figS4.png"
+    out_pdf = tmp_path / "figS4.pdf"
+    out_csv = tmp_path / "figS4_summary.csv"
+
+    make_species_cv_supplement(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
 
     assert out_png.exists()
     assert out_pdf.exists()

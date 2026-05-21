@@ -1,0 +1,63 @@
+{
+  "spec_version": 1,
+  "run_id": "figs3-positive-matched-control-v1",
+  "title": "Production positive-matched sign-structure control for Figure S3",
+  "purpose": "Production-scale refresh of the supplementary positive-matched control.",
+  "rationale": [
+    "Replace the remaining lower-replicate Figure S3 diagnostic with the same 1000-replicate convention used by the production main figures.",
+    "Keep the control focused on sigma_env=0.5, matching the existing sign-structure display and the Figure 3 mechanism setting.",
+    "Compare mixed, positive-matched, and aligned-positive slope regimes at S=4 and S=8 so the effect of response sign can be separated from slope-magnitude distribution.",
+    "Use a non-negative rho_env grid from 0 to 1 to align the x-axis with the production Figure 3 synchrony display and avoid infeasible negative equicorrelation complications."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "base_seed": 2026051901,
+    "sigma_vals": [
+      0.5
+    ],
+    "rho_vals": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "species_vals": [
+      4,
+      8
+    ],
+    "slope_modes": [
+      "mixed",
+      "positive_matched",
+      "positive"
+    ]
+  },
+  "execution": {
+    "host": "deep-server",
+    "remote_root": "/data/codex/scratch/insurance_hypothesis",
+    "default_jobs": 48
+  },
+  "expected": {
+    "scenario_count": 66,
+    "shard_count": 660,
+    "expected_rows": 66000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest.",
+    "Rows equal 66000, with 1000 replicates for every scenario.",
+    "rho_eff and rho_clipped are present and manifest-consistent.",
+    "Positive-matched CV and realised-correlation patterns sit between mixed and aligned-positive regimes where sign structure matters.",
+    "Mean extinction or floor occupancy is summarised before replacing the Figure S3 display."
+  ]
+}

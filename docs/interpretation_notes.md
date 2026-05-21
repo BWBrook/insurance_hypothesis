@@ -253,6 +253,40 @@
   - [x] Update manuscript caption/results text for production Figure 5.
   - [x] Review production Figure 5 visually with Barry; accepted without further display changes.
 
+### TABLE_AND_SUPPLEMENT_SWEEP_2026_05_19
+
+- **Artefacts**: `paper/manuscript/text/tables.md`; `analysis/reports/figS1_production_mixed_cv_total.*`; `analysis/reports/figS2_production_mixed_phi_ldm.*`; `analysis/reports/figS4_production_species_cv_vs_rho.*`; retained lower-replicate `analysis/reports/figS3_positive_matched_control.png`.
+- **Summary (plain language)**:
+  - Table 1 now describes the core Ricker model, environmental driver, numerical safeguards, and the production grids used for Figures 1-5.
+  - Table S1 records the production run inventory and row counts; Table S2 records production floor-occupancy maxima and stress-region interpretation; Table S3 records lower-replicate robustness/control grids.
+  - Supplementary Figures S1 and S2 now use the Figure 2/4 production grid rather than the old coarse mixed grid, so the supplementary heatmaps align with the accepted production main figures.
+  - Supplementary Figure S4 now uses the Figure 3 production grid at `sigma_env=0.5`, giving a 1000-replicate species-level CV diagnostic for mixed and positive regimes at S=4 and S=8.
+  - Supplementary Figure S3 was initially retained as a lower-replicate positive-matched sign-structure control, then refreshed in `PROD_figS3_positive_matched_control_v1`.
+- **Relation to hypothesis**:
+  - The supplementary set now supports the main claim without mixing stale exploratory figures into the final evidence hierarchy: production-backed supplements cover the richness/synchrony/species-CV diagnostics, while non-production controls are clearly separated as robustness checks.
+- **Follow-up tasks**:
+  - [x] Replace Table 1 placeholder.
+  - [x] Add supplementary tables for production specs, floor occupancy, and controls.
+  - [x] Rebuild production-backed supplementary Figures S1/S2/S4.
+  - [x] Refresh Figure S3 with a focused production positive-matched control.
+  - [x] Run final manuscript build/lint pass after this tranche.
+
+### PROD_figS3_positive_matched_control_v1
+
+- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/figs3-positive-matched-control-v1`; local compact output `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet`; display outputs `analysis/reports/figS3_positive_matched_control.png` and `.pdf`; summary `analysis/reports/figS3_positive_matched_control_summary.csv`.
+- **Summary (plain language)**:
+  - The production grid validated cleanly: 66 scenarios, 660 shards, 66000 replicate-summary rows, 1000 replicates per scenario.
+  - Floor occupancy is zero across all scenarios and replicates in this focused control.
+  - At `rho_eff` near 1, the positive-matched control remains much less variable than fully aligned positive slopes: mean `CV_tot` is ~0.184 vs ~0.319 for S=4, and ~0.158 vs ~0.316 for S=8.
+  - Positive-matched realised growth correlations remain high at `rho_eff` near 1 (~0.896 for S=4 and ~0.836 for S=8), showing that magnitude matching does not recreate the mixed-slope negative/weak synchrony pattern.
+  - Mixed-slope community CV declines or remains low as `rho_eff` increases in this focused slice, whereas positive-matched and fully positive regimes increase with `rho_eff`.
+- **Relation to hypothesis**:
+  - Supports the interpretation that response sign structure, not merely slope magnitude, is central to the insurance contrast. Magnitude-matched positive slopes reduce community variability relative to the steeper fully aligned positive regime, but they do not produce the realised asynchrony of mixed-sign responses.
+- **Follow-up tasks**:
+  - [x] Launch and validate `figs3-positive-matched-control-v1` on `deep-server`.
+  - [x] Retrieve compact outputs and rebuild Figure S3 from production output.
+  - [x] Update captions, tables, decisions, and plan so Figure S3 is no longer labelled as lower-replicate.
+
 _(Add new sections for subsequent artefacts.)_
 
 ## Summary
@@ -261,4 +295,4 @@ _(Add new sections for subsequent artefacts.)_
 - **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
 - **Robustness**: Production-backed main figures now span core `sigma_env` values up to 2.0, a labelled Figure 1 stress extension to 4.0, `rho_eff` from moderately negative to near one where feasible, richness up to S=8, and environmental persistence `phi` from 0 to 0.95. Extinction/floor occupancy is negligible in the main low-stress inference grids but rises in labelled high-`sigma_env` and high-`phi` stress regimes.
 - **Key numbers** (mixed slopes, `sigma_env=0.5`, `rho_eff=0.5`): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at the same forcing. Figure 5 persistence check at the same `sigma_env` and `rho_eff` gives S=2 CV ~0.14 at `phi=0` and ~0.58 at `phi=0.95`, with S=4 remaining lower (~0.07 to ~0.35).
-- **Next focus**: Create the production-aligned Table 1, then sweep supplementary figures and create supplementary tables before the final manuscript build/lint pass.
+- **Next focus**: Review the compiled manuscript artefact and decide whether the remaining lower-replicate no-competition and mixed-narrow controls need any further production reinforcement before submission.

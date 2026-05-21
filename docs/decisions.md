@@ -147,6 +147,27 @@ For each entry, include:
 - **Rationale**: Figure 5 is the remaining main persistence-sensitivity figure not yet supported by a production-scale run. The focused grid preserves the current ecological comparison while replacing the 80-replicate exploratory sensitivity data with the final 1000-replicate convention and modestly denser correlation resolution.
 - **Status**: active
 
+### DEC-020 – Production-backed supplementary figure set
+
+- **Date**: 2026-05-19
+- **Decision**: Rebuild supplementary Figures S1, S2, and S4 from production outputs (`fig2-richness-mixed-v1` for mixed-slope CV/synchrony heatmaps and `fig3-synchrony-v1` for species-level CV), while retaining Figure S3 as an explicitly labelled lower-replicate positive-matched robustness control.
+- **Rationale**: Figures S1/S2/S4 support claims made by the production main figures and can be refreshed from already validated 1000-replicate grids, avoiding stale coarse-grid diagnostics. The positive-matched control addresses a distinct slope-magnitude confound and has not yet been selected for production refresh, so it should remain supplementary and clearly labelled as lower-replicate rather than treated as a main evidence source.
+- **Status**: superseded in part by DEC-021 for Figure S3; active for S1/S2/S4
+
+### DEC-021 – Production Figure S3 sign-structure control
+
+- **Date**: 2026-05-19
+- **Decision**: Use `analysis/production_specs/figs3_positive_matched_control_v1.json` for Supplementary Figure S3: mixed, positive_matched, and positive slope modes; S=4 and S=8; `sigma_env=0.5`; `phi=0.4`; non-negative `rho_env` from 0.0 to 1.0 in 0.1 increments; and 1000 replicates per scenario.
+- **Rationale**: Barry judged that Figure S3 should be refreshed at production scale rather than remain the only lower-replicate figure in the supplementary set. A focused grid is enough to test the sign-versus-magnitude control without launching an unnecessary broad surface, and it aligns directly with the Figure 3 mechanism setting.
+- **Status**: active
+
+### DEC-022 – Treat production summaries as the primary regeneration cache
+
+- **Date**: 2026-05-21
+- **Decision**: Update `analysis/run_all.py` so compact summaries under `data/sim/production/` are sufficient to regenerate the production-backed manuscript figures, with older `data/sim/grid/` caches loaded only when present and required only for legacy fallback paths.
+- **Rationale**: The manuscript figure suite is now production-backed, but the orchestration script still failed early if untracked exploratory grid caches such as `data/sim/grid/run1/summaries.parquet` were absent. Making legacy caches lazy preserves old fallback behaviour while removing an avoidable fresh-checkout reproducibility trap for the production figure suite.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

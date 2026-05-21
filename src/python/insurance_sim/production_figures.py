@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -112,6 +113,13 @@ def _add_panel_label(ax: Axes, label: str) -> None:
     )
 
 
+def _format_tick(value: float) -> str:
+    """Compact numeric tick labels, treating clipped 1.0 endpoints as 1."""
+    if np.isclose(value, 1.0, atol=1e-5):
+        return "1"
+    return f"{value:g}"
+
+
 def _load_required_parquet(path: Path, *, label: str) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
@@ -119,6 +127,287 @@ def _load_required_parquet(path: Path, *, label: str) -> pd.DataFrame:
             "Retrieve compact production outputs before rebuilding this figure."
         )
     return pd.read_parquet(path)
+
+
+def summarize_mixed_heatmap_supplement(
+    df: pd.DataFrame,
+    *,
+    metric: str,
+    species_values: Sequence[int] = (2, 4, 8),
+) -> pd.DataFrame:
+    """Aggregate mixed-slope production rows for supplementary heatmaps."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "mean_extinction_freq",
+        metric,
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    species_list = list(species_values)
+    mixed = pd.DataFrame(
+        df[
+            df["slope_mode"].eq("mixed")
+            & df["n_species"].isin(species_list)
+            & (df["rho_eff"] >= -1e-12)
+        ].copy()
+    )
+    if mixed.empty:
+        raise ValueError("No mixed-slope production rows found for supplementary heatmaps.")
+
+    summary = (
+        mixed.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            metric_mean=(metric, "mean"),
+            metric_sd=(metric, "std"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            replicate_rows=(metric, "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    out["metric"] = metric
+    order = np.lexsort(
+        (
+            np.asarray(out["rho_eff"], dtype=float),
+            np.asarray(out["sigma_env"], dtype=float),
+            np.asarray(out["n_species"], dtype=int),
+        )
+    )
+    return out.iloc[order].reset_index(drop=True)
+
+
+def make_mixed_heatmap_supplement(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    metric_label: str,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write production-backed mixed-slope supplementary heatmaps."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    species_values = sorted(int(value) for value in summary["n_species"].unique())
+    sigmas = sorted(float(value) for value in summary["sigma_env"].unique())
+    rhos = sorted(float(value) for value in summary["rho_eff"].unique())
+    tables: dict[int, pd.DataFrame] = {}
+    for n_species in species_values:
+        table = summary[summary["n_species"].eq(n_species)].pivot_table(
+            index="rho_eff",
+            columns="sigma_env",
+            values="metric_mean",
+            aggfunc="mean",
+        )
+        tables[n_species] = table.reindex(index=rhos, columns=sigmas)
+
+    vmin = float(np.nanmin([np.nanmin(table.values) for table in tables.values()]))
+    vmax = float(np.nanmax([np.nanmax(table.values) for table in tables.values()]))
+
+    fig, axes = plt.subplots(
+        1,
+        len(species_values),
+        figsize=(4.4 * len(species_values), 4.2),
+        constrained_layout=True,
+        sharey=True,
+    )
+    axes_arr = np.asarray(axes).ravel()
+    image = None
+    for idx, (ax, n_species) in enumerate(zip(axes_arr, species_values)):
+        table = tables[n_species]
+        image = ax.imshow(
+            table.values,
+            origin="lower",
+            aspect="auto",
+            cmap="viridis",
+            vmin=vmin,
+            vmax=vmax,
+        )
+        ax.set_xlabel(r"Environmental variability, $\sigma_{\mathrm{env}}$")
+        if idx == 0:
+            ax.set_ylabel(r"Effective driver correlation, $\rho_{\mathrm{eff}}$")
+        ax.set_title(rf"$S={n_species}$", fontsize=10)
+        ax.set_xticks(range(len(sigmas)))
+        ax.set_xticklabels([_format_tick(value) for value in sigmas], rotation=45, ha="right", fontsize=8)
+        ax.set_yticks(range(len(rhos)))
+        ax.set_yticklabels([_format_tick(value) for value in rhos], fontsize=8)
+        _add_panel_label(ax, chr(ord("A") + idx))
+
+    if image is None:
+        raise ValueError("No heatmap panels were drawn.")
+    cbar = fig.colorbar(image, ax=list(axes_arr), fraction=0.030, pad=0.03)
+    cbar.set_label(metric_label)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_mixed_heatmap_supplement(
+    *,
+    production_path: Path,
+    metric: str,
+    metric_label: str,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    species_values: Sequence[int] = (2, 4, 8),
+) -> None:
+    """Load production richness outputs and write a supplementary heatmap."""
+    df = _load_required_parquet(production_path, label=f"supplementary {metric}")
+    summary = summarize_mixed_heatmap_supplement(
+        df,
+        metric=metric,
+        species_values=species_values,
+    )
+    make_mixed_heatmap_supplement(
+        summary,
+        out_png,
+        metric_label=metric_label,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )
+
+
+def summarize_species_cv_supplement(
+    df: pd.DataFrame,
+    *,
+    sigma_target: float = 0.5,
+    species_values: Sequence[int] = (4, 8),
+) -> pd.DataFrame:
+    """Aggregate production rows for the species-level CV supplement."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "mean_species_mean",
+        "mean_species_var",
+        "mean_extinction_freq",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    sigma_mask = np.isclose(np.asarray(df["sigma_env"], dtype=float), sigma_target)
+    species_list = list(species_values)
+    sub = pd.DataFrame(
+        df[
+            sigma_mask
+            & df["slope_mode"].isin(["mixed", "positive"])
+            & df["n_species"].isin(species_list)
+            & (df["rho_eff"] >= -1e-12)
+        ].copy()
+    )
+    if sub.empty:
+        raise ValueError(f"No production rows found for sigma_env={sigma_target:g}.")
+
+    species_mean = np.asarray(sub["mean_species_mean"], dtype=float)
+    species_var = np.asarray(sub["mean_species_var"], dtype=float)
+    cv_sp = np.full(species_mean.shape, np.nan, dtype=float)
+    valid = species_mean > 0
+    cv_sp[valid] = np.sqrt(np.maximum(species_var[valid], 0.0)) / species_mean[valid]
+    sub["cv_sp"] = cv_sp
+
+    summary = (
+        sub.groupby(["slope_mode", "n_species", "sigma_env", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            cv_sp_mean=("cv_sp", "mean"),
+            cv_sp_sd=("cv_sp", "std"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            replicate_rows=("cv_sp", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    order = np.lexsort(
+        (
+            np.asarray(out["rho_eff"], dtype=float),
+            np.asarray(out["n_species"], dtype=int),
+            np.asarray(out["slope_mode"], dtype=str),
+        )
+    )
+    return out.iloc[order].reset_index(drop=True)
+
+
+def make_species_cv_supplement(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write the production-backed species-level CV diagnostic."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    colors = {"mixed": "#1f77b4", "positive": "#d95f02"}
+    labels = {"mixed": "mixed responses", "positive": "aligned responses"}
+    markers = {4: "o", 8: "s"}
+
+    fig, ax = plt.subplots(figsize=(7.2, 4.6), constrained_layout=True)
+    for slope_mode in ["mixed", "positive"]:
+        mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
+        if mode.empty:
+            continue
+        for n_species, group in mode.groupby("n_species", observed=True):
+            group = pd.DataFrame(group).copy()
+            group = group.iloc[np.argsort(np.asarray(group["rho_eff"], dtype=float))].reset_index(drop=True)
+            species_count = int(np.asarray(group["n_species"], dtype=int)[0])
+            ax.plot(
+                group["rho_eff"],
+                group["cv_sp_mean"],
+                marker=markers.get(species_count, "o"),
+                ls="-" if slope_mode == "mixed" else "--",
+                lw=2.0,
+                ms=4.8,
+                color=colors[slope_mode],
+                alpha=0.75 if species_count == 4 else 0.95,
+                label=f"{labels[slope_mode]}, S={species_count}",
+            )
+
+    ax.set(
+        xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+        ylabel=r"Approx. species-level $\mathrm{CV}_{\mathrm{sp}}$",
+    )
+    ax.legend(fontsize=8, frameon=False, ncol=2)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_species_cv_supplement(
+    *,
+    production_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    sigma_target: float = 0.5,
+    species_values: Sequence[int] = (4, 8),
+) -> None:
+    """Load production synchrony outputs and write the species-CV supplement."""
+    df = _load_required_parquet(production_path, label="supplementary species CV")
+    summary = summarize_species_cv_supplement(
+        df,
+        sigma_target=sigma_target,
+        species_values=species_values,
+    )
+    make_species_cv_supplement(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )
 
 
 def make_production_fig1(
@@ -511,6 +800,154 @@ def write_production_fig3_synchrony(
     df = _load_required_parquet(production_path, label="Figure 3 synchrony")
     summary = summarize_fig3_synchrony_production(df, sigma_target=sigma_target)
     make_production_fig3_synchrony(
+        summary,
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+    )
+
+
+def summarize_figs3_positive_matched_control(
+    df: pd.DataFrame,
+    *,
+    sigma_target: float = 0.5,
+    species_values: Sequence[int] = (4, 8),
+) -> pd.DataFrame:
+    """Aggregate production rows for the positive-matched sign-control supplement."""
+    required = {
+        "slope_mode",
+        "sigma_env",
+        "rho_eff",
+        "n_species",
+        "mean_pairwise_corr",
+        "phi_ldm",
+        "cv_total",
+        "mean_extinction_freq",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+
+    slope_order = ["mixed", "positive_matched", "positive"]
+    species_list = list(species_values)
+    sigma_mask = np.isclose(np.asarray(df["sigma_env"], dtype=float), sigma_target)
+    sub = pd.DataFrame(
+        df[
+            sigma_mask
+            & df["slope_mode"].isin(slope_order)
+            & df["n_species"].isin(species_list)
+            & (df["rho_eff"] >= -1e-12)
+        ].copy()
+    )
+    if sub.empty:
+        raise ValueError(f"No production rows found for Figure S3 at sigma_env={sigma_target:g}.")
+
+    missing_modes = [mode for mode in slope_order if mode not in set(sub["slope_mode"])]
+    if missing_modes:
+        raise ValueError(f"Missing Figure S3 slope mode(s): {', '.join(missing_modes)}")
+
+    summary = (
+        sub.groupby(["slope_mode", "n_species", "sigma_env", "rho_eff"], as_index=False, observed=True)
+        .agg(
+            cv_total_mean=("cv_total", "mean"),
+            cv_total_sd=("cv_total", "std"),
+            pair_corr_mean=("mean_pairwise_corr", "mean"),
+            pair_corr_sd=("mean_pairwise_corr", "std"),
+            phi_ldm_mean=("phi_ldm", "mean"),
+            extinction_mean=("mean_extinction_freq", "mean"),
+            extinction_max=("mean_extinction_freq", "max"),
+            replicate_rows=("cv_total", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    out = pd.DataFrame(summary)
+    mode_rank = {mode: rank for rank, mode in enumerate(slope_order)}
+    out["_mode_rank"] = [mode_rank[str(mode)] for mode in out["slope_mode"]]
+    out = out.sort_values(["_mode_rank", "n_species", "rho_eff"]).drop(columns="_mode_rank")
+    return out.reset_index(drop=True)
+
+
+def make_production_figs3_positive_matched_control(
+    summary: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+) -> None:
+    """Write production Figure S3: positive-matched sign-structure control."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        summary_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_csv(summary_out, index=False)
+
+    slope_order = ["mixed", "positive_matched", "positive"]
+    colors = {
+        "mixed": "#1f77b4",
+        "positive_matched": "#2ca02c",
+        "positive": "#d95f02",
+    }
+    labels = {
+        "mixed": "mixed",
+        "positive_matched": "positive matched",
+        "positive": "aligned positive",
+    }
+    markers = {4: "o", 8: "s"}
+    linestyles = {4: "-", 8: "--"}
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.6), constrained_layout=True)
+    metric_specs = [
+        ("cv_total_mean", r"Mean $\mathrm{CV}_{\mathrm{tot}}$"),
+        ("pair_corr_mean", "Realised mean growth correlation"),
+    ]
+    for panel_index, (ax, (metric, ylabel)) in enumerate(zip(axes, metric_specs)):
+        for slope_mode in slope_order:
+            mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
+            if mode.empty:
+                continue
+            for n_species, group in mode.groupby("n_species", observed=True):
+                group = pd.DataFrame(group).copy()
+                group = group.iloc[np.argsort(np.asarray(group["rho_eff"], dtype=float))].reset_index(drop=True)
+                species_count = int(np.asarray(group["n_species"], dtype=int)[0])
+                ax.plot(
+                    group["rho_eff"],
+                    group[metric],
+                    marker=markers.get(species_count, "o"),
+                    ls=linestyles.get(species_count, "-"),
+                    lw=2.0,
+                    ms=4.8,
+                    color=colors[slope_mode],
+                    label=f"{labels[slope_mode]}, S={species_count}" if panel_index == 0 else None,
+                )
+        ax.set(
+            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            ylabel=ylabel,
+            xlim=(-0.02, 1.02),
+        )
+        _add_panel_label(ax, chr(ord("A") + panel_index))
+
+    axes[1].plot([0, 1], [0, 1], color="0.25", lw=0.9, ls="--")
+    axes[1].axhline(0, color="0.55", lw=0.8, ls=":")
+    axes[1].set_ylim(-1.02, 1.02)
+    axes[0].legend(fontsize=7.5, frameon=False, loc="upper left")
+
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_figs3_positive_matched_control(
+    *,
+    production_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    sigma_target: float = 0.5,
+) -> None:
+    """Load production positive-matched outputs and write Figure S3."""
+    df = _load_required_parquet(production_path, label="Figure S3 positive-matched control")
+    summary = summarize_figs3_positive_matched_control(df, sigma_target=sigma_target)
+    make_production_figs3_positive_matched_control(
         summary,
         out_png,
         out_pdf=out_pdf,

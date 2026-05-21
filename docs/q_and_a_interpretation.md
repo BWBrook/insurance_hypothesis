@@ -190,7 +190,8 @@ For each question, we add one entry with:
   - Simplified each figure to a single shared colourbar.
   - Added Figure S1 and Figure S2 captions to `paper/manuscript/text/figure_captions_v2.md`.
 - Status: actioned
-- Links: `analysis/run_all.py`, `analysis/reports/figS1_run1_cv_total.png`, `analysis/reports/figS2_run1_phi_ldm.png`, `paper/manuscript/figures/figS1_run1_cv_total.png`, `paper/manuscript/figures/figS2_run1_phi_ldm.png`, `paper/manuscript/text/figure_captions_v2.md`
+- Links: `analysis/run_all.py`, `paper/manuscript/text/figure_captions_v2.md`
+- Superseded by QA-025: the S1/S2 artefacts now use production-backed filenames.
 
 ### QA-013
 
@@ -409,11 +410,60 @@ For each question, we add one entry with:
 - Status: actioned
 - Links: `paper/manuscript/text/draft_ms_v2.md`, `paper/manuscript/text/figure_captions_v2.md`, `docs/plan.md`, `docs/interpretation_notes.md`
 
+### QA-025
+
+- Context: Barry asked to proceed with the next full task: replace the Table 1 placeholder with a production-aligned parameter/run-spec table, then sweep supplementary figures and supplementary tables.
+- Question: How should the table and supplementary artefact tranche be handled?
+- Response:
+  - Replace the stale Table 1 with a compact production-aligned table that separates core model parameters from the five main production grids.
+  - Add supplementary tables for production run inventory, floor-occupancy/stress-region interpretation, and lower-replicate robustness/control grids.
+  - Rebuild supplementary Figures S1, S2, and S4 from production summaries where possible, rather than retaining coarse-grid diagnostics now superseded by production runs.
+  - Keep Figure S3 as a lower-replicate positive-matched control unless we later approve a production-scale sign/magnitude-control run. This was later superseded by QA-026 after Barry requested the production refresh.
+- Actions:
+  - Replaced `paper/manuscript/text/tables.md` with Table 1 plus Tables S1-S3.
+  - Added production-backed supplementary figure helpers and `analysis/plot_production_supplementary.py`.
+  - Generated production-backed Figure S1/S2/S4 PNG/PDF/summary CSV artefacts and removed superseded coarse-grid S1/S2/S4 filenames.
+  - Updated `figures.md`, `figure_captions_v2.md`, README figure inventory, and decision/log notes.
+- Status: actioned
+- Links: `paper/manuscript/text/tables.md`, `analysis/plot_production_supplementary.py`, `analysis/reports/figS1_production_mixed_cv_total.png`, `analysis/reports/figS2_production_mixed_phi_ldm.png`, `analysis/reports/figS4_production_species_cv_vs_rho.png`
+
+### QA-026
+
+- Context: Barry reviewed the supplementary set and decided that Figure S3 should also be refreshed with a production-scale positive-matched control run.
+- Question: How should Figure S3 be moved from lower-replicate diagnostic to production-backed supplement?
+- Response:
+  - Use a focused grid rather than a broad surface: mixed, positive_matched, and positive slope regimes; S=4 and S=8; `sigma_env=0.5`; `phi=0.4`; non-negative requested `rho_env` from 0 to 1 in increments of 0.1; 600/300 steps/burn-in; 1000 replicates per scenario.
+  - This directly tests whether response sign, rather than slope magnitude, explains the mixed-versus-aligned insurance contrast.
+  - Keep the Figure S3 filename stable, but update the caption, tables, and notes so it is no longer described as lower-replicate.
+- Actions:
+  - Added `analysis/production_specs/figs3_positive_matched_control_v1.json`.
+  - Added production Figure S3 summary/plotting helpers and `analysis/plot_production_figS3.py`.
+  - Launched `figs3-positive-matched-control-v1` on `deep-server` under tmux; the run validated with 66000 rows across 66 scenarios.
+  - Retrieved compact outputs, rebuilt `analysis/reports/figS3_positive_matched_control.png` and `.pdf`, and wrote `figS3_positive_matched_control_summary.csv`.
+  - Updated the Figure S3 caption, production tables, decisions, plan, and interpretation notes.
+- Status: actioned
+- Links: `analysis/production_specs/figs3_positive_matched_control_v1.json`, `analysis/plot_production_figS3.py`, `analysis/reports/figS3_positive_matched_control.png`, `analysis/reports/figS3_positive_matched_control_summary.csv`, `src/python/insurance_sim/production_figures.py`
+
+### QA-027
+
+- Context: After the Figure S3 production refresh, Barry asked whether to fix the remaining reproducibility wrinkle: `analysis/run_all.py --skip-guard-audit` still failed before plotting if untracked legacy cached grids such as `data/sim/grid/run1/summaries.parquet` were absent.
+- Question: Can the figure-regeneration path use production summaries without requiring the old exploratory grid caches?
+- Response:
+  - Yes. The production-backed manuscript figures should treat `data/sim/production/` compact summaries as the primary cache.
+  - The older `data/sim/grid/` summaries should remain supported for legacy fallback figures and per-grid diagnostics, but they should be loaded lazily and required only if the matching production summary is unavailable.
+  - Add a regression test that creates production-shaped parquet summaries in a temporary checkout without any `data/sim/grid/` files and confirms `analysis/run_all.py --skip-guard-audit` completes.
+- Actions:
+  - Updated `analysis/run_all.py` to load cached exploratory summaries only when present.
+  - Added targeted fallback errors for legacy paths when neither production summaries nor the required cached grid exist.
+  - Added a production-only `run_all.py` regression test in `tests/python/test_analysis_workflows.py`.
+  - Verified the real local production-summary path with `uv run python analysis/run_all.py --skip-guard-audit`.
+- Status: actioned
+- Links: `analysis/run_all.py`, `tests/python/test_analysis_workflows.py`, `README.md`, `docs/decisions.md`
+
 ## Open action queue
 
-- Create a production-aligned Table 1 that distinguishes main production grids from exploratory/control diagnostics.
-- Sweep supplementary figures against the accepted main Figure 1-5 story, retiring stale diagnostics or updating captions before any production refresh decisions.
-- Create supplementary tables for run specifications, scenario counts, numerical/floor-occupancy checks, and control-grid summaries.
+- Review the compiled manuscript artefact after the production-backed supplementary refresh.
+- Review whether the remaining lower-replicate no-competition and mixed-narrow controls warrant any future production-scale refresh.
 - Before launching any further production grids, fast-forward or resync `~/papers/insurance_hypothesis` on `deep-server`, confirm login-shell `uv`, and run a lightweight project-native smoke test there.
 
 ## Deferred topics
