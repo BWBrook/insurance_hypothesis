@@ -98,9 +98,12 @@
   27) Figure S3 production refresh completed on 2026-05-19: `figs3-positive-matched-control-v1` validated on `deep-server` with 66000 rows across 66 scenarios and 660 shards; compact outputs were retrieved locally and Figure S3 was rebuilt as a production-backed positive-matched sign-structure control.
   28) Post-refresh validation completed on 2026-05-19: `uv run pytest -q`, `uv run pyright`, `git diff --check`, makedoc `make validate-config`, and makedoc `make check` all passed.
   29) Cached-grid dependency wrinkle fixed on 2026-05-21: `analysis/run_all.py` can now regenerate the production-backed figure suite from `data/sim/production/` summaries without requiring untracked legacy `data/sim/grid/` caches; a regression test covers this production-only fast path.
+  30) Oikos submission-readiness pass started on 2026-05-21: the current production checkpoint was committed and pushed, a double-blind `ih_submission` profile was added, the unblinded title page and anonymous supplementary information builds were separated, and the de-identified review-code package was documented as a deferred final-code-lock task.
 - **Next steps if more work is requested**:
-  1) Review the compiled manuscript artefact after the production-backed supplementary set if Barry wants a final scientist-facing read-through.
-  2) Sweep the remaining lower-replicate no-competition and mixed-narrow controls only if the manuscript needs stronger robustness support.
-  3) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Run and inspect the Oikos review outputs: blinded main manuscript, anonymous supplementary information, and unblinded title page.
+  2) Complete an adversarial manuscript consistency pass against production summaries, captions, tables, and supplementary artefacts.
+  3) Build the de-identified review-code zip only after final code lock, using `docs/deidentified_review_package_plan.md`.
+  4) Sweep the remaining lower-replicate no-competition and mixed-narrow controls only if the final manuscript needs stronger robustness support.
+  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

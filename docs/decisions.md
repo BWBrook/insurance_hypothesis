@@ -168,6 +168,13 @@ For each entry, include:
 - **Rationale**: The manuscript figure suite is now production-backed, but the orchestration script still failed early if untracked exploratory grid caches such as `data/sim/grid/run1/summaries.parquet` were absent. Making legacy caches lazy preserves old fallback behaviour while removing an avoidable fresh-checkout reproducibility trap for the production figure suite.
 - **Status**: active
 
+### DEC-023 – Separate double-blind review outputs from author-facing submission material
+
+- **Date**: 2026-05-21
+- **Decision**: Add a double-blind `ih_submission` build profile with no injected author metadata, plus separate `ih_supplementary_info` and `ih_author_title_page` profiles. Defer the de-identified review-code zip until final code lock, but document its include/exclude rules now.
+- **Rationale**: Oikos uses double-anonymised review and expects a separate title page. Keeping author metadata out of the review manuscript, while preserving an unblinded title-page profile and a deferred anonymous code package plan, reduces the risk of identity leakage without forcing premature packaging before the code is frozen.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---
