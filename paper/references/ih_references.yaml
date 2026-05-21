@@ -1262,4 +1262,168 @@ references:
   type: article-journal
   URL: https://www.nature.com/articles/s41467-022-35514-9
   volume: '13'
+
+- id: hsieh2026QuantifyingEffectsResponse
+  accessed:
+    - year: 2026
+      month: 5
+      day: 21
+  author:
+    - family: Hsieh
+      given: Chih-hao
+    - family: Pan
+      given: Ruo-Yu
+    - family: Chang
+      given: Chun-Wei
+    - family: Anneville
+      given: Orlane
+    - family: Petchey
+      given: Owen L.
+  citation-key: hsieh2026QuantifyingEffectsResponse
+  container-title: Nature Communications
+  container-title-short: Nat Commun
+  DOI: 10.1038/s41467-026-70192-x
+  ISSN: 2041-1723
+  issue: '1'
+  issued:
+    - year: 2026
+      month: 3
+      day: 17
+  language: en
+  page: '4090'
+  source: Crossref
+  title: Quantifying the effects of response diversity dynamics on ecosystem stability
+  type: article-journal
+  URL: https://doi.org/10.1038/s41467-026-70192-x
+  volume: '17'
+
+- id: sasaki2026BiologicalTraitsPredict
+  accessed:
+    - year: 2026
+      month: 5
+      day: 21
+  author:
+    - family: Sasaki
+      given: Takehiro
+    - family: Iwachido
+      given: Yuki
+    - family: Lam-Gordillo
+      given: Orlando
+    - family: Cook
+      given: Katie M.
+    - family: Douglas
+      given: Emily J.
+    - family: Gladstone-Gallagher
+      given: Rebecca V.
+    - family: Greenfield
+      given: Barry
+    - family: Hailes
+      given: Sarah
+    - family: Carter
+      given: Kelly
+    - family: Ishii
+      given: Naohiro I.
+    - family: Takayama
+      given: Yoshiki
+    - family: Shimode
+      given: Shinji
+    - family: Kagami
+      given: Maiko
+    - family: Hewitt
+      given: Judi E.
+    - family: Thrush
+      given: Simon F.
+    - family: Lohrer
+      given: Andrew M.
+  citation-key: sasaki2026BiologicalTraitsPredict
+  container-title: Nature Communications
+  container-title-short: Nat Commun
+  DOI: 10.1038/s41467-026-70606-w
+  ISSN: 2041-1723
+  issue: '1'
+  issued:
+    - year: 2026
+      month: 3
+      day: 14
+  language: en
+  page: '3950'
+  source: Crossref
+  title: Biological traits predict species' time-varying responses to multiple global change drivers
+  type: article-journal
+  URL: https://doi.org/10.1038/s41467-026-70606-w
+  volume: '17'
+
+- id: kunze2026SpeciesInteractionsDetermine
+  accessed:
+    - year: 2026
+      month: 5
+      day: 21
+  author:
+    - family: Kunze
+      given: Charlotte
+    - family: Petchey
+      given: Owen L.
+    - family: Ghosh
+      given: Shyamolina
+    - family: Hillebrand
+      given: Helmut
+  citation-key: kunze2026SpeciesInteractionsDetermine
+  container-title: Ecology Letters
+  container-title-short: Ecol Lett
+  DOI: 10.1111/ele.70299
+  ISSN: 1461-023X, 1461-0248
+  issue: '1'
+  issued:
+    - year: 2026
+      month: 1
+  language: en
+  page: e70299
+  source: Crossref
+  title: Species Interactions Determine the Importance of Response Diversity for Community Stability to Pulse Disturbances
+  type: article-journal
+  URL: https://doi.org/10.1111/ele.70299
+  volume: '29'
+
+- id: song2026NitrogenAdditionReduces
+  accessed:
+    - year: 2026
+      month: 5
+      day: 21
+  author:
+    - family: Song
+      given: Minghua
+    - family: Tian
+      given: Yuqiang
+    - family: Hu
+      given: Qiwu
+    - family: Li
+      given: Yikang
+    - family: Xu
+      given: Xingliang
+    - family: Zheng
+      given: Lili
+    - family: Cornelissen
+      given: Johannes H. C.
+    - family: Zhou
+      given: Huakun
+    - family: Wang
+      given: Guiqiang
+    - family: Loreau
+      given: Michel
+  citation-key: song2026NitrogenAdditionReduces
+  container-title: Oecologia
+  DOI: 10.1007/s00442-026-05868-8
+  ISSN: 0029-8549, 1432-1939
+  issue: '2'
+  issued:
+    - year: 2026
+      month: 2
+      day: 6
+  language: en
+  page: '32'
+  source: Crossref
+  title: Nitrogen addition reduces alpine grassland stability via enhanced temporal synchrony and population variability
+  type: article-journal
+  URL: https://doi.org/10.1007/s00442-026-05868-8
+  volume: '208'
 ...
