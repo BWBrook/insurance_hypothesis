@@ -35,13 +35,21 @@ Provide the minimum viable code/analysis package needed for double-blind review 
 The package should support, at minimum:
 
 ```bash
-uv sync --frozen --dev
+uv sync --python 3.12 --frozen --dev
 uv run pytest -q
 uv run pyright
-uv run python analysis/run_all.py --skip-guard-audit
+uv run python analysis/run_all.py --skip-guard-audit --skip-paper-export
 ```
 
-If `analysis/run_all.py` still assumes a manuscript export path at packaging time, add a review-safe switch before building the zip so the package can regenerate analysis outputs without needing the manuscript tree.
+The review-safe `--skip-paper-export` switch lets the package regenerate analysis outputs without creating or requiring the manuscript tree.
+
+## Build Command
+
+Run from `/home/bwbrook/papers/insurance_hypothesis`:
+
+```bash
+uv run python scripts/build_deidentified_review_package.py --zip
+```
 
 ## Pre-Zip Checks
 

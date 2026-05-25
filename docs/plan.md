@@ -104,11 +104,11 @@
   31) 2026 literature and Methods detail refresh completed on 2026-05-21: four relevant 2026 response-diversity/synchrony references were added with verified DOIs, a Zotero DOI import helper was created, and the Methods now explicitly names Python 3.12 plus the main analysis/import stack.
   32) Final pre-Barry submission chaperone pass started on 2026-05-21: a missing cover letter was drafted as a separate editor-facing profile, build-facing figure captions were expanded from one-line alt text to full informative captions, main-text references to supplementary details were softened to "Supporting information", and generated DOCX identity metadata is now sanitized after build.
   33) Independent pre-submission review response started on 2026-05-23: the first pass adds the analytical environmental-response covariance mechanism, corrects the deterministic equilibrium and production-seeding wording, revises richness and persistence-language caveats, brings the positive-matched control into the main Results, and adds production-derived variance-decomposition and Figure 4 association diagnostics.
+  34) Oikos/NSO submission-composition check completed on 2026-05-25: live NSO guidance now confirms that data/code availability should not be in the main text file, so the blinded main profile contains only the anonymous article text, tables, and figures; required submission statements are held in a separate `ih_submission_form_statements` profile for ScholarOne support.
+  35) De-identified review-code package built on 2026-05-25: `/home/bwbrook/papers/de_identified_repos/ih_package.zip` now contains a minimal anonymous Python/uv package with code, tests, production specs, and compact production summaries, validated from the staged package under Python 3.12.
 - **Next steps if more work is requested**:
-  1) Finish validation of the pre-submission review-response pass, rebuild submission artefacts, and inspect whether the added diagnostics change any caption/table references.
-  2) Verify current Oikos/NSO author instructions before changing final submission-file composition, especially Significance/Data Availability/Funding/Acknowledgements placement.
-  3) Decide whether Figure 1 needs a comparative redesign or whether the strengthened analytical framing is enough.
-  4) Build the de-identified review-code zip only after final code lock, using `docs/deidentified_review_package_plan.md`.
-  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, new simulation scope, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Run one final submission artefact build/identity check after committing this package-hardening pass.
+  2) Barry-only final pass: confirm funding text, acknowledgements, conflict statement, title-page metadata, cover-letter voice, and final archive destination.
+  3) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, new simulation scope, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

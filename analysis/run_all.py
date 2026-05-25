@@ -147,6 +147,11 @@ def main() -> None:
         action="store_true",
         help="Skip numerical-guard diagnostics refresh (enabled by default).",
     )
+    parser.add_argument(
+        "--skip-paper-export",
+        action="store_true",
+        help="Do not copy regenerated figures into paper/manuscript/figures (useful for anonymous review packages).",
+    )
     args = parser.parse_args()
 
     if args.rerun_data:
@@ -354,22 +359,24 @@ def main() -> None:
         figure_paths.append(matched_path)
     if matched_pdf_path is not None:
         figure_paths.append(matched_pdf_path)
-    copy_existing_files(figure_paths, FIG_DIR)
+    if not args.skip_paper_export:
+        copy_existing_files(figure_paths, FIG_DIR)
 
-    # Remove stale supplementary filenames after transition to figS* names.
-    remove_existing_files(
-        [
-            FIG_DIR / "run1_cv_total.png",
-            FIG_DIR / "run1_phi_ldm.png",
-            REPORTS / "figS1_run1_cv_total.png",
-            REPORTS / "figS2_run1_phi_ldm.png",
-            REPORTS / "figS4_species_cv_vs_rho.png",
-            REPORTS / "positive_matched_control.png",
-            FIG_DIR / "positive_matched_control.png",
-        ]
-    )
-
-    print("Run complete. Figures in analysis/reports and paper/manuscript/figures.")
+        # Remove stale supplementary filenames after transition to figS* names.
+        remove_existing_files(
+            [
+                FIG_DIR / "run1_cv_total.png",
+                FIG_DIR / "run1_phi_ldm.png",
+                REPORTS / "figS1_run1_cv_total.png",
+                REPORTS / "figS2_run1_phi_ldm.png",
+                REPORTS / "figS4_species_cv_vs_rho.png",
+                REPORTS / "positive_matched_control.png",
+                FIG_DIR / "positive_matched_control.png",
+            ]
+        )
+        print("Run complete. Figures in analysis/reports and paper/manuscript/figures.")
+    else:
+        print("Run complete. Figures in analysis/reports; paper export skipped.")
 
 
 if __name__ == "__main__":

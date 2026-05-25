@@ -249,3 +249,20 @@ def test_run_all_uses_production_summaries_without_cached_grid_inputs(tmp_path: 
     assert (tmp_path / "analysis/reports/fig4_partial_association_summary.csv").exists()
     assert (tmp_path / "analysis/reports/figS3_positive_matched_control.png").exists()
     assert (tmp_path / "paper/manuscript/figures/figS3_positive_matched_control.pdf").exists()
+
+
+def test_run_all_can_skip_paper_export_for_review_packages(tmp_path: Path) -> None:
+    _write_minimal_production_summaries(tmp_path)
+
+    result = _run_repo_script(
+        "analysis/run_all.py",
+        "--skip-guard-audit",
+        "--skip-paper-export",
+        cwd=tmp_path,
+    )
+
+    combined = f"{result.stdout}\n{result.stderr}"
+    assert result.returncode == 0, combined
+    assert "paper export skipped" in combined
+    assert (tmp_path / "analysis/reports/fig1_panels.png").exists()
+    assert not (tmp_path / "paper/manuscript/figures").exists()

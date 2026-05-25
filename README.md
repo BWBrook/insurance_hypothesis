@@ -128,6 +128,12 @@ From the repository root:
 uv run python analysis/run_all.py
 ```
 
+For a code-only review package without the manuscript tree, use:
+
+```bash
+uv run python analysis/run_all.py --skip-guard-audit --skip-paper-export
+```
+
 What this does:
 
 - reads compact production `.parquet` summaries from `data/sim/production/<run_name>/summaries.parquet` for the production-backed main and supplementary figures;
