@@ -109,7 +109,7 @@ This project uses **Python 3.12** with dependencies managed by **`uv`**.
    The tests cover:
    - basic AR(1) behaviour (stationary variance vs `σ_env` and `φ`),
    - non‑negativity and equilibrium under `σ_env = 0`,
-   - synchrony metrics (φ_LdM, growth correlations) in toy cases,
+   - synchrony metrics (φ_LdM, realised log-growth correlations) in toy cases,
    - bookkeeping in the replicate‑level simulator.
 
    Static type checks (`pyright`) help catch pandas/numpy interface mistakes early, especially in plotting and analysis orchestration scripts.

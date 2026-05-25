@@ -282,7 +282,7 @@ def make_panel(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame, out_path:
     ax.set(
         title="Imposed vs realised synchrony",
         xlabel=r"$\rho_{\mathrm{env}}$",
-        ylabel="Realised growth corr",
+        ylabel="Realised log-growth corr",
     )
     ax.legend()
 
@@ -338,7 +338,7 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
     ax.set(
         title=rf"Mixed slopes ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
         xlabel=r"Imposed driver correlation $\rho_{\mathrm{env}}$",
-        ylabel="Realised growth corr",
+        ylabel="Realised log-growth corr",
     )
     ax.legend(fontsize=8)
 
@@ -354,7 +354,7 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
     ax.set(
         title=rf"Positive slopes ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
         xlabel=r"Imposed driver correlation $\rho_{\mathrm{env}}$",
-        ylabel="Realised growth corr",
+        ylabel="Realised log-growth corr",
     )
     ax.legend(fontsize=8)
 
@@ -373,7 +373,7 @@ def make_synchrony_panels(summary_mixed: pd.DataFrame, summary_pos: pd.DataFrame
     ax.set(
         title="Realised - imposed correlation",
         xlabel=r"$\rho_{\mathrm{env}}$",
-        ylabel="Delta corr",
+        ylabel="Delta log-growth corr",
     )
     ax.legend(fontsize=8)
 
@@ -421,8 +421,8 @@ def make_cv_vs_synchrony(summary_mixed: pd.DataFrame, out_path: Path) -> None:
     ax = axes[1]
     for s, sub in grp.groupby("n_species"):
         ax.scatter(sub["mean_pairwise_corr"], sub["cv_total"], s=25, alpha=0.6, label=f"S={s}")
-    ax.set_xlabel("Mean pairwise growth corr")
-    ax.set_title(r"$\mathrm{CV}_{\mathrm{tot}}$ vs realised growth corr (mixed slopes)")
+    ax.set_xlabel("Mean pairwise realised log-growth corr")
+    ax.set_title(r"$\mathrm{CV}_{\mathrm{tot}}$ vs realised log-growth corr (mixed slopes)")
 
     for label, ax in zip(["A", "B"], axes):
         ax.text(
@@ -584,9 +584,9 @@ def make_positive_matched_control(
 
     ax.plot([-0.5, 1.0], [-0.5, 1.0], "k--", lw=0.8, label="y=x")
     ax.set(
-        title=rf"Realised growth corr vs $\rho_{{\mathrm{{env}}}}$ ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
+        title=rf"Realised log-growth corr vs $\rho_{{\mathrm{{env}}}}$ ($\sigma_{{\mathrm{{env}}}}={sigma_target}$)",
         xlabel=r"$\rho_{\mathrm{env}}$",
-        ylabel="Realised growth corr",
+        ylabel="Realised log-growth corr",
     )
     ax.legend(fontsize=8, ncol=2)
 

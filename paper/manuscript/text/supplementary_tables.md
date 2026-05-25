@@ -29,3 +29,28 @@ Lower-replicate control and diagnostic grids retained as robustness checks. Thes
 | --- | --- | --- | --- | ---: | --- |
 | No-competition controls | Tests whether interspecific competition is required for the mixed-versus-aligned contrast | Mixed and positive slopes with $\alpha_{\mathrm{inter}}=0$ | $S\in\{2,4,8\}$, $\sigma_{\mathrm{env}}\in\{0,0.5,1.0\}$, requested $\rho_{\mathrm{env}}\in\{-0.5,0,0.5,0.9,1.0\}$, $\phi=0.4$ | 80 | Robustness diagnostic summarised in Methods/Discussion |
 | Mixed-narrow slope control | Tests whether the insurance pattern depends on unusually steep mixed slopes | `mixed_narrow`, with $b_i$ evenly spaced in $[-0.25,0.25]$ | $S\in\{2,4,8\}$, $\sigma_{\mathrm{env}}\in\{0,0.5,1.0\}$, requested $\rho_{\mathrm{env}}\in\{-0.5,0,0.5,0.9,1.0\}$, $\phi=0.4$ | 80 | Robustness diagnostic summarised in Methods/Discussion |
+
+### Table S4
+Variance decomposition for selected mixed-slope production scenarios from the Figure 2/4 richness grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `analysis/reports/variance_decomposition_fig2_mixed_summary.csv`.
+
+| $S$ | $\rho_{\mathrm{eff}}$ | Mean total biomass | Total variance | Summed species variances | Aggregate covariance term | $\mathrm{CV}_{\mathrm{tot}}$ |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2 | 0.00 | 153.86 | 945.68 | 1272.36 | -326.68 | 0.200 |
+| 2 | 0.50 | 153.92 | 549.71 | 1447.90 | -898.19 | 0.152 |
+| 2 | 1.00 | 153.85 | 186.61 | 1603.31 | -1416.70 | 0.088 |
+| 4 | 0.00 | 210.58 | 505.17 | 1059.81 | -554.64 | 0.107 |
+| 4 | 0.50 | 210.56 | 313.50 | 1139.63 | -826.14 | 0.084 |
+| 4 | 1.00 | 210.52 | 159.76 | 1209.19 | -1049.43 | 0.060 |
+| 8 | 0.00 | 258.07 | 308.60 | 1078.59 | -769.99 | 0.068 |
+| 8 | 0.50 | 258.06 | 232.55 | 1118.80 | -886.25 | 0.059 |
+| 8 | 1.00 | 258.07 | 240.83 | 1126.80 | -885.97 | 0.060 |
+
+### Table S5
+Compact scenario-level association diagnostic for Figure 4. Models use non-deterministic mixed-slope scenario means from the Figure 2/4 production grid ($n=175$). Coefficients are standardised; the diagnostic is intended to check whether synchrony remains informative after accounting for the experimental grid, not to claim formal mediation.
+
+| Model | Predictors added to $\sigma_{\mathrm{env}}$, $S$, $\rho_{\mathrm{eff}}$ | $R^2$ | $\Delta R^2$ vs grid-only model | Key standardised coefficient |
+| --- | --- | ---: | ---: | --- |
+| Grid covariates | None | 0.857 | 0.000 | $\beta_{\sigma}=0.88$, $\beta_S=-0.28$ |
+| Grid + abundance synchrony | $\phi_{\mathrm{LdM}}$ | 0.904 | 0.047 | $\beta_{\phi_{\mathrm{LdM}}}=0.50$ |
+| Grid + realised log-growth synchrony | Mean pairwise realised log-growth correlation | 0.858 | 0.000 | $\beta_{\mathrm{corr}}=0.02$ |
+| Grid + both synchrony metrics | $\phi_{\mathrm{LdM}}$ and realised log-growth correlation | 0.912 | 0.055 | $\beta_{\phi_{\mathrm{LdM}}}=0.60$, $\beta_{\mathrm{corr}}=-0.18$ |

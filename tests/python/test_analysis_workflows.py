@@ -184,11 +184,13 @@ def test_run_full_grid_smoke_writes_expected_schema(tmp_path: Path) -> None:
         "n_species",
         "phi",
         "slope_mode",
+        "alpha_inter",
     }.issubset(df.columns)
     assert set(df["n_steps"]) == {30}
     assert set(df["burn_in"]) == {10}
     assert set(df["n_species"]) == {2}
     assert set(df["slope_mode"]) == {"positive"}
+    assert set(df["alpha_inter"]) == {0.3}
 
 
 def test_plot_grid_fails_clearly_when_required_columns_are_missing(tmp_path: Path) -> None:
@@ -243,5 +245,7 @@ def test_run_all_uses_production_summaries_without_cached_grid_inputs(tmp_path: 
     assert result.returncode == 0, combined
     assert not (tmp_path / "data/sim/grid/run1/summaries.parquet").exists()
     assert (tmp_path / "analysis/reports/fig1_panels.png").exists()
+    assert (tmp_path / "analysis/reports/variance_decomposition_fig2_mixed_summary.csv").exists()
+    assert (tmp_path / "analysis/reports/fig4_partial_association_summary.csv").exists()
     assert (tmp_path / "analysis/reports/figS3_positive_matched_control.png").exists()
     assert (tmp_path / "paper/manuscript/figures/figS3_positive_matched_control.pdf").exists()

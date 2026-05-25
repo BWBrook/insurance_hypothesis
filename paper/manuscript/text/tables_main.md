@@ -3,7 +3,7 @@ Core model parameters and production simulation grids used for the main figures.
 
 | Component | Setting | Values / role |
 | --- | --- | --- |
-| Community model | Discrete-time Ricker competition model | $N_i(t+1)=N_i(t)\exp\{r_0+b_i z_i(t)-[N_i(t)+\sum_j\alpha_{ij}N_j(t)]/K_i\}$ |
+| Community model | Discrete-time Ricker competition model | $N_i(t+1)=N_i(t)\exp\{r_0+b_i z_i(t)-[\alpha_{\mathrm{intra}}N_i(t)+\alpha_{\mathrm{inter}}\sum_{j\ne i}N_j(t)]/K_i\}$ |
 | Intrinsic growth | $r_0$ | 1.0 |
 | Carrying capacity | $K_i$ | 100 for all species |
 | Competition | $\alpha_{\mathrm{intra}}$, $\alpha_{\mathrm{inter}}$ | 1.0 and 0.3 in production grids; no-competition controls set $\alpha_{\mathrm{inter}}=0$ |

@@ -6,10 +6,11 @@
 
 - Environmental variability tends to increase the temporal variability of individual species, but **biodiversity can buffer this variability at the community level** when species respond asynchronously to the same driver. When responses are strongly aligned, community variability more closely tracks the environment.
 - **Stabilisation / insurance metrics** (all defined **relative**, not absolute):  
-  - Community coefficient of variation (CV_total) compared to a single-species or aligned-response baseline under the same σ_env, ρ_env, S, and φ.  
+  - Community coefficient of variation (CV_total) compared to a species-poor or aligned-response baseline under the same σ_env, ρ_env, S, and φ.
   - CV_total relative to an approximate mean species CV, estimated from simulated species-level means and variances.  
-  - Response synchrony indices (Loreau–de Mazancourt φ_LdM and mean pairwise growth-rate correlation), which serve as mechanistic indicators of (a)synchrony that covary with CV_total.
-- **Asynchrony**: low or negative correlations among species’ environmentally driven growth rates; operationalised via φ_LdM and mean pairwise growth-rate correlations. Here **ρ_env is an imposed environmental correlation between species’ drivers**, not a synchrony metric by itself; realised synchrony emerges from ρ_env, slopes, and competition.
+  - Response synchrony indices (Loreau–de Mazancourt φ_LdM and mean pairwise realised per-capita log-growth correlation), which serve as mechanistic indicators of (a)synchrony that covary with CV_total.
+  - Variance decomposition of total biomass into summed species variances and aggregate covariance terms for selected production scenarios.
+- **Asynchrony**: low or negative correlations among species’ realised per-capita log-growth rates; operationalised via φ_LdM and mean pairwise realised log-growth correlations. Here **ρ_env is an imposed environmental correlation between species’ drivers**, not a synchrony metric by itself; realised synchrony emerges from ρ_env, slopes, and competition.
 
 ## 2. Model design (implemented)
 
@@ -40,7 +41,8 @@
 ## 4. Response metrics
 
 - Community mean, variance, and CV of total biomass (post burn-in).
-- Loreau–de Mazancourt community synchrony index (φ_LdM) and average pairwise growth-rate correlations.
+- Loreau–de Mazancourt community synchrony index (φ_LdM) and average pairwise realised per-capita log-growth correlations.
+- Variance decomposition: $\operatorname{Var}(N_{\mathrm{tot}})=\sum_i\operatorname{Var}(N_i)+2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$.
 - Species-level extinction frequency and mean biomass.
 - Stability ratio: variance at given σ_env, ρ relative to baseline σ_env = 0 case.
 - Optional: temporal β-diversity/turnover (if informative).
@@ -101,10 +103,12 @@
   30) Oikos submission-readiness pass started on 2026-05-21: the current production checkpoint was committed and pushed, a double-blind `ih_submission` profile was added, the unblinded title page and anonymous supplementary information builds were separated, and the de-identified review-code package was documented as a deferred final-code-lock task.
   31) 2026 literature and Methods detail refresh completed on 2026-05-21: four relevant 2026 response-diversity/synchrony references were added with verified DOIs, a Zotero DOI import helper was created, and the Methods now explicitly names Python 3.12 plus the main analysis/import stack.
   32) Final pre-Barry submission chaperone pass started on 2026-05-21: a missing cover letter was drafted as a separate editor-facing profile, build-facing figure captions were expanded from one-line alt text to full informative captions, main-text references to supplementary details were softened to "Supporting information", and generated DOCX identity metadata is now sanitized after build.
+  33) Independent pre-submission review response started on 2026-05-23: the first pass adds the analytical environmental-response covariance mechanism, corrects the deterministic equilibrium and production-seeding wording, revises richness and persistence-language caveats, brings the positive-matched control into the main Results, and adds production-derived variance-decomposition and Figure 4 association diagnostics.
 - **Next steps if more work is requested**:
-  1) Complete the final validation sweep and human-facing pass handoff that names the exact PDFs/DOCX files to read and the specific high-value scientific checks for Barry to focus on.
-  2) After Barry's human pass, build the de-identified review-code zip only after final code lock, using `docs/deidentified_review_package_plan.md`.
-  3) Sweep the remaining lower-replicate no-competition and mixed-narrow controls only if the final manuscript needs stronger robustness support.
-  4) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, or the data-distribution strategy for fresh-clone reproducibility.
+  1) Finish validation of the pre-submission review-response pass, rebuild submission artefacts, and inspect whether the added diagnostics change any caption/table references.
+  2) Verify current Oikos/NSO author instructions before changing final submission-file composition, especially Significance/Data Availability/Funding/Acknowledgements placement.
+  3) Decide whether Figure 1 needs a comparative redesign or whether the strengthened analytical framing is enough.
+  4) Build the de-identified review-code zip only after final code lock, using `docs/deidentified_review_package_plan.md`.
+  5) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, new simulation scope, or the data-distribution strategy for fresh-clone reproducibility.
 
 _This plan should be updated as design choices are made or adjusted._

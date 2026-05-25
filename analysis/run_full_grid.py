@@ -161,6 +161,7 @@ def main() -> None:
         df["n_species"] = n_species
         df["phi"] = args.phi
         df["slope_mode"] = args.slope_mode
+        df["alpha_inter"] = args.alpha_inter
         all_records.append(df)
         rows_so_far = sum(len(x) for x in all_records)
         print(

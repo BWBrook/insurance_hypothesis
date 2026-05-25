@@ -18,6 +18,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from insurance_sim.diagnostics import (
+    select_variance_decomposition_rows,
+    summarize_fig4_partial_association,
+    summarize_variance_decomposition,
+)
 from insurance_sim.figures import (
     ensure_reports,
     make_cv_vs_synchrony,
@@ -119,6 +124,21 @@ def summarize_numerical_guards() -> None:
     write_guard_summary_markdown(summary, REPORTS / "numerical_guard_rates_summary.md")
 
 
+def summarize_production_diagnostics(production_path: Path) -> None:
+    """Write manuscript diagnostics derived from existing production summaries."""
+    df = pd.read_parquet(production_path)
+    variance = summarize_variance_decomposition(df)
+    variance.to_csv(REPORTS / "variance_decomposition_fig2_mixed_summary.csv", index=False)
+    select_variance_decomposition_rows(variance).to_csv(
+        REPORTS / "variance_decomposition_fig2_mixed_selected_summary.csv",
+        index=False,
+    )
+    summarize_fig4_partial_association(df).to_csv(
+        REPORTS / "fig4_partial_association_summary.csv",
+        index=False,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run simulations and regenerate figures")
     parser.add_argument("--rerun-data", action="store_true", help="Rerun simulations instead of using cached parquet files")
@@ -207,6 +227,7 @@ def main() -> None:
     cv_sync_path = REPORTS / "fig4_cv_vs_synchrony_mixed.png"
     cv_sync_pdf_path = cv_sync_path.with_suffix(".pdf")
     if FIG2_PRODUCTION_RICHNESS.exists():
+        summarize_production_diagnostics(FIG2_PRODUCTION_RICHNESS)
         write_production_fig4_cv_synchrony(
             production_path=FIG2_PRODUCTION_RICHNESS,
             out_png=cv_sync_path,

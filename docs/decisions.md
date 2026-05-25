@@ -182,6 +182,13 @@ For each entry, include:
 - **Rationale**: The PDF text scans were clean, but generated DOCX internals can retain local absolute image and bibliography paths such as `/home/bwbrook/...` in invisible XML metadata. The sanitizer strips those local-path leaks without changing visible text. Sequential builds avoid shared-cache races between makedoc profiles.
 - **Status**: active
 
+### DEC-025 – Address pre-submission review with text and existing-output diagnostics before new simulations
+
+- **Date**: 2026-05-23
+- **Decision**: Respond to the independent pre-submission critique first by adding the first-order environmental-response covariance argument, correcting manuscript wording and equations, deriving variance-decomposition and Figure 4 association diagnostics from existing production summaries, and describing Figure 5 as a persistence–stationary-variance stress gradient rather than launching a new variance-standardised $\phi$ simulation immediately.
+- **Rationale**: The review identified predictable reviewer vulnerabilities that can be fixed without changing numerical outputs: the algebraic sign of $b_i b_j$, the false paired-seeding claim, the deterministic equilibrium expression, richness wording, and CV interpretation. Existing 1000-replicate production summaries already support the covariance and association diagnostics. New simulations on `deep-server` remain available if the later submission-format and figure-design pass shows the variance-standardised $\phi$ comparison is still needed.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

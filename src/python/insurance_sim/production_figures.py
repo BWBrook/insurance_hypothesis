@@ -734,7 +734,7 @@ def make_production_fig3_synchrony(
         ax.axhline(0, color="0.55", lw=0.8, ls=":")
         ax.set(
             xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
-            ylabel="Realised mean growth correlation",
+            ylabel="Realised mean log-growth correlation",
             xlim=(-0.02, 1.02),
             ylim=(-1.02, 1.02),
         )
@@ -776,7 +776,7 @@ def make_production_fig3_synchrony(
     ax.axhline(0, color="0.25", lw=0.9, ls="--")
     ax.set(
         xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
-        ylabel=r"$\Delta$ growth correlation",
+        ylabel=r"$\Delta$ log-growth correlation",
         xlim=(-0.02, 1.02),
     )
     ax.legend(fontsize=8, frameon=False)
@@ -897,7 +897,7 @@ def make_production_figs3_positive_matched_control(
     fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.6), constrained_layout=True)
     metric_specs = [
         ("cv_total_mean", r"Mean $\mathrm{CV}_{\mathrm{tot}}$"),
-        ("pair_corr_mean", "Realised mean growth correlation"),
+        ("pair_corr_mean", "Realised mean log-growth correlation"),
     ]
     for panel_index, (ax, (metric, ylabel)) in enumerate(zip(axes, metric_specs)):
         for slope_mode in slope_order:
@@ -1045,7 +1045,7 @@ def make_production_fig4_cv_synchrony(
     points = axes[1].scatter(summary["pair_corr_mean"], summary["cv_total_mean"], **scatter_kwargs)
     axes[1].axvline(0, color="0.55", lw=0.9, ls=":")
     axes[1].set(
-        xlabel="Mean pairwise growth correlation",
+        xlabel="Mean pairwise realised log-growth correlation",
     )
 
     cbar = fig.colorbar(points, ax=axes, shrink=0.92, pad=0.015)
