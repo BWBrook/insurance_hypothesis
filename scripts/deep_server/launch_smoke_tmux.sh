@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REMOTE="${REMOTE:-deep-server}"
+# Remote Linux checkout path on deep-server; this is intentionally not the local macOS path.
 REMOTE_REPO="${REMOTE_REPO:-/home/bwbrook/papers/insurance_hypothesis}"
 RUN_ID="${RUN_ID:-ih-smoke-$(date -u +%Y%m%dT%H%M%SZ)}"
 REMOTE_WORK="${REMOTE_WORK:-/data/codex/scratch/insurance_hypothesis/$RUN_ID}"

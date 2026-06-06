@@ -12,6 +12,8 @@ from pathlib import Path
 
 IDENTITY_PATTERNS = (
     "/home/bwbrook",
+    "/users/bwbrook",
+    "/private/var/folders",
     "bwbrook",
     "barry w. brook",
     "barry.brook",
@@ -21,12 +23,20 @@ IDENTITY_PATTERNS = (
     "github.com/bwbrook",
 )
 
+LOCAL_PATH_PATTERNS = (
+    r"/home/bwbrook/[^<\"]*",
+    r"/Users/bwbrook/[^<\"]*",
+    r"/private/var/folders/[^<\"]*",
+)
+
 
 def _sanitize_xml(xml: str) -> str:
     # Pandoc records source image paths in cNvPr descr attributes. These are
     # invisible in Word but can leak local usernames in double-blind review.
     xml = re.sub(r'\sdescr="[^"]*"', "", xml)
-    return re.sub(r"/home/bwbrook/[^<\"]*", "[local path removed]", xml)
+    for pattern in LOCAL_PATH_PATTERNS:
+        xml = re.sub(pattern, "[local path removed]", xml)
+    return xml
 
 
 def sanitize_docx(path: Path) -> bool:

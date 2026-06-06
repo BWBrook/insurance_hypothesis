@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_TARGET = Path("/home/bwbrook/papers/de_identified_repos/ih_package")
+DEFAULT_PACKAGE_ROOT = Path("~/papers/de_identified_repos")
+DEFAULT_TARGET_NAME = "ih_package"
 
 TEXT_IDENTITY_NEEDLES = [
     "Barry",
@@ -28,7 +30,9 @@ TEXT_IDENTITY_NEEDLES = [
     "BWBrook",
     "bwbrook",
     "/home/",
+    "/Users/",
     "/mnt/",
+    "/private/var/folders/",
 ]
 
 
@@ -78,12 +82,22 @@ summaries, not field or observational data.
 """
 
 
+def review_package_root() -> Path:
+    """Return the allowed local root for anonymous review packages."""
+    root = os.environ.get("IH_REVIEW_PACKAGE_ROOT")
+    return Path(root).expanduser() if root else DEFAULT_PACKAGE_ROOT.expanduser()
+
+
+def default_target() -> Path:
+    return review_package_root() / DEFAULT_TARGET_NAME
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the anonymous review package")
     parser.add_argument(
         "--target",
         type=Path,
-        default=DEFAULT_TARGET,
+        default=default_target(),
         help="Staging directory to create",
     )
     parser.add_argument(
@@ -96,8 +110,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def ensure_safe_target(target: Path) -> None:
-    resolved = target.resolve()
-    expected_parent = Path("/home/bwbrook/papers/de_identified_repos").resolve()
+    resolved = target.expanduser().resolve()
+    expected_parent = review_package_root().resolve()
     if resolved == REPO_ROOT.resolve() or REPO_ROOT.resolve() in resolved.parents:
         raise ValueError(f"Refusing to build package inside source repository: {resolved}")
     if expected_parent not in resolved.parents:
@@ -201,7 +215,7 @@ def make_zip(target: Path) -> Path:
 
 def main() -> None:
     args = parse_args()
-    target = args.target
+    target = args.target.expanduser()
     ensure_safe_target(target)
 
     if target.exists():

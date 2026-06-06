@@ -47,25 +47,28 @@ Sources:
 
 ## Local Build Commands
 
-Run from `/home/bwbrook/work/makedoc`, sequentially rather than in parallel because the profiles share build cache state:
+Run the `makedoc` checks sequentially rather than in parallel because the profiles share build cache state. On the Mac mini, use:
 
 ```bash
-make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_submission
-make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_submission_form_statements
-make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_supplementary_info
-make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_author_title_page
-make check CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml PROFILE=ih_cover_letter
+MAKEDOC=/Users/bwbrook/work/makedoc
+CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
+
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_submission
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_submission_form_statements
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_supplementary_info
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_author_title_page
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_cover_letter
 ```
 
-After building DOCX files, run the local metadata sanitizer from `/home/bwbrook/papers/insurance_hypothesis`:
+After building DOCX files, run the local metadata sanitizer from `/Users/bwbrook/papers/insurance_hypothesis`:
 
 ```bash
 uv run python scripts/sanitize_docx_identity.py --check \
-  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
-  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
+  /Users/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
+  /Users/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
 ```
 
-Run from `/home/bwbrook/papers/insurance_hypothesis`:
+Run from `/Users/bwbrook/papers/insurance_hypothesis`:
 
 ```bash
 uv run pytest -q

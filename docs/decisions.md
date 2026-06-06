@@ -179,7 +179,7 @@ For each entry, include:
 
 - **Date**: 2026-05-21
 - **Decision**: Add `scripts/sanitize_docx_identity.py` and treat it as a required post-build step for the blinded main manuscript and anonymous supplementary DOCX outputs. Run makedoc submission profiles sequentially rather than in parallel.
-- **Rationale**: The PDF text scans were clean, but generated DOCX internals can retain local absolute image and bibliography paths such as `/home/bwbrook/...` in invisible XML metadata. The sanitizer strips those local-path leaks without changing visible text. Sequential builds avoid shared-cache races between makedoc profiles.
+- **Rationale**: The PDF text scans were clean, but generated DOCX internals can retain local absolute image and bibliography paths such as `/home/bwbrook/...` or `/Users/bwbrook/...` in invisible XML metadata. The sanitizer strips those local-path leaks without changing visible text. Sequential builds avoid shared-cache races between makedoc profiles.
 - **Status**: active
 
 ### DEC-025 – Address pre-submission review with text and existing-output diagnostics before new simulations
@@ -187,6 +187,13 @@ For each entry, include:
 - **Date**: 2026-05-23
 - **Decision**: Respond to the independent pre-submission critique first by adding the first-order environmental-response covariance argument, correcting manuscript wording and equations, deriving variance-decomposition and Figure 4 association diagnostics from existing production summaries, and describing Figure 5 as a persistence–stationary-variance stress gradient rather than launching a new variance-standardised $\phi$ simulation immediately.
 - **Rationale**: The review identified predictable reviewer vulnerabilities that can be fixed without changing numerical outputs: the algebraic sign of $b_i b_j$, the false paired-seeding claim, the deterministic equilibrium expression, richness wording, and CV interpretation. Existing 1000-replicate production summaries already support the covariance and association diagnostics. New simulations on `deep-server` remain available if the later submission-format and figure-design pass shows the variance-standardised $\phi$ comparison is still needed.
+- **Status**: active
+
+### DEC-026 – Mac-native final submission handoff paths
+
+- **Date**: 2026-05-28
+- **Decision**: Treat `/Users/bwbrook/work/makedoc`, `/Users/bwbrook/papers/insurance_hypothesis`, and `~/papers/de_identified_repos/` as the local Mac mini submission/build paths; reserve `/home/bwbrook/...` paths for historical WSL/deep-server records and explicit remote helper defaults.
+- **Rationale**: The project has moved from a WSL-controlled finalisation path to the Mac mini. The manuscript build config is already config-relative, so final-stage reliability mostly depends on correcting path-facing runbooks, DOCX identity checks, and review-package staging safeguards without changing simulation code or scientific outputs.
 - **Status**: active
 
 _(The agent should add more entries as needed.)_

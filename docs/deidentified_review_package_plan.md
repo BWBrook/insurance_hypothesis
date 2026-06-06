@@ -4,7 +4,7 @@ This is a deferred packaging plan. Do not build the package until the final code
 
 ## Target Location
 
-- Staging directory: `/home/bwbrook/papers/de_identified_repos/ih_package/`
+- Staging directory on the Mac mini: `/Users/bwbrook/papers/de_identified_repos/ih_package/`
 - Expected final artefact: a zip file suitable for uploading as anonymous supplementary material.
 
 ## Purpose
@@ -45,11 +45,14 @@ The review-safe `--skip-paper-export` switch lets the package regenerate analysi
 
 ## Build Command
 
-Run from `/home/bwbrook/papers/insurance_hypothesis`:
+Run from `/Users/bwbrook/papers/insurance_hypothesis`:
 
 ```bash
 uv run python scripts/build_deidentified_review_package.py --zip
 ```
+
+The package builder defaults to `~/papers/de_identified_repos/ih_package`.
+Set `IH_REVIEW_PACKAGE_ROOT` only if a different local staging root is deliberately needed.
 
 ## Pre-Zip Checks
 

@@ -8,7 +8,7 @@ The manuscript package is ready for Barry's human-scientist pass. The remaining 
 
 ## Files To Read
 
-Primary review files are in `/home/bwbrook/work/makedoc/dist/paper/`:
+Primary review files are in `/Users/bwbrook/work/makedoc/dist/paper/` on the Mac mini:
 
 - `insurance_hypothesis_blinded_main.pdf` and `.docx`: double-blind main manuscript.
 - `insurance_hypothesis_supplementary_info.pdf` and `.docx`: anonymous supplementary information.
@@ -42,10 +42,10 @@ Repo source files to edit if changes are needed:
 - Review the cover letter for author voice and any ScholarOne-specific fields.
 - Confirm final article type wording in the submission system.
 - Confirm whether the permanent accepted-version archive should be Dryad, Zenodo, OSF, institutional, or another DOI-bearing repository.
-- After this human pass and any final code lock, build the de-identified reproducibility zip using `docs/deidentified_review_package_plan.md`.
+- After this human pass and any final code lock, build the de-identified reproducibility zip using `docs/deidentified_review_package_plan.md`; the default local staging root is `/Users/bwbrook/papers/de_identified_repos/`.
 
 ## Final Technical Notes
 
 - Build makedoc profiles sequentially, not in parallel, because profile builds share cache state.
 - After generating DOCX files, run `uv run python scripts/sanitize_docx_identity.py --check` on the blinded main and supplementary DOCX files to remove invisible local-path metadata.
-- The de-identified review-code package has not yet been built by design; it should be created only once the final code/manuscript source is locked.
+- Rebuild the de-identified review-code package only once the final code/manuscript source is locked, so the upload artefact matches the submitted version.

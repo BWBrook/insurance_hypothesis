@@ -4,7 +4,7 @@ This file explains how to build the Insurance Hypothesis manuscript from the ext
 
 ## Prerequisites
 
-1. Run commands from the **makedoc repo root** (the repo that provides `make validate-config`, `make check`, and `make all`).
+1. Run commands from the **makedoc repo root** (the repo that provides `make validate-config`, `make check`, and `make all`). On this Mac, that repo is at `/Users/bwbrook/work/makedoc`.
 2. Ensure this manuscript repo exists at:
 
 ```bash
@@ -17,10 +17,14 @@ This file explains how to build the Insurance Hypothesis manuscript from the ext
 CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
 ```
 
-The config contains two profiles:
+The config contains the current manuscript/submission profiles:
 
 - `ih_draft` (default): scoped lint for iterative drafting.
-- `ih_submission`: strict full-lint gate for final checks.
+- `ih_submission`: strict full-lint gate for the double-blind main manuscript.
+- `ih_submission_form_statements`: submission-system statements for copy-paste or separate upload.
+- `ih_supplementary_info`: anonymous supplementary information.
+- `ih_author_title_page`: unblinded title page and author statements.
+- `ih_cover_letter`: editor-facing cover letter.
 
 The config file itself is passed in via an absolute path, but the profile file references inside it are now **config-relative**.
 This keeps the manuscript portable across macOS and Linux while still allowing external-path `makedoc` builds.
