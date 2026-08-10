@@ -2,11 +2,11 @@
 
 Dear Editor,
 
-I am pleased to submit the manuscript **"Biodiversity buffers correlated environmental variability through divergent species responses"** for consideration as a research paper in *Oikos*.
+I am pleased to submit the manuscript **"Abundance-weighted response balance determines when environmental correlation stabilises communities"** for consideration as a research paper in *Oikos*.
 
-This manuscript asks a central question in biodiversity–stability theory: when does response diversity produce ecological insurance, and when does it fail? Using a deliberately simple stochastic multispecies Ricker model, I distinguish correlation among species-specific environmental exposures from realised population-growth synchrony. Balanced opposing response directions generate strong compensatory insurance; aligned responses turn correlated forcing into high synchrony and community variability, even as richness increases.
+The manuscript asks when positive correlation among environmental exposures stabilises rather than destabilises aggregate community abundance. A first-order covariance analysis identifies the boundary in terms of abundance-weighted response balance. A stochastic multispecies Ricker model then tests that criterion beyond the linear approximation. The central comparison preserves every slope magnitude and changes only response signs; continuous response-balance, unequal-abundance, and intrinsic-growth-rate sensitivities locate the conditions under which the reversal persists.
 
-The paper addresses a priority in the response-diversity research agenda recently published by *Oikos*: connecting differing environmental responses and biotic interactions to explicit dimensions of ecological stability. Here, signed response slopes and environmental covariance map directly to realised synchrony and community variability.
+The paper addresses a priority in the response-diversity research agenda recently published by *Oikos*: connecting environmental responses to explicit dimensions of ecological stability. It also yields a concrete empirical prediction. Exposure covariance, response slopes, and species contributions must be measured together; the presence of positive and negative responders alone is not enough.
 
 The study uses no empirical data, field sampling, live animals, or human participants. A de-identified, uv-managed reproducibility package will accompany submission, allowing reviewers and editors to inspect the code, tests, simulation specifications, compact summaries, and figure/table workflow. On acceptance, the final code and simulated-data package will be deposited in a permanent public archive with a DOI.
 

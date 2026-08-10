@@ -8,14 +8,13 @@ import pandas as pd
 
 from insurance_sim.diagnostics import (
     select_variance_decomposition_rows,
-    summarize_fig4_partial_association,
     summarize_variance_decomposition,
 )
 from insurance_sim.production_figures import (
     write_production_fig1,
     write_production_fig2_richness,
     write_production_fig3_synchrony,
-    write_production_fig4_cv_synchrony,
+    write_production_fig4_weighted_boundary,
     write_production_fig5_persistence,
     write_production_figs3_positive_matched_control,
     write_production_mixed_heatmap_supplement,
@@ -32,6 +31,9 @@ PRODUCTION_INPUTS = {
     "fig5_persistence": Path("data/sim/production/fig5_persistence_mixed_v1/summaries.parquet"),
     "figs3_positive_matched": Path(
         "data/sim/production/figs3_positive_matched_control_v1/summaries.parquet"
+    ),
+    "fig4_weighted_boundary": Path(
+        "data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet"
     ),
 }
 
@@ -56,10 +58,6 @@ def write_production_diagnostics(production_path: Path) -> None:
     variance.to_csv(REPORTS / "variance_decomposition_fig2_mixed_summary.csv", index=False)
     select_variance_decomposition_rows(variance).to_csv(
         REPORTS / "variance_decomposition_fig2_mixed_selected_summary.csv",
-        index=False,
-    )
-    summarize_fig4_partial_association(df).to_csv(
-        REPORTS / "fig4_partial_association_summary.csv",
         index=False,
     )
 
@@ -87,11 +85,12 @@ def main() -> None:
         out_pdf=REPORTS / "fig3_imposed_vs_realised_panels.pdf",
         summary_out=REPORTS / "fig3_imposed_vs_realised_panels_summary.csv",
     )
-    write_production_fig4_cv_synchrony(
-        production_path=PRODUCTION_INPUTS["fig2_richness"],
-        out_png=REPORTS / "fig4_cv_vs_synchrony_mixed.png",
-        out_pdf=REPORTS / "fig4_cv_vs_synchrony_mixed.pdf",
-        summary_out=REPORTS / "fig4_cv_vs_synchrony_mixed_summary.csv",
+    write_production_fig4_weighted_boundary(
+        matched_path=PRODUCTION_INPUTS["figs3_positive_matched"],
+        sensitivity_path=PRODUCTION_INPUTS["fig4_weighted_boundary"],
+        out_png=REPORTS / "fig4_weighted_balance_boundary.png",
+        out_pdf=REPORTS / "fig4_weighted_balance_boundary.pdf",
+        summary_out=REPORTS / "fig4_weighted_balance_boundary_summary.csv",
     )
     write_production_fig5_persistence(
         production_path=PRODUCTION_INPUTS["fig5_persistence"],

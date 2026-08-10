@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from insurance_sim.production import create_manifest, seed_for_replicate
+from insurance_sim.production import create_manifest, create_manifest_from_spec, seed_for_replicate
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -111,6 +111,48 @@ def test_manifest_counts_constants_and_replicate_seeds_are_stable() -> None:
     assert seed_for_replicate(12345, 0, 0) == seed_for_replicate(12345, 0, 0)
     assert seed_for_replicate(12345, 0, 0) != seed_for_replicate(12345, 0, 1)
     assert seed_for_replicate(12345, 0, 0) != seed_for_replicate(12345, 1, 0)
+
+
+def test_explicit_treatments_preserve_vectors_and_order() -> None:
+    spec = {
+        "spec_version": 1,
+        "run_id": "treatments",
+        "manifest": {
+            "reps_per_scenario": 3,
+            "replicates_per_shard": 2,
+            "steps": 30,
+            "burn": 10,
+            "n_species": 2,
+            "phi": 0.4,
+            "alpha_intra": 1.0,
+            "alpha_inter": 0.3,
+            "floor": 1e-9,
+            "max_exp": 50.0,
+            "base_seed": 12345,
+            "sigma_vals": [0.5],
+            "rho_vals": [0.0, 1.0],
+            "treatments": [
+                {
+                    "treatment_id": "weighted",
+                    "treatment_path": "dominance",
+                    "treatment_level": 0.5,
+                    "slope_mode": "mixed",
+                    "r0": 0.5,
+                    "K": [80.0, 120.0],
+                    "b_slopes": [-0.5, 0.5],
+                }
+            ],
+        },
+        "expected": {"scenario_count": 2, "shard_count": 4, "expected_rows": 6},
+    }
+
+    manifest = create_manifest_from_spec(spec)
+
+    assert manifest["scenario_order"] == ["treatment_id", "sigma_env", "rho_env"]
+    assert manifest["scenario_count"] == 2
+    assert manifest["scenarios"][0]["K"] == [80.0, 120.0]
+    assert manifest["scenarios"][0]["b_slopes"] == [-0.5, 0.5]
+    assert manifest["scenarios"][0]["r0"] == 0.5
 
 
 def test_spec_cli_preserves_phi_values_and_expected_counts(tmp_path: Path) -> None:

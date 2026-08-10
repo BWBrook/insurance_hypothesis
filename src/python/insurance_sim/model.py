@@ -33,8 +33,6 @@ def slopes_for_mode(mode: str, n_species: int) -> np.ndarray:
         return np.linspace(0.1, 1.0, n_species, dtype=float)
     if mode == "positive_matched":
         return np.abs(np.linspace(-0.5, 0.5, n_species, dtype=float))
-    if mode == "mixed_narrow":
-        return np.linspace(-0.25, 0.25, n_species, dtype=float)
     raise ValueError(f"Unknown slope mode: {mode}")
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
 
 import numpy as np
@@ -13,6 +12,61 @@ def _require_columns(df: pd.DataFrame, columns: set[str]) -> None:
     missing = sorted(columns - set(df.columns))
     if missing:
         raise ValueError(f"Missing required diagnostic columns: {', '.join(missing)}")
+
+
+def deterministic_equilibrium(
+    *,
+    r0: float,
+    K: Sequence[float] | np.ndarray,
+    alpha_intra: float,
+    alpha_inter: float,
+) -> np.ndarray:
+    """Return the positive interior equilibrium of the deterministic Ricker map."""
+    K_arr = np.asarray(K, dtype=float)
+    if K_arr.ndim != 1 or K_arr.size < 1:
+        raise ValueError("K must be a non-empty one-dimensional vector.")
+    interaction = np.full((K_arr.size, K_arr.size), float(alpha_inter), dtype=float)
+    np.fill_diagonal(interaction, float(alpha_intra))
+    equilibrium = np.linalg.solve(interaction, float(r0) * K_arr)
+    if np.any(~np.isfinite(equilibrium)) or np.any(equilibrium <= 0):
+        raise ValueError("The treatment does not have a positive finite interior equilibrium.")
+    return equilibrium
+
+
+def weighted_alignment_index(
+    weights: Sequence[float] | np.ndarray,
+    response_slopes: Sequence[float] | np.ndarray,
+) -> float:
+    """Return A=(sum a)^2/(S sum a^2), where a_i=weight_i*b_i."""
+    weight_arr = np.asarray(weights, dtype=float)
+    slope_arr = np.asarray(response_slopes, dtype=float)
+    if weight_arr.shape != slope_arr.shape or weight_arr.ndim != 1:
+        raise ValueError("weights and response_slopes must be same-length vectors.")
+    contributions = weight_arr * slope_arr
+    squared_norm = float(contributions @ contributions)
+    if not np.isfinite(squared_norm) or squared_norm <= 0:
+        raise ValueError("Weighted response vector must have positive finite norm.")
+    alignment = float(contributions.sum() ** 2 / (contributions.size * squared_norm))
+    return float(np.clip(alignment, 0.0, 1.0))
+
+
+def equicorrelated_forcing_ratio(
+    *,
+    alignment_index: float,
+    n_species: int,
+    rho_low: float,
+    rho_high: float,
+) -> float:
+    """Return the first-order forcing-variance ratio between two correlations."""
+    if n_species < 1:
+        raise ValueError("n_species must be positive.")
+    if not 0.0 <= alignment_index <= 1.0:
+        raise ValueError("alignment_index must lie in [0, 1].")
+    low = (1.0 - rho_low) + rho_low * n_species * alignment_index
+    high = (1.0 - rho_high) + rho_high * n_species * alignment_index
+    if low <= 0:
+        raise ValueError("The low-correlation forcing variance must be positive.")
+    return float(high / low)
 
 
 def summarize_variance_decomposition(
@@ -98,84 +152,3 @@ def select_variance_decomposition_rows(
         )
     )
     return out.iloc[order].reset_index(drop=True)
-
-
-def _standardize(values: np.ndarray) -> np.ndarray:
-    sd = values.std(axis=0, ddof=0)
-    if np.any(sd == 0):
-        raise ValueError("Cannot standardize a constant predictor for partial-association diagnostics.")
-    return (values - values.mean(axis=0)) / sd
-
-
-def _fit_r2_and_standardized_betas(y: np.ndarray, x: np.ndarray) -> tuple[float, np.ndarray]:
-    xz = _standardize(x)
-    yz = (y - y.mean()) / y.std(ddof=0)
-    design = np.column_stack([np.ones(len(xz)), xz])
-    beta = np.linalg.lstsq(design, yz, rcond=None)[0]
-    fitted = design @ beta
-    ss_res = float(np.sum((yz - fitted) ** 2))
-    ss_tot = float(np.sum((yz - yz.mean()) ** 2))
-    return 1.0 - (ss_res / ss_tot), beta[1:]
-
-
-def summarize_fig4_partial_association(df: pd.DataFrame) -> pd.DataFrame:
-    """Fit compact scenario-level diagnostics for CV-synchrony associations."""
-    required = {
-        "n_species",
-        "sigma_env",
-        "rho_env",
-        "rho_eff",
-        "phi",
-        "cv_total",
-        "phi_ldm",
-        "mean_pairwise_corr",
-    }
-    _require_columns(df, required)
-
-    scenario = (
-        df.groupby(["n_species", "sigma_env", "rho_env", "rho_eff", "phi"], as_index=False, observed=True)
-        .agg(
-            cv_total=("cv_total", "mean"),
-            phi_ldm=("phi_ldm", "mean"),
-            mean_pairwise_corr=("mean_pairwise_corr", "mean"),
-        )
-        .reset_index(drop=True)
-    )
-    scenario = pd.DataFrame(scenario[scenario["sigma_env"] > 0].copy())
-    if len(scenario) < 10:
-        raise ValueError("Need at least 10 non-deterministic scenario means for partial diagnostics.")
-
-    model_specs: list[tuple[str, list[str]]] = [
-        ("grid covariates", ["sigma_env", "n_species", "rho_eff"]),
-        ("grid covariates + phi_LdM", ["sigma_env", "n_species", "rho_eff", "phi_ldm"]),
-        (
-            "grid covariates + realised log-growth correlation",
-            ["sigma_env", "n_species", "rho_eff", "mean_pairwise_corr"],
-        ),
-        (
-            "grid covariates + both synchrony metrics",
-            ["sigma_env", "n_species", "rho_eff", "phi_ldm", "mean_pairwise_corr"],
-        ),
-    ]
-
-    y = scenario["cv_total"].to_numpy(dtype=float)
-    records: list[dict[str, float | int | str]] = []
-    base_r2: float | None = None
-    for label, predictors in model_specs:
-        x = scenario[predictors].to_numpy(dtype=float)
-        r2, betas = _fit_r2_and_standardized_betas(y, x)
-        if base_r2 is None:
-            base_r2 = r2
-        beta_map = {predictor: float(beta) for predictor, beta in zip(predictors, betas)}
-        records.append(
-            {
-                "model": label,
-                "predictors": ", ".join(predictors),
-                "n_scenarios": int(len(scenario)),
-                "r2": float(r2),
-                "delta_r2_vs_grid_covariates": float(r2 - base_r2),
-                "standardized_coefficients_json": json.dumps(beta_map, sort_keys=True),
-            }
-        )
-
-    return pd.DataFrame.from_records(records)

@@ -5,7 +5,7 @@
   "purpose": "Production-scale mechanism run for the main Figure 3 synchrony comparison.",
   "rationale": [
     "Refresh the mechanism figure with the same 1000-replicate production convention used for Figures 1 and 2.",
-    "Keep the grid focused on sigma_env=0.5, where the manuscript currently explains how response direction maps imposed driver correlation to realised growth synchrony.",
+    "Keep the grid focused on sigma_env=0.5, where the manuscript explains how response direction maps imposed exposure correlation to realised growth synchrony.",
     "Include mixed and positive slope modes at S=2,4,8 so richness-specific lines are directly comparable across regimes.",
     "Use a non-negative rho_env grid from 0 to 1 to avoid cross-richness complications from infeasible negative equicorrelations while retaining the synchrony gradient needed for the mechanism display."
   ],

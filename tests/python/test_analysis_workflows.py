@@ -80,6 +80,40 @@ def _write_parquet(path: Path, rows: list[dict[str, float | int | str | bool]]) 
     pd.DataFrame.from_records(rows).to_parquet(path, index=False)
 
 
+def _boundary_record(
+    *,
+    treatment_id: str,
+    treatment_path: str,
+    treatment_level: float,
+    slope_mode: str,
+    r0: float,
+    rho_eff: float,
+    cv_total: float,
+    K_json: str = "[100.0,100.0,100.0,100.0]",
+) -> dict[str, float | int | str]:
+    slopes = (
+        "[-0.5,-0.166666666667,0.166666666667,0.5]"
+        if slope_mode == "mixed"
+        else "[0.5,0.166666666667,0.166666666667,0.5]"
+    )
+    return {
+        "treatment_id": treatment_id,
+        "treatment_path": treatment_path,
+        "treatment_level": treatment_level,
+        "slope_mode": slope_mode,
+        "n_species": 4,
+        "r0": r0,
+        "K_json": K_json,
+        "b_slopes_json": slopes,
+        "alpha_intra": 1.0,
+        "alpha_inter": 0.3,
+        "rho_eff": rho_eff,
+        "cv_total": cv_total,
+        "mean_total": 210.0,
+        "mean_extinction_freq": 0.0,
+    }
+
+
 def _write_minimal_production_summaries(root: Path) -> None:
     rho_vals = [0.0, 0.999999]
     paths = {
@@ -125,6 +159,41 @@ def _write_minimal_production_summaries(root: Path) -> None:
             for phi in [0.0, 0.7, 0.9, 0.95]
             for rho in [-0.5, 0.5, 0.999999]
         ],
+        "fig4_weighted_balance_r0_v1": [
+            _boundary_record(
+                treatment_id=(
+                    f"alignment-{mode}" if r0 == 1.0 else f"r0-{r0:g}-{mode}"
+                ),
+                treatment_path="alignment" if r0 == 1.0 else "r0",
+                treatment_level=0.0 if mode == "mixed" and r0 == 1.0 else (
+                    1.0 if mode == "positive_matched" and r0 == 1.0 else r0
+                ),
+                slope_mode=mode,
+                r0=r0,
+                rho_eff=rho,
+                cv_total=(
+                    (0.20 if rho == 0.0 else 0.12)
+                    if mode == "mixed"
+                    else (0.20 if rho == 0.0 else 0.32)
+                ),
+            )
+            for mode in ["mixed", "positive_matched"]
+            for r0 in [0.25, 0.5, 1.0, 1.5]
+            for rho in [0.0, 0.999999]
+        ]
+        + [
+            _boundary_record(
+                treatment_id="dominance-0.5",
+                treatment_path="dominance",
+                treatment_level=0.5,
+                slope_mode="mixed",
+                r0=1.0,
+                rho_eff=rho,
+                cv_total=0.20 if rho == 0.0 else 0.15,
+                K_json="[85.0,95.0,105.0,115.0]",
+            )
+            for rho in [0.0, 0.999999]
+        ],
     }
     for run_name, rows in paths.items():
         _write_parquet(root / f"data/sim/production/{run_name}/summaries.parquet", rows)
@@ -135,7 +204,7 @@ def test_run_all_lists_every_missing_production_input(tmp_path: Path) -> None:
     combined = f"{result.stdout}\n{result.stderr}"
     assert result.returncode != 0
     assert "Missing production summaries required to regenerate the paper" in combined
-    assert combined.count("summaries.parquet") == 6
+    assert combined.count("summaries.parquet") == 7
 
 
 def test_run_all_regenerates_complete_paper_output(tmp_path: Path) -> None:
@@ -148,7 +217,7 @@ def test_run_all_regenerates_complete_paper_output(tmp_path: Path) -> None:
         "fig1_panels",
         "fig2_richness_scaling_mixed",
         "fig3_imposed_vs_realised_panels",
-        "fig4_cv_vs_synchrony_mixed",
+        "fig4_weighted_balance_boundary",
         "fig5_phi_sensitivity_sigma0.5_extended",
         "figS1_production_mixed_cv_total",
         "figS2_production_mixed_phi_ldm",
@@ -162,5 +231,4 @@ def test_run_all_regenerates_complete_paper_output(tmp_path: Path) -> None:
 
     assert (reports / "variance_decomposition_fig2_mixed_summary.csv").is_file()
     assert (reports / "variance_decomposition_fig2_mixed_selected_summary.csv").is_file()
-    assert (reports / "fig4_partial_association_summary.csv").is_file()
     assert not (tmp_path / "paper/manuscript/figures").exists()

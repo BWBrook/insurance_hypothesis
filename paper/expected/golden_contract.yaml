@@ -2,8 +2,8 @@ expect_tables: 1
 expect_drawings: 5
 min_pdf_pages: 1
 required_text:
-  - Biodiversity buffers correlated environmental variability through
-  - divergent species responses
+  - Abundance-weighted response balance determines
+  - when environmental correlation stabilises communities
   - Introduction
   - Methods
   - Results

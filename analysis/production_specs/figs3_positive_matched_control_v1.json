@@ -4,7 +4,7 @@
   "title": "Production positive-matched sign-structure control for Figure S3",
   "purpose": "Production-scale refresh of the supplementary positive-matched control.",
   "rationale": [
-    "Replace the remaining lower-replicate Figure S3 diagnostic with the same 1000-replicate convention used by the production main figures.",
+    "Use the same 1000-replicate convention as the other production figures.",
     "Keep the control focused on sigma_env=0.5, matching the existing sign-structure display and the Figure 3 mechanism setting.",
     "Compare mixed, positive-matched, and aligned-positive slope regimes at S=4 and S=8 so the effect of response sign can be separated from slope-magnitude distribution.",
     "Use a non-negative rho_env grid from 0 to 1 to align the x-axis with the production Figure 3 synchrony display and avoid infeasible negative equicorrelation complications."

@@ -78,14 +78,25 @@ class ProductionScenario:
     steps: int
     burn: int
     r0: float
-    K: float
+    K: float | tuple[float, ...]
     alpha_intra: float
     alpha_inter: float
     floor: float
     max_exp: float
+    b_slopes: tuple[float, ...] | None = None
+    treatment_id: str | None = None
+    treatment_path: str | None = None
+    treatment_level: float | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ProductionScenario:
+        raw_K = data["K"]
+        K: float | tuple[float, ...]
+        if isinstance(raw_K, list):
+            K = tuple(float(value) for value in raw_K)
+        else:
+            K = float(raw_K)
+        raw_slopes = data.get("b_slopes")
         return cls(
             scenario_id=str(data["scenario_id"]),
             scenario_index=int(data["scenario_index"]),
@@ -97,11 +108,27 @@ class ProductionScenario:
             steps=int(data["steps"]),
             burn=int(data["burn"]),
             r0=float(data["r0"]),
-            K=float(data["K"]),
+            K=K,
             alpha_intra=float(data["alpha_intra"]),
             alpha_inter=float(data["alpha_inter"]),
             floor=float(data["floor"]),
             max_exp=float(data["max_exp"]),
+            b_slopes=(
+                None
+                if raw_slopes is None
+                else tuple(float(value) for value in raw_slopes)
+            ),
+            treatment_id=(
+                None if data.get("treatment_id") is None else str(data["treatment_id"])
+            ),
+            treatment_path=(
+                None if data.get("treatment_path") is None else str(data["treatment_path"])
+            ),
+            treatment_level=(
+                None
+                if data.get("treatment_level") is None
+                else float(data["treatment_level"])
+            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -116,11 +143,15 @@ class ProductionScenario:
             "steps": self.steps,
             "burn": self.burn,
             "r0": self.r0,
-            "K": self.K,
+            "K": list(self.K) if isinstance(self.K, tuple) else float(self.K),
             "alpha_intra": self.alpha_intra,
             "alpha_inter": self.alpha_inter,
             "floor": self.floor,
             "max_exp": self.max_exp,
+            "b_slopes": None if self.b_slopes is None else list(self.b_slopes),
+            "treatment_id": self.treatment_id,
+            "treatment_path": self.treatment_path,
+            "treatment_level": self.treatment_level,
         }
 
     def config(self) -> SimulationConfig:
@@ -133,7 +164,11 @@ class ProductionScenario:
             phi=self.phi,
             r0=self.r0,
             K=self.K,
-            b_slopes=slopes_for_mode(self.slope_mode, self.n_species),
+            b_slopes=(
+                slopes_for_mode(self.slope_mode, self.n_species)
+                if self.b_slopes is None
+                else self.b_slopes
+            ),
             alpha_intra=self.alpha_intra,
             alpha_inter=self.alpha_inter,
             floor=self.floor,
@@ -232,6 +267,74 @@ def build_scenarios(
                                 max_exp=float(max_exp),
                             )
                         )
+    return scenarios
+
+
+def build_treatment_scenarios(
+    *,
+    treatments: Sequence[dict[str, Any]],
+    sigma_vals: Sequence[float],
+    rho_vals: Sequence[float],
+    n_species: int,
+    phi: float,
+    steps: int,
+    burn: int,
+    alpha_intra: float,
+    alpha_inter: float,
+    floor: float,
+    max_exp: float,
+) -> list[ProductionScenario]:
+    """Build scenarios from explicit scientific treatments and shared forcing axes."""
+    if not treatments:
+        raise ValueError("Expected at least one treatment.")
+
+    scenarios: list[ProductionScenario] = []
+    seen_ids: set[str] = set()
+    for treatment in treatments:
+        treatment_id = str(treatment["treatment_id"])
+        if treatment_id in seen_ids:
+            raise ValueError(f"Duplicate treatment_id: {treatment_id}")
+        seen_ids.add(treatment_id)
+
+        slopes = tuple(float(value) for value in treatment["b_slopes"])
+        raw_K = treatment["K"]
+        K: float | tuple[float, ...]
+        if isinstance(raw_K, list):
+            K = tuple(float(value) for value in raw_K)
+        else:
+            K = float(raw_K)
+        slope_mode = str(treatment["slope_mode"])
+        treatment_path = str(treatment["treatment_path"])
+        treatment_level = float(treatment["treatment_level"])
+        r0 = float(treatment["r0"])
+
+        for sigma_env in sigma_vals:
+            for rho_env in rho_vals:
+                scenario_index = len(scenarios)
+                scenario = ProductionScenario(
+                    scenario_id=f"sc{scenario_index:05d}",
+                    scenario_index=scenario_index,
+                    sigma_env=float(sigma_env),
+                    rho_env=float(rho_env),
+                    n_species=int(n_species),
+                    slope_mode=slope_mode,
+                    phi=float(phi),
+                    steps=int(steps),
+                    burn=int(burn),
+                    r0=r0,
+                    K=K,
+                    alpha_intra=float(alpha_intra),
+                    alpha_inter=float(alpha_inter),
+                    floor=float(floor),
+                    max_exp=float(max_exp),
+                    b_slopes=slopes,
+                    treatment_id=treatment_id,
+                    treatment_path=treatment_path,
+                    treatment_level=treatment_level,
+                )
+                # Validate vector lengths and numerical bounds before writing a manifest.
+                scenario.config()
+                scenarios.append(scenario)
     return scenarios
 
 
@@ -336,6 +439,66 @@ def create_manifest(
     }
 
 
+def create_treatment_manifest(
+    *,
+    run_id: str,
+    reps_per_scenario: int,
+    replicates_per_shard: int,
+    treatments: Sequence[dict[str, Any]],
+    sigma_vals: Sequence[float],
+    rho_vals: Sequence[float],
+    n_species: int,
+    phi: float,
+    steps: int,
+    burn: int,
+    alpha_intra: float,
+    alpha_inter: float,
+    floor: float,
+    max_exp: float,
+    base_seed: int,
+) -> dict[str, Any]:
+    """Create a manifest for explicit treatments crossed with forcing axes."""
+    if not run_id.strip():
+        raise ValueError("run_id must be non-empty.")
+    if steps <= 0:
+        raise ValueError("steps must be positive.")
+    if burn < 0 or burn >= steps:
+        raise ValueError("burn must satisfy 0 <= burn < steps.")
+
+    scenarios = build_treatment_scenarios(
+        treatments=treatments,
+        sigma_vals=sigma_vals,
+        rho_vals=rho_vals,
+        n_species=n_species,
+        phi=phi,
+        steps=steps,
+        burn=burn,
+        alpha_intra=alpha_intra,
+        alpha_inter=alpha_inter,
+        floor=floor,
+        max_exp=max_exp,
+    )
+    shards = build_shards(
+        scenarios,
+        reps_per_scenario=reps_per_scenario,
+        replicates_per_shard=replicates_per_shard,
+    )
+    return {
+        "manifest_version": MANIFEST_VERSION,
+        "run_id": run_id,
+        "created_at_utc": utc_now_iso(),
+        "base_seed": int(base_seed),
+        "reps_per_scenario": int(reps_per_scenario),
+        "replicates_per_shard": int(replicates_per_shard),
+        "scenario_count": len(scenarios),
+        "shard_count": len(shards),
+        "expected_rows": len(scenarios) * int(reps_per_scenario),
+        "scenario_order": ["treatment_id", "sigma_env", "rho_env"],
+        "scenarios": [scenario.to_dict() for scenario in scenarios],
+        "shards": [shard.to_dict() for shard in shards],
+    }
+
+
 def create_manifest_from_spec(
     spec: dict[str, Any],
     *,
@@ -345,28 +508,47 @@ def create_manifest_from_spec(
     if int(spec.get("spec_version", -1)) != 1:
         raise ValueError(f"Unsupported spec_version: {spec.get('spec_version')}")
     manifest_spec = spec["manifest"]
-    phi_values = manifest_spec.get("phi_vals")
-    phi = float(manifest_spec["phi"] if "phi" in manifest_spec else phi_values[0])
-    manifest = create_manifest(
-        run_id=str(run_id_override or spec["run_id"]),
-        reps_per_scenario=int(manifest_spec["reps_per_scenario"]),
-        replicates_per_shard=int(manifest_spec["replicates_per_shard"]),
-        sigma_vals=[float(value) for value in manifest_spec["sigma_vals"]],
-        rho_vals=[float(value) for value in manifest_spec["rho_vals"]],
-        species_vals=[int(value) for value in manifest_spec["species_vals"]],
-        slope_modes=[str(value) for value in manifest_spec["slope_modes"]],
-        phi=phi,
-        phi_vals=None if phi_values is None else [float(value) for value in phi_values],
-        steps=int(manifest_spec["steps"]),
-        burn=int(manifest_spec["burn"]),
-        r0=float(manifest_spec["r0"]),
-        K=float(manifest_spec["K"]),
-        alpha_intra=float(manifest_spec["alpha_intra"]),
-        alpha_inter=float(manifest_spec["alpha_inter"]),
-        floor=float(manifest_spec["floor"]),
-        max_exp=float(manifest_spec["max_exp"]),
-        base_seed=int(manifest_spec["base_seed"]),
-    )
+    if "treatments" in manifest_spec:
+        manifest = create_treatment_manifest(
+            run_id=str(run_id_override or spec["run_id"]),
+            reps_per_scenario=int(manifest_spec["reps_per_scenario"]),
+            replicates_per_shard=int(manifest_spec["replicates_per_shard"]),
+            treatments=list(manifest_spec["treatments"]),
+            sigma_vals=[float(value) for value in manifest_spec["sigma_vals"]],
+            rho_vals=[float(value) for value in manifest_spec["rho_vals"]],
+            n_species=int(manifest_spec["n_species"]),
+            phi=float(manifest_spec["phi"]),
+            steps=int(manifest_spec["steps"]),
+            burn=int(manifest_spec["burn"]),
+            alpha_intra=float(manifest_spec["alpha_intra"]),
+            alpha_inter=float(manifest_spec["alpha_inter"]),
+            floor=float(manifest_spec["floor"]),
+            max_exp=float(manifest_spec["max_exp"]),
+            base_seed=int(manifest_spec["base_seed"]),
+        )
+    else:
+        phi_values = manifest_spec.get("phi_vals")
+        phi = float(manifest_spec["phi"] if "phi" in manifest_spec else phi_values[0])
+        manifest = create_manifest(
+            run_id=str(run_id_override or spec["run_id"]),
+            reps_per_scenario=int(manifest_spec["reps_per_scenario"]),
+            replicates_per_shard=int(manifest_spec["replicates_per_shard"]),
+            sigma_vals=[float(value) for value in manifest_spec["sigma_vals"]],
+            rho_vals=[float(value) for value in manifest_spec["rho_vals"]],
+            species_vals=[int(value) for value in manifest_spec["species_vals"]],
+            slope_modes=[str(value) for value in manifest_spec["slope_modes"]],
+            phi=phi,
+            phi_vals=None if phi_values is None else [float(value) for value in phi_values],
+            steps=int(manifest_spec["steps"]),
+            burn=int(manifest_spec["burn"]),
+            r0=float(manifest_spec["r0"]),
+            K=float(manifest_spec["K"]),
+            alpha_intra=float(manifest_spec["alpha_intra"]),
+            alpha_inter=float(manifest_spec["alpha_inter"]),
+            floor=float(manifest_spec["floor"]),
+            max_exp=float(manifest_spec["max_exp"]),
+            base_seed=int(manifest_spec["base_seed"]),
+        )
     expected = spec.get("expected")
     if expected is not None:
         for key in ("scenario_count", "shard_count", "expected_rows"):
@@ -445,6 +627,16 @@ def _replicate_record(
         "n_species": scenario.n_species,
         "phi": scenario.phi,
         "slope_mode": scenario.slope_mode,
+        "r0": scenario.r0,
+        "K_json": json.dumps(scenario.K, separators=(",", ":")),
+        "b_slopes_json": json.dumps(
+            list(config.b_slopes) if config.b_slopes is not None else None,
+            separators=(",", ":"),
+        ),
+        "treatment_id": scenario.treatment_id,
+        "treatment_path": scenario.treatment_path,
+        "treatment_level": scenario.treatment_level,
+        "alpha_intra": scenario.alpha_intra,
         "alpha_inter": scenario.alpha_inter,
     }
 
@@ -614,6 +806,26 @@ def validate_combined_frame(manifest: dict[str, Any], frame: pd.DataFrame) -> No
         _expect_single_value(rows, "phi", scenario.phi)
         _expect_single_value(rows, "slope_mode", scenario.slope_mode)
         _expect_single_value(rows, "alpha_inter", scenario.alpha_inter)
+        expected_slopes = (
+            slopes_for_mode(scenario.slope_mode, scenario.n_species)
+            if scenario.b_slopes is None
+            else scenario.b_slopes
+        )
+        optional_values = {
+            "r0": scenario.r0,
+            "K_json": json.dumps(scenario.K, separators=(",", ":")),
+            "b_slopes_json": json.dumps(
+                list(expected_slopes),
+                separators=(",", ":"),
+            ),
+            "alpha_intra": scenario.alpha_intra,
+            "treatment_id": scenario.treatment_id,
+            "treatment_path": scenario.treatment_path,
+            "treatment_level": scenario.treatment_level,
+        }
+        for column, expected in optional_values.items():
+            if expected is not None and column in rows.columns:
+                _expect_single_value(rows, column, expected)
         rho_eff = effective_rho(scenario.rho_env, scenario.n_species)
         _expect_single_value(rows, "rho_eff", rho_eff)
         rho_clipped = bool(abs(rho_eff - scenario.rho_env) > 1e-12)

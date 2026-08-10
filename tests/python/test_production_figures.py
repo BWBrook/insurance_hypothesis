@@ -7,7 +7,7 @@ from insurance_sim.production_figures import (
     summarize_fig2_richness_production,
     summarize_fig1_production,
     summarize_fig3_synchrony_production,
-    summarize_fig4_cv_synchrony_production,
+    summarize_fig4_weighted_boundary,
     summarize_fig5_persistence_production,
     summarize_figs3_positive_matched_control,
     summarize_mixed_heatmap_supplement,
@@ -149,34 +149,44 @@ def test_summarize_figs3_positive_matched_control_filters_and_aggregates() -> No
     assert row["replicate_rows"] == 2
 
 
-def test_summarize_fig4_cv_synchrony_production_filters_and_aggregates() -> None:
+def test_summarize_fig4_weighted_boundary_computes_theory_and_simulation_ratios() -> None:
     rows: list[dict[str, float | int | str]] = []
-    for sigma_env in [0.0, 0.5]:
-        for n_species in [2, 4]:
-            for rho_eff in [0.0, 0.5]:
-                for replicate in [0, 1]:
-                    rows.append(
-                        {
-                            "slope_mode": "mixed",
-                            "sigma_env": sigma_env,
-                            "rho_eff": rho_eff,
-                            "n_species": n_species,
-                            "replicate": replicate,
-                            "cv_total": sigma_env + (1.0 / n_species) + replicate * 0.1,
-                            "phi_ldm": 0.1 + rho_eff,
-                            "mean_pairwise_corr": -0.2 + rho_eff,
-                            "mean_extinction_freq": 0.0,
-                        }
-                    )
+    treatment_specs = [
+        ("balanced", "mixed", "[-0.5,-0.166666666667,0.166666666667,0.5]", 0.0),
+        ("aligned", "positive_matched", "[0.5,0.166666666667,0.166666666667,0.5]", 1.0),
+    ]
+    for treatment_id, slope_mode, slopes_json, level in treatment_specs:
+        for rho_eff, base_cv in [(0.0, 0.2), (0.999999, 0.1 if slope_mode == "mixed" else 0.3)]:
+            for replicate in [0, 1]:
+                rows.append(
+                    {
+                        "treatment_id": treatment_id,
+                        "treatment_path": "alignment",
+                        "treatment_level": level,
+                        "slope_mode": slope_mode,
+                        "n_species": 4,
+                        "r0": 1.0,
+                        "K_json": "[100.0,100.0,100.0,100.0]",
+                        "b_slopes_json": slopes_json,
+                        "alpha_intra": 1.0,
+                        "alpha_inter": 0.3,
+                        "rho_eff": rho_eff,
+                        "cv_total": base_cv + replicate * 0.01,
+                        "mean_total": 210.0,
+                        "mean_extinction_freq": 0.0,
+                    }
+                )
 
-    summary = summarize_fig4_cv_synchrony_production(pd.DataFrame.from_records(rows))
+    summary = summarize_fig4_weighted_boundary(pd.DataFrame.from_records(rows))
 
-    assert len(summary) == 4
-    assert set(summary["sigma_env"]) == {0.5}
-    row = summary[summary["n_species"].eq(4) & summary["rho_eff"].eq(0.5)].iloc[0]
-    assert row["cv_total_mean"] == pytest.approx(0.8)
-    assert row["phi_ldm_mean"] == pytest.approx(0.6)
-    assert row["pair_corr_mean"] == pytest.approx(0.3)
+    assert len(summary) == 2
+    balanced = summary[summary["treatment_id"].eq("balanced")].iloc[0]
+    aligned = summary[summary["treatment_id"].eq("aligned")].iloc[0]
+    assert balanced["alignment_index"] == pytest.approx(0.0, abs=1e-12)
+    assert balanced["cv2_ratio"] < 1.0
+    assert aligned["alignment_index"] == pytest.approx(0.8)
+    assert aligned["predicted_forcing_ratio"] == pytest.approx(3.1999978)
+    assert aligned["cv2_ratio"] > 1.0
 
 
 def test_summarize_fig5_persistence_production_filters_and_aggregates() -> None:

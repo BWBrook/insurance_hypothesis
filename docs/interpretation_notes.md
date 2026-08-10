@@ -6,7 +6,7 @@ evidence. Exploratory chronology and completed task lists are in Git history.
 ## Headline contrast: Figure 1
 
 - Across the shared environmental grid, aligned positive responses are markedly
-  more variable than mixed responses. Averaged over effective driver correlation,
+  more variable than mixed responses. Averaged over effective exposure correlation,
   the aligned/mixed mean-CV ratio is about 3.0 at `sigma_env = 1`, 3.5 at 1.5,
   and 4.3 at 2.
 - Mixed-response communities remain buffered until stronger forcing, but they
@@ -46,9 +46,9 @@ evidence. Exploratory chronology and completed task lists are in Git history.
   approximately 0.64, 0.81, and 0.86.
 - This is direct evidence that common environmental orientation plus response
   sign structure can transform shared forcing into compensatory realised
-  dynamics. Imposed driver correlation is not itself biological synchrony.
+  dynamics. Imposed exposure correlation is not itself biological synchrony.
 
-## Magnitude-matched sign control: Figure S3, to be promoted
+## Magnitude-matched sign control: Figure 4A and Figure S3
 
 - `positive_matched = abs(mixed)` preserves the mixed regime's slope magnitudes
   while aligning all response directions.
@@ -58,8 +58,8 @@ evidence. Exploratory chronology and completed task lists are in Git history.
 - Nevertheless, positive-matched realised growth correlations remain high
   (about 0.90 at `S = 4` and 0.84 at `S = 8`) and do not reproduce the weak or
   negative synchrony of mixed responses.
-- This is the cleanest existing control for the central sign-structure mechanism
-  and should move into the main evidential hierarchy.
+- This is the cleanest control for the central sign-structure mechanism and now
+  anchors the main evidential hierarchy.
 
 ## Persistence sensitivity: Figure 5
 
@@ -73,35 +73,42 @@ evidence. Exploratory chronology and completed task lists are in Git history.
 - Floor occupancy is negligible through `phi <= 0.7`, low at 0.9, and locally
   non-negligible at 0.95. High persistence is a stress test.
 
-## Current Figure 4
+## Weighted response boundary: Figure 4B,C
 
-- Raw production scenario means show strong positive association between CV and
-  Loreau-de Mazancourt synchrony (Pearson `r` about 0.85) and a moderate
-  association with realised pairwise growth correlation (about 0.57).
-- The first association is partly mathematical because both quantities contain
-  `Var(N_total)`. Both panels also mix richness, forcing magnitude, and imposed
-  correlation.
-- The plot is descriptive, not an independent-effect or mediation analysis. It
-  is the lowest-value main display and is scheduled for replacement in Stage 3.
+- The first-order alignment index
+  `A = (sum(N_i* b_i))^2 / (S sum((N_i* b_i)^2))` predicts that stronger
+  equicorrelation reduces aggregate forcing when `A < 1/S` and increases it when
+  `A > 1/S`.
+- Along the fixed-norm response rotation, the nonlinear high-correlation to
+  independent-exposure ratio of mean squared CV rises from 0.320 at `A = 0` to
+  2.992 at `A = 0.8`. It crosses one between `A = 0.117` and `A = 0.247`, close
+  to the first-order boundary `A = 0.25`.
+- Changing carrying capacities while holding the mixed response vector and
+  deterministic total abundance fixed crosses the same boundary: the ratio is
+  0.964 at `A = 0.230` and 1.053 at `A = 0.257`.
+- The balanced/aligned sign reversal persists at every tested `r0` from 0.25 to
+  1.5. The mechanism is therefore not created by the zero common-mode
+  eigenvalue at `r0 = 1`.
+- The most uneven abundance treatment retains a positive minimum equilibrium of
+  5.49. Its maximum scenario-mean floor occupancy is `1.6e-5`; every other
+  boundary-test scenario is floor-free.
 
 ## Numerical boundaries
 
 - Core production inference grids have negligible floor occupancy and no NaN or
   infinite summaries.
-- High-variance and high-persistence extensions deliberately reach regions where
+- High-variance and high-autocorrelation extensions deliberately reach regions where
   the abundance floor participates in the dynamics. These are retained to show
   robustness boundaries, not to strengthen the core low-stress inference.
 - Exponent clipping, floor occupancy, and abundance plausibility must be checked
   whenever the bounded sensitivity changes `r0`, response balance, or abundance
   weights.
 
-## Questions Stage 3 must decide
+## Stage 3 decision
 
-1. Does the mixed-versus-aligned contrast persist away from the special
-   `r0 = 1`/equal-abundance boundary?
-2. How does controlled response imbalance change the abundance-weighted first-
-   order covariance criterion and simulated aggregate variability?
-3. Which diagnostic most compactly replaces current Figure 4 without opening a
-   broad new modelling programme?
-4. After these checks, what is the narrowest accurate statement of the mechanism
-   and richness/persistence limitations?
+The bounded sensitivity supports the narrow claim: for commonly oriented
+exposures, the direction of the correlation effect is governed at first order by
+the balance of abundance-weighted responses. Richness and fixed-innovation
+autocorrelation results remain conditional extensions because their designs
+change several quantities together. No broader model expansion is needed before
+the release gate.

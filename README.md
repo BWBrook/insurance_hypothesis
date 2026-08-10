@@ -11,7 +11,7 @@ The active workflow is deliberately small:
 
 1. versioned JSON specifications define production grids;
 2. the production runner creates, shards, combines, and validates simulations;
-3. six compact production summaries regenerate every manuscript figure and
+3. seven compact production summaries regenerate every manuscript figure and
    derived table; and
 4. a focused test suite protects the model, production bookkeeping, scientific
    summaries, and complete figure workflow.
@@ -26,9 +26,9 @@ There are no legacy fallbacks or compatibility entry points.
   sharding, execution, combination, and validation.
 - `src/python/insurance_sim/production_figures.py`: numerical summaries and
   plotting for the locked display suite.
-- `src/python/insurance_sim/diagnostics.py`: variance decomposition and the
-  current Figure 4 association diagnostic.
-- `analysis/production_specs/`: the six versioned production designs.
+- `src/python/insurance_sim/diagnostics.py`: variance decomposition, deterministic
+  equilibrium, and abundance-weighted alignment diagnostics.
+- `analysis/production_specs/`: the seven versioned production designs.
 - `analysis/production_grid.py`: the sole full-simulation command-line entry
   point.
 - `analysis/run_all.py`: the sole production-summary-to-display entry point.
@@ -51,16 +51,17 @@ uv run --frozen pyright
 uv run --frozen python analysis/run_all.py
 ```
 
-The last command reads these six files:
+The last command reads these seven files:
 
 | Production summary | Main use |
 | --- | --- |
 | `data/sim/production/fig1_s4_highres_v1/summaries.parquet` | Figure 1 core grid |
 | `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet` | Figure 1 stress extension |
-| `data/sim/production/fig2_richness_mixed_v1/summaries.parquet` | Figures 2, 4, S1, and S2; variance decomposition |
+| `data/sim/production/fig2_richness_mixed_v1/summaries.parquet` | Figures 2, S1, and S2; variance decomposition |
 | `data/sim/production/fig3_synchrony_v1/summaries.parquet` | Figures 3 and S4 |
 | `data/sim/production/fig5_persistence_mixed_v1/summaries.parquet` | Figure 5 |
-| `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet` | Figure S3 |
+| `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet` | Figures 4A and S3 |
+| `data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet` | Figure 4B,C weighted-balance boundary |
 
 These parquet files contain replicate-level simulation summaries, not empirical
 data. They are omitted from the ordinary Git checkout because of their size and
@@ -79,9 +80,10 @@ N_i(t+1) = N_i(t) exp[r0 + b_i z_i(t) -
                       {alpha_intra N_i(t) + alpha_inter sum_(j != i) N_j(t)} / K_i].
 ```
 
-The production specifications make all fixed constants explicit (`r0 = 1`,
+The production specifications make fixed constants explicit (normally `r0 = 1`,
 `K = 100`, `alpha_intra = 1`, `alpha_inter = 0.3`, abundance floor `1e-9`, and
-maximum exponent `50`). Environmental innovations have standard deviation
+maximum exponent `50`) and record the Figure 4 vector-valued treatments in full.
+Environmental innovations have standard deviation
 `sigma_env`; with AR(1) persistence `phi`, stationary standard deviation is
 `sigma_env / sqrt(1 - phi^2)`. The equicorrelation request `rho_env` is clipped
 only when needed for positive definiteness, and the actual value is recorded as
@@ -122,11 +124,10 @@ uv run --frozen python analysis/production_grid.py validate \
 ```
 
 The same runner supports `run-shard`, `pending`, and `list-shards`. Production
-runs were designed for a multi-core server; the generic launcher in
-`scripts/deep_server/launch_production_spec_tmux.sh` wraps this exact spec-driven
-path without embedding a second simulation workflow.
+runs can be sharded across any suitable multi-core system without a second
+simulation workflow.
 
-After all six summaries are present, regenerate the display suite with
+After all seven summaries are present, regenerate the display suite with
 `analysis/run_all.py`.
 
 ## Release checks

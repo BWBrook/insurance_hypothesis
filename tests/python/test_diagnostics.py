@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
+import pytest
 
 from insurance_sim.diagnostics import (
+    deterministic_equilibrium,
+    equicorrelated_forcing_ratio,
     select_variance_decomposition_rows,
-    summarize_fig4_partial_association,
     summarize_variance_decomposition,
+    weighted_alignment_index,
 )
 
 
@@ -49,15 +53,23 @@ def test_variance_decomposition_uses_species_variance_and_covariance_terms() -> 
     assert row["total_variance"] == row["summed_species_variance"] + row["aggregate_covariance_term"]
 
 
-def test_fig4_partial_association_reports_nested_model_diagnostics() -> None:
-    df = pd.DataFrame.from_records(_diagnostic_rows())
-    summary = summarize_fig4_partial_association(df)
+def test_weighted_alignment_recovers_balanced_and_aligned_benchmarks() -> None:
+    equilibrium = deterministic_equilibrium(
+        r0=1.0,
+        K=np.full(4, 100.0),
+        alpha_intra=1.0,
+        alpha_inter=0.3,
+    )
+    mixed = np.linspace(-0.5, 0.5, 4)
+    aligned = np.abs(mixed)
 
-    assert list(summary["model"]) == [
-        "grid covariates",
-        "grid covariates + phi_LdM",
-        "grid covariates + realised log-growth correlation",
-        "grid covariates + both synchrony metrics",
-    ]
-    assert set(summary["n_scenarios"]) == {27}
-    assert summary["r2"].between(0, 1).all()
+    assert equilibrium.sum() == pytest.approx(400.0 / 1.9)
+    assert weighted_alignment_index(equilibrium, mixed) == pytest.approx(0.0, abs=1e-14)
+    aligned_index = weighted_alignment_index(equilibrium, aligned)
+    assert aligned_index == pytest.approx(0.8)
+    assert equicorrelated_forcing_ratio(
+        alignment_index=aligned_index,
+        n_species=4,
+        rho_low=0.0,
+        rho_high=0.999999,
+    ) == pytest.approx(3.1999978)

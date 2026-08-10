@@ -1,7 +1,7 @@
 # AGENTS: Insurance hypothesis simulation and Oikos paper
 
 This is a mature scientific repository in final revision. Treat the manuscript,
-six production datasets, numerical results, and accepted display suite as a
+seven production summaries, numerical results, and accepted display suite as a
 coherent research product—not as a greenfield software project.
 
 ## Working principle
@@ -29,7 +29,7 @@ There is one active computational path:
 
 1. `analysis/production_specs/*.json` defines a production grid.
 2. `analysis/production_grid.py` creates, runs, combines, and validates it.
-3. Six compact parquet summaries live under `data/sim/production/`.
+3. Seven compact parquet summaries live under `data/sim/production/`.
 4. `analysis/run_all.py` regenerates all canonical figures and derived tables in
    `analysis/reports/`.
 5. `analysis/check_numerical_guards.py` is a separate release diagnostic.
@@ -50,7 +50,8 @@ Unless a task explicitly changes the science, preserve:
 - deterministic per-replicate production seeding and scenario ordering;
 - post-burn-in metric definitions, including `cv_total`, synchrony metrics,
   floor occupancy, and variance decomposition;
-- the six validated production summary files and their row-level contents;
+- the six validated baseline production summaries and the validated Figure 4
+  boundary summary, including their row-level contents;
 - accepted display rendering and paper-to-figure links, unless a display change
   is explicitly approved; and
 - the separation of anonymous review material from author/editorial material.

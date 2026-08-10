@@ -1,5 +1,5 @@
 # Supplementary Information
 
-## Biodiversity buffers correlated environmental variability through divergent species responses
+## Abundance-weighted response balance determines when environmental correlation stabilises communities
 
-This supplementary information file contains production run inventories, numerical stress summaries, lower-replicate diagnostic grid summaries, variance-decomposition and synchrony-association diagnostics, and supplementary figures. It is anonymised for double-blind review.
+This supplementary information file contains the production run inventory, numerical stress summaries, a selected variance decomposition, and supplementary figures. It is anonymised for double-blind review.

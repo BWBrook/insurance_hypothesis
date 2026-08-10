@@ -4,7 +4,7 @@ These statements are prepared for the Oikos/NSO submission system and related up
 
 ## Significance Statement
 
-This manuscript addresses a central mechanistic question in biodiversity–stability theory: when does response diversity translate correlated environmental forcing into ecological insurance? Building on theory that links biodiversity, synchrony, and stability, and on the response-diversity research priorities recently published by *Oikos*, the study separates correlation among species-specific environmental exposures from realised population-growth synchrony in a transparent stochastic community model. In the model, balanced opposing responses damp shared variation through compensation, whereas aligned responses amplify it through synchrony. The result provides a testable hypothesis for interpreting divergent diversity–stability relationships and should interest *Oikos* readers working on biodiversity, community dynamics, and ecosystem stability.
+This manuscript identifies when positive correlation among commonly oriented environmental exposures stabilises rather than destabilises aggregate community abundance. A first-order covariance criterion shows that the outcome depends on abundance-weighted response balance, and nonlinear simulations test the boundary using magnitude-matched signs, continuous response alignment, unequal equilibrium abundances, and alternative intrinsic growth rates. The result turns response diversity into a measurable prediction: exposure covariance, response slopes, and species contributions must be considered together. This mechanism is directly relevant to *Oikos* readers working on biodiversity, synchrony, community dynamics, and ecosystem stability.
 
 ## Data and Code Availability
 

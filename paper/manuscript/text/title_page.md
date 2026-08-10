@@ -1,4 +1,4 @@
-# Biodiversity buffers correlated environmental variability through divergent species responses
+# Abundance-weighted response balance determines when environmental correlation stabilises communities
 
 <div id="authors"></div>
 
@@ -8,7 +8,7 @@ Research paper.
 
 ## Running Title
 
-Response direction and biodiversity insurance.
+Weighted response balance and insurance.
 
 ## Required Submission Statements
 

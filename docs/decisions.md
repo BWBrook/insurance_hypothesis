@@ -45,6 +45,21 @@ implementation detail is recoverable through Git history.
 - **Status:** active. The analytical mechanism will be stated as an
   abundance-weighted covariance criterion and limited to its first-order scope.
 
+### Bounded weighted-balance sensitivity
+
+- **Decision:** Add one `S = 4` endpoint-correlation grid that combines a
+  fixed-norm response-alignment path, a constant-total-equilibrium carrying-
+  capacity path, and the clean matched-sign endpoints at
+  `r0 = 0.25, 0.5, 1.0, 1.5`.
+- **Reason:** This is the smallest design that tests the external review's three
+  consequential boundary conditions: continuous response balance, unequal
+  abundance weights, and the dynamically special `r0 = 1` setting.
+- **Status:** completed with 1000 replicates per scenario. Both controlled paths
+  crossed the nonlinear ratio of one near the first-order boundary, and the
+  matched-sign reversal persisted at every tested `r0`. The analytical
+  benchmark uses `a_i = N_i* b_i` and the alignment index
+  `A = (sum a_i)^2 / (S sum a_i^2)`.
+
 ### Richness and persistence claims
 
 - **Decision:** Describe richness as an ordered assembly sequence in which slope
@@ -78,8 +93,8 @@ implementation detail is recoverable through Git history.
 ### Single active analysis path
 
 - **Decision:** `analysis/production_grid.py` is the full-run entry point and
-  `analysis/run_all.py` is the only figure/table regeneration entry point. The six
-  production summaries are mandatory inputs; canonical outputs live only in
+  `analysis/run_all.py` is the only figure/table regeneration entry point. The
+  current production summaries are mandatory inputs; canonical outputs live only in
   `analysis/reports/`.
 - **Reason:** The previous collection of wrappers, fallbacks, exploratory caches,
   and copied figure trees obscured provenance without adding current capability.
@@ -99,13 +114,14 @@ implementation detail is recoverable through Git history.
 
 ### Evidence and display hierarchy
 
-- **Decision:** Production-backed results are the paper's evidence base. The
-  current display suite remains locked during structural cleanup; Stage 3 may
-  replace Figure 4 and promote the positive-matched control with explicit PI
-  review.
+- **Decision:** Production-backed results are the paper's evidence base. Replace
+  the descriptive CV-synchrony association in Figure 4 with the matched-sign,
+  weighted-balance, and `r0` boundary test. Retain the fuller three-regime
+  positive-matched diagnostic in the Supporting information.
 - **Reason:** Display changes should follow scientific decisions, not code
   tidying.
-- **Status:** active.
+- **Status:** approved for Stage 3; the revised display and claims remain subject
+  to PI review at the stage boundary.
 
 ### Oikos build composition
 
@@ -120,7 +136,7 @@ implementation detail is recoverable through Git history.
 ### Anonymous reproducibility package
 
 - **Decision:** Build an allowlisted code/data package containing the active
-  simulator, production runner, figure workflow, tests, six compact summaries,
+  simulator, production runner, figure workflow, tests, all current compact summaries,
   specs, and locked environment. Exclude manuscript/internal history and
   repository-only submission tests.
 - **Reason:** Reviewers need complete reproducibility evidence without author

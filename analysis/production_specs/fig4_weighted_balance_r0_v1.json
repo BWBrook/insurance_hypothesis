@@ -1,0 +1,227 @@
+{
+  "spec_version": 1,
+  "run_id": "fig4-weighted-balance-r0-v1",
+  "title": "Weighted response-balance and r0 boundary test for Figure 4",
+  "purpose": "Test the first-order abundance-weighted alignment criterion against nonlinear community variability without expanding the core model.",
+  "rationale": [
+    "Rotate the S=4 mixed response vector towards its magnitude-matched aligned counterpart while preserving its Euclidean norm.",
+    "Vary equilibrium abundance weights with a constant-sum carrying-capacity gradient that preserves deterministic total abundance and positive coexistence.",
+    "Repeat the clean balanced and aligned endpoints away from the dynamically special r0=1 setting.",
+    "Compare only independent and near-perfectly correlated commonly oriented exposures so the grid targets the predicted sign boundary directly."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "n_species": 4,
+    "alpha_intra": 1.0,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "floor": 1e-9,
+    "max_exp": 50.0,
+    "base_seed": 2026081001,
+    "sigma_vals": [
+      0.5
+    ],
+    "rho_vals": [
+      0.0,
+      1.0
+    ],
+    "treatments": [
+      {
+        "treatment_id": "alignment-q000",
+        "treatment_path": "alignment",
+        "treatment_level": 0.0,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "alignment-q0125",
+        "treatment_path": "alignment",
+        "treatment_level": 0.125,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.392847479194, -0.130949159731, 0.19597926707, 0.58793780121]
+      },
+      {
+        "treatment_id": "alignment-q0250",
+        "treatment_path": "alignment",
+        "treatment_level": 0.25,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.270598050073, -0.0901993500244, 0.217760494146, 0.653281482438]
+      },
+      {
+        "treatment_id": "alignment-q0375",
+        "treatment_path": "alignment",
+        "treatment_level": 0.375,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.137949689641, -0.0459832298805, 0.231173307554, 0.693519922661]
+      },
+      {
+        "treatment_id": "alignment-q0500",
+        "treatment_path": "alignment",
+        "treatment_level": 0.5,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.0, 0.0, 0.235702260396, 0.707106781187]
+      },
+      {
+        "treatment_id": "alignment-q0625",
+        "treatment_path": "alignment",
+        "treatment_level": 0.625,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.137949689641, 0.0459832298805, 0.231173307554, 0.693519922661]
+      },
+      {
+        "treatment_id": "alignment-q0750",
+        "treatment_path": "alignment",
+        "treatment_level": 0.75,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.270598050073, 0.0901993500244, 0.217760494146, 0.653281482438]
+      },
+      {
+        "treatment_id": "alignment-q0875",
+        "treatment_path": "alignment",
+        "treatment_level": 0.875,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.392847479194, 0.130949159731, 0.19597926707, 0.58793780121]
+      },
+      {
+        "treatment_id": "alignment-q1000",
+        "treatment_path": "alignment",
+        "treatment_level": 1.0,
+        "slope_mode": "positive_matched",
+        "r0": 1.0,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.5, 0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "dominance-d0250",
+        "treatment_path": "dominance",
+        "treatment_level": 0.25,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [92.5, 97.5, 102.5, 107.5],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "dominance-d0500",
+        "treatment_path": "dominance",
+        "treatment_level": 0.5,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [85.0, 95.0, 105.0, 115.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "dominance-d0750",
+        "treatment_path": "dominance",
+        "treatment_level": 0.75,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [77.5, 92.5, 107.5, 122.5],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "dominance-d1000",
+        "treatment_path": "dominance",
+        "treatment_level": 1.0,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [70.0, 90.0, 110.0, 130.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "dominance-d1100",
+        "treatment_path": "dominance",
+        "treatment_level": 1.1,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [67.0, 89.0, 111.0, 133.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-0250-mixed",
+        "treatment_path": "r0",
+        "treatment_level": 0.25,
+        "slope_mode": "mixed",
+        "r0": 0.25,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-0250-aligned",
+        "treatment_path": "r0",
+        "treatment_level": 0.25,
+        "slope_mode": "positive_matched",
+        "r0": 0.25,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.5, 0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-0500-mixed",
+        "treatment_path": "r0",
+        "treatment_level": 0.5,
+        "slope_mode": "mixed",
+        "r0": 0.5,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-0500-aligned",
+        "treatment_path": "r0",
+        "treatment_level": 0.5,
+        "slope_mode": "positive_matched",
+        "r0": 0.5,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.5, 0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-1500-mixed",
+        "treatment_path": "r0",
+        "treatment_level": 1.5,
+        "slope_mode": "mixed",
+        "r0": 1.5,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [-0.5, -0.166666666667, 0.166666666667, 0.5]
+      },
+      {
+        "treatment_id": "r0-1500-aligned",
+        "treatment_path": "r0",
+        "treatment_level": 1.5,
+        "slope_mode": "positive_matched",
+        "r0": 1.5,
+        "K": [100.0, 100.0, 100.0, 100.0],
+        "b_slopes": [0.5, 0.166666666667, 0.166666666667, 0.5]
+      }
+    ]
+  },
+  "expected": {
+    "scenario_count": 40,
+    "shard_count": 400,
+    "expected_rows": 40000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the production manifest and contains 40000 rows.",
+    "All nine alignment vectors have the same Euclidean norm as the mixed endpoint.",
+    "All deterministic equilibria are positive and the dominance path holds deterministic total abundance constant.",
+    "The simulated high-correlation to independent-exposure CV-squared ratio crosses one near the analytical A=0.25 boundary.",
+    "Balanced and magnitude-matched aligned ratios remain below and above one, respectively, at every tested r0.",
+    "Floor occupancy is absent or explicitly reported before Figure 4 and manuscript claims are finalised."
+  ]
+}

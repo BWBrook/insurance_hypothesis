@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,6 +11,12 @@ import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+
+from .diagnostics import (
+    deterministic_equilibrium,
+    equicorrelated_forcing_ratio,
+    weighted_alignment_index,
+)
 
 
 def load_fig1_production_runs(core_path: Path, highsigma_path: Path) -> pd.DataFrame:
@@ -72,7 +79,7 @@ def _pivot_mode(summary: pd.DataFrame, slope_mode: str, metric: str) -> pd.DataF
 
 def _label_heatmap_axes(ax: Axes, sigmas: list[float], rhos: list[float]) -> None:
     ax.set_xlabel(r"Environmental variability, $\sigma_{\mathrm{env}}$")
-    ax.set_ylabel(r"Effective driver correlation, $\rho_{\mathrm{eff}}$")
+    ax.set_ylabel(r"Effective exposure correlation, $\rho_{\mathrm{eff}}$")
     ax.set_xticks(range(len(sigmas)))
     ax.set_xticklabels(
         [f"{value:g}" if i % 2 == 0 or value in {3.5, 4.0} else "" for i, value in enumerate(sigmas)],
@@ -232,7 +239,7 @@ def make_mixed_heatmap_supplement(
         )
         ax.set_xlabel(r"Environmental variability, $\sigma_{\mathrm{env}}$")
         if idx == 0:
-            ax.set_ylabel(r"Effective driver correlation, $\rho_{\mathrm{eff}}$")
+            ax.set_ylabel(r"Effective exposure correlation, $\rho_{\mathrm{eff}}$")
         ax.set_title(rf"$S={n_species}$", fontsize=10)
         ax.set_xticks(range(len(sigmas)))
         ax.set_xticklabels([_format_tick(value) for value in sigmas], rotation=45, ha="right", fontsize=8)
@@ -376,7 +383,7 @@ def make_species_cv_supplement(
             )
 
     ax.set(
-        xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+        xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
         ylabel=r"Approx. species-level $\mathrm{CV}_{\mathrm{sp}}$",
     )
     ax.legend(fontsize=8, frameon=False, ncol=2)
@@ -733,7 +740,7 @@ def make_production_fig3_synchrony(
         ax.plot([0, 1], [0, 1], color="0.25", lw=0.9, ls="--", label="y=x")
         ax.axhline(0, color="0.55", lw=0.8, ls=":")
         ax.set(
-            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
             ylabel="Realised mean log-growth correlation",
             xlim=(-0.02, 1.02),
             ylim=(-1.02, 1.02),
@@ -775,7 +782,7 @@ def make_production_fig3_synchrony(
         )
     ax.axhline(0, color="0.25", lw=0.9, ls="--")
     ax.set(
-        xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+        xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
         ylabel=r"$\Delta$ log-growth correlation",
         xlim=(-0.02, 1.02),
     )
@@ -919,7 +926,7 @@ def make_production_figs3_positive_matched_control(
                     label=f"{labels[slope_mode]}, S={species_count}" if panel_index == 0 else None,
                 )
         ax.set(
-            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
             ylabel=ylabel,
             xlim=(-0.02, 1.02),
         )
@@ -955,148 +962,266 @@ def write_production_figs3_positive_matched_control(
     )
 
 
-def summarize_fig4_cv_synchrony_production(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate mixed-slope production rows for the CV-vs-synchrony figure."""
+def _json_vector(value: object, n_species: int) -> np.ndarray:
+    raw = json.loads(str(value))
+    array = np.asarray(raw, dtype=float)
+    if array.size == 1:
+        array = np.full(n_species, float(array), dtype=float)
+    if array.shape != (n_species,):
+        raise ValueError(f"Expected a length-{n_species} vector, found shape {array.shape}.")
+    return array
+
+
+def summarize_fig4_weighted_boundary(df: pd.DataFrame) -> pd.DataFrame:
+    """Summarize paired correlation endpoints for the weighted-balance test."""
     required = {
+        "treatment_id",
+        "treatment_path",
+        "treatment_level",
         "slope_mode",
-        "sigma_env",
-        "rho_eff",
         "n_species",
+        "r0",
+        "K_json",
+        "b_slopes_json",
+        "alpha_intra",
+        "alpha_inter",
+        "rho_eff",
         "cv_total",
-        "phi_ldm",
-        "mean_pairwise_corr",
+        "mean_total",
         "mean_extinction_freq",
     }
     missing = sorted(required - set(df.columns))
     if missing:
-        raise ValueError(f"Missing required production columns: {', '.join(missing)}")
+        raise ValueError(f"Missing required Figure 4 columns: {', '.join(missing)}")
 
-    mixed = pd.DataFrame(df[df["slope_mode"].eq("mixed")].copy())
-    sigma_positive = np.asarray(mixed["sigma_env"], dtype=float) > 0
-    mixed = pd.DataFrame(mixed.loc[sigma_positive, :].copy())
-    rho_nonnegative = np.asarray(mixed["rho_eff"], dtype=float) >= -1e-12
-    mixed = pd.DataFrame(mixed.loc[rho_nonnegative, :].copy())
-    if mixed.empty:
-        raise ValueError("No mixed-slope production rows with sigma_env > 0 were found.")
+    records: list[dict[str, float | int | str]] = []
+    for treatment_id, treatment in df.groupby("treatment_id", observed=True):
+        treatment = pd.DataFrame(treatment).copy()
+        rho_values = sorted(float(value) for value in treatment["rho_eff"].unique())
+        if len(rho_values) != 2 or not np.isclose(rho_values[0], 0.0, atol=1e-12):
+            raise ValueError(f"{treatment_id} must contain rho=0 and one high-correlation endpoint.")
+        rho_low, rho_high = rho_values
+        low = pd.DataFrame(treatment[np.isclose(treatment["rho_eff"], rho_low)].copy())
+        high = pd.DataFrame(treatment[np.isclose(treatment["rho_eff"], rho_high)].copy())
+        if low.empty or high.empty:
+            raise ValueError(f"{treatment_id} has an empty correlation endpoint.")
 
-    summary = (
-        mixed.groupby(["n_species", "sigma_env", "rho_eff"], as_index=False, observed=True)
-        .agg(
-            cv_total_mean=("cv_total", "mean"),
-            phi_ldm_mean=("phi_ldm", "mean"),
-            pair_corr_mean=("mean_pairwise_corr", "mean"),
-            extinction_mean=("mean_extinction_freq", "mean"),
-            replicate_rows=("cv_total", "size"),
+        cv2_low = np.square(np.asarray(low["cv_total"], dtype=float))
+        cv2_high = np.square(np.asarray(high["cv_total"], dtype=float))
+        mean_low = float(cv2_low.mean())
+        mean_high = float(cv2_high.mean())
+        if mean_low <= 0 or mean_high <= 0:
+            raise ValueError(f"{treatment_id} has a non-positive mean squared CV.")
+        ratio = mean_high / mean_low
+        se_log_ratio = float(
+            np.sqrt(
+                cv2_high.var(ddof=1) / (cv2_high.size * mean_high**2)
+                + cv2_low.var(ddof=1) / (cv2_low.size * mean_low**2)
+            )
         )
-        .reset_index(drop=True)
-    )
-    out = pd.DataFrame(summary)
-    order = np.lexsort(
-        (
-            np.asarray(out["rho_eff"], dtype=float),
-            np.asarray(out["sigma_env"], dtype=float),
-            np.asarray(out["n_species"], dtype=int),
+
+        first = treatment.iloc[0]
+        n_species = int(first["n_species"])
+        K = _json_vector(first["K_json"], n_species)
+        slopes = _json_vector(first["b_slopes_json"], n_species)
+        equilibrium = deterministic_equilibrium(
+            r0=float(first["r0"]),
+            K=K,
+            alpha_intra=float(first["alpha_intra"]),
+            alpha_inter=float(first["alpha_inter"]),
         )
-    )
-    return out.iloc[order].reset_index(drop=True)
+        alignment = weighted_alignment_index(equilibrium, slopes)
+        predicted_ratio = equicorrelated_forcing_ratio(
+            alignment_index=alignment,
+            n_species=n_species,
+            rho_low=rho_low,
+            rho_high=rho_high,
+        )
+        records.append(
+            {
+                "treatment_id": str(treatment_id),
+                "treatment_path": str(first["treatment_path"]),
+                "treatment_level": float(first["treatment_level"]),
+                "slope_mode": str(first["slope_mode"]),
+                "n_species": n_species,
+                "r0": float(first["r0"]),
+                "rho_low": rho_low,
+                "rho_high": rho_high,
+                "alignment_index": alignment,
+                "alignment_threshold": 1.0 / n_species,
+                "response_norm": float(np.linalg.norm(slopes)),
+                "weighted_response_norm": float(np.linalg.norm(equilibrium * slopes)),
+                "equilibrium_total": float(equilibrium.sum()),
+                "equilibrium_min": float(equilibrium.min()),
+                "predicted_forcing_ratio": predicted_ratio,
+                "cv2_low_mean": mean_low,
+                "cv2_high_mean": mean_high,
+                "cv2_ratio": ratio,
+                "cv2_ratio_ci_low": float(ratio * np.exp(-1.96 * se_log_ratio)),
+                "cv2_ratio_ci_high": float(ratio * np.exp(1.96 * se_log_ratio)),
+                "cv_low_mean": float(low["cv_total"].mean()),
+                "cv_high_mean": float(high["cv_total"].mean()),
+                "mean_total_low": float(low["mean_total"].mean()),
+                "mean_total_high": float(high["mean_total"].mean()),
+                "floor_occupancy_max": float(
+                    treatment.groupby("rho_eff", observed=True)["mean_extinction_freq"].mean().max()
+                ),
+                "replicates_per_endpoint": int(min(len(low), len(high))),
+            }
+        )
+
+    out = pd.DataFrame.from_records(records)
+    return out.sort_values(["treatment_path", "treatment_level", "slope_mode"]).reset_index(drop=True)
 
 
-def _sigma_size_values(summary: pd.DataFrame) -> np.ndarray:
-    sigma = np.asarray(summary["sigma_env"], dtype=float)
-    sigma_max = float(np.max(sigma))
-    if sigma_max <= 0:
-        return np.full_like(sigma, 42.0)
-    return 30.0 + 75.0 * (sigma / sigma_max)
-
-
-def make_production_fig4_cv_synchrony(
-    summary: pd.DataFrame,
+def make_production_fig4_weighted_boundary(
+    matched_summary: pd.DataFrame,
+    boundary_summary: pd.DataFrame,
     out_png: Path,
     *,
     out_pdf: Path | None = None,
     summary_out: Path | None = None,
 ) -> None:
-    """Write production Figure 4: community variability versus synchrony."""
+    """Write Figure 4: matched signs, weighted-balance boundary, and r0 test."""
     out_png.parent.mkdir(parents=True, exist_ok=True)
     if summary_out is not None:
         summary_out.parent.mkdir(parents=True, exist_ok=True)
-        summary.to_csv(summary_out, index=False)
+        boundary_summary.to_csv(summary_out, index=False)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.8), constrained_layout=True, sharey=True)
-    sizes = _sigma_size_values(summary)
-    richness = np.asarray(summary["n_species"], dtype=float)
-    scatter_kwargs = {
-        "c": richness,
-        "cmap": "viridis",
-        "vmin": float(np.min(richness)),
-        "vmax": float(np.max(richness)),
-        "s": sizes,
-        "alpha": 0.78,
-        "edgecolors": "white",
-        "linewidths": 0.45,
-    }
+    colors = {"mixed": "#1f77b4", "positive_matched": "#d95f02"}
+    labels = {"mixed": "balanced mixed", "positive_matched": "aligned, matched magnitude"}
+    fig, axes = plt.subplots(1, 3, figsize=(13.6, 4.55), constrained_layout=True)
 
-    axes[0].scatter(summary["phi_ldm_mean"], summary["cv_total_mean"], **scatter_kwargs)
+    matched = pd.DataFrame(
+        matched_summary[matched_summary["slope_mode"].isin(colors)].copy()
+    )
+    for slope_mode in ["mixed", "positive_matched"]:
+        mode = pd.DataFrame(matched[matched["slope_mode"].eq(slope_mode)].copy())
+        for n_species, group in mode.groupby("n_species", observed=True):
+            group = pd.DataFrame(group).sort_values("rho_eff")
+            species_count = int(np.asarray(group["n_species"], dtype=int)[0])
+            axes[0].plot(
+                group["rho_eff"],
+                group["cv_total_mean"],
+                color=colors[slope_mode],
+                ls="-" if species_count == 4 else "--",
+                marker="o" if species_count == 4 else "s",
+                lw=2.0,
+                ms=4.2,
+                label=f"{labels[slope_mode]}, S={species_count}",
+            )
     axes[0].set(
-        xlabel=r"Loreau-de Mazancourt synchrony, $\phi_{\mathrm{LdM}}$",
+        xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
+        xlim=(-0.02, 1.02),
+    )
+    axes[0].legend(fontsize=7.0, frameon=False, loc="upper left")
+
+    response_path = pd.DataFrame(
+        boundary_summary[boundary_summary["treatment_path"].eq("alignment")].copy()
+    ).sort_values("alignment_index")
+    dominance_path = pd.DataFrame(
+        boundary_summary[boundary_summary["treatment_path"].eq("dominance")].copy()
+    ).sort_values("alignment_index")
+    baseline = pd.DataFrame(response_path[response_path["treatment_level"].eq(0.0)].copy())
+    dominance_path = pd.concat([baseline, dominance_path], ignore_index=True).sort_values(
+        "alignment_index"
     )
 
-    points = axes[1].scatter(summary["pair_corr_mean"], summary["cv_total_mean"], **scatter_kwargs)
-    axes[1].axvline(0, color="0.55", lw=0.9, ls=":")
+    analytic_x = np.linspace(0.0, max(0.82, float(response_path["alignment_index"].max())), 200)
+    axes[1].plot(analytic_x, 4.0 * analytic_x, color="0.3", ls=":", lw=1.5, label="first-order benchmark")
+    for path, color, marker, label in [
+        (response_path, "#6a3d9a", "o", "response alignment"),
+        (dominance_path, "#1b9e77", "s", "abundance weighting"),
+    ]:
+        y = np.asarray(path["cv2_ratio"], dtype=float)
+        yerr = np.vstack(
+            [
+                y - np.asarray(path["cv2_ratio_ci_low"], dtype=float),
+                np.asarray(path["cv2_ratio_ci_high"], dtype=float) - y,
+            ]
+        )
+        axes[1].errorbar(
+            path["alignment_index"],
+            y,
+            yerr=yerr,
+            color=color,
+            marker=marker,
+            lw=1.7,
+            ms=4.8,
+            capsize=2.0,
+            label=label,
+        )
+    axes[1].axhline(1.0, color="0.45", lw=0.9, ls="--")
+    axes[1].axvline(0.25, color="0.45", lw=0.9, ls="--")
     axes[1].set(
-        xlabel="Mean pairwise realised log-growth correlation",
+        xlabel=r"Abundance-weighted alignment, $A$",
+        ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
+        xlim=(-0.02, 0.84),
     )
+    axes[1].legend(fontsize=7.1, frameon=False, loc="upper left")
 
-    cbar = fig.colorbar(points, ax=axes, shrink=0.92, pad=0.015)
-    cbar.set_label(r"Species richness, $S$")
-
-    sigma_values = [0.2, 1.0, 2.0]
-    sigma_max = float(np.max(np.asarray(summary["sigma_env"], dtype=float)))
-    handles = [
-        axes[1].scatter(
-            [],
-            [],
-            s=30.0 + 75.0 * (value / sigma_max),
-            facecolors="0.65",
-            edgecolors="white",
-            linewidths=0.45,
-            label=f"{value:g}",
+    r0_rows = pd.DataFrame(
+        boundary_summary[
+            boundary_summary["treatment_path"].eq("r0")
+            | (
+                boundary_summary["treatment_path"].eq("alignment")
+                & boundary_summary["treatment_level"].isin([0.0, 1.0])
+            )
+        ].copy()
+    )
+    for slope_mode, marker in [("mixed", "o"), ("positive_matched", "s")]:
+        group = pd.DataFrame(r0_rows[r0_rows["slope_mode"].eq(slope_mode)].copy()).sort_values("r0")
+        y = np.asarray(group["cv2_ratio"], dtype=float)
+        yerr = np.vstack(
+            [
+                y - np.asarray(group["cv2_ratio_ci_low"], dtype=float),
+                np.asarray(group["cv2_ratio_ci_high"], dtype=float) - y,
+            ]
         )
-        for value in sigma_values
-        if value <= sigma_max + 1e-12
-    ]
-    if handles:
-        axes[1].legend(
-            handles=handles,
-            title=r"$\sigma_{\mathrm{env}}$",
-            fontsize=8,
-            title_fontsize=9,
-            frameon=False,
-            loc="upper left",
+        axes[2].errorbar(
+            group["r0"],
+            y,
+            yerr=yerr,
+            color=colors[slope_mode],
+            marker=marker,
+            lw=2.0,
+            ms=5.0,
+            capsize=2.0,
+            label=labels[slope_mode],
         )
+    axes[2].axhline(1.0, color="0.45", lw=0.9, ls="--")
+    axes[2].set(
+        xlabel=r"Intrinsic growth rate, $r_0$",
+        ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
+        xticks=[0.25, 0.5, 1.0, 1.5],
+    )
+    axes[2].legend(fontsize=7.4, frameon=False, loc="upper right")
 
-    for label, ax in zip(["A", "B"], axes):
+    for label, ax in zip(["A", "B", "C"], axes):
         _add_panel_label(ax, label)
-
     fig.savefig(out_png, dpi=300)
     if out_pdf is not None:
         fig.savefig(out_pdf)
     plt.close(fig)
 
 
-def write_production_fig4_cv_synchrony(
+def write_production_fig4_weighted_boundary(
     *,
-    production_path: Path,
+    matched_path: Path,
+    sensitivity_path: Path,
     out_png: Path,
     out_pdf: Path | None = None,
     summary_out: Path | None = None,
 ) -> None:
-    """Load production mixed-slope richness outputs and write Figure 4."""
-    df = _load_required_parquet(production_path, label="Figure 4 CV-synchrony")
-    summary = summarize_fig4_cv_synchrony_production(df)
-    make_production_fig4_cv_synchrony(
-        summary,
+    """Load the two production sources and write the diagnostic Figure 4."""
+    matched = _load_required_parquet(matched_path, label="Figure 4 matched-sign control")
+    sensitivity = _load_required_parquet(sensitivity_path, label="Figure 4 boundary sensitivity")
+    matched_summary = summarize_figs3_positive_matched_control(matched)
+    boundary_summary = summarize_fig4_weighted_boundary(sensitivity)
+    make_production_fig4_weighted_boundary(
+        matched_summary,
+        boundary_summary,
         out_png,
         out_pdf=out_pdf,
         summary_out=summary_out,
@@ -1189,7 +1314,7 @@ def make_production_fig5_persistence(
                 label=_phi_legend_label(phi, sigma_env),
             )
         ax.set(
-            xlabel=r"Effective driver correlation, $\rho_{\mathrm{eff}}$",
+            xlabel=r"Effective exposure correlation, $\rho_{\mathrm{eff}}$",
             xlim=(
                 float(np.min(np.asarray(species["rho_eff"], dtype=float))) - 0.03,
                 float(np.max(np.asarray(species["rho_eff"], dtype=float))) + 0.03,

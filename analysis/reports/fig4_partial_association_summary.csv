@@ -1,5 +1,0 @@
-model,predictors,n_scenarios,r2,delta_r2_vs_grid_covariates,standardized_coefficients_json
-grid covariates,"sigma_env, n_species, rho_eff",175,0.8573596537809294,0.0,"{""n_species"": -0.27851351627704635, ""rho_eff"": -0.002736912752101861, ""sigma_env"": 0.8830528774317605}"
-grid covariates + phi_LdM,"sigma_env, n_species, rho_eff, phi_ldm",175,0.9043514717567964,0.046991817975867045,"{""n_species"": 0.01406087893389723, ""phi_ldm"": 0.503648545946332, ""rho_eff"": 0.062229473811257985, ""sigma_env"": 0.5412201233811312}"
-grid covariates + realised log-growth correlation,"sigma_env, n_species, rho_eff, mean_pairwise_corr",175,0.857461011110721,0.00010135732979166256,"{""mean_pairwise_corr"": 0.01908311060427159, ""n_species"": -0.2848769681571467, ""rho_eff"": 0.0019735197914793057, ""sigma_env"": 0.8689062846983404}"
-grid covariates + both synchrony metrics,"sigma_env, n_species, rho_eff, phi_ldm, mean_pairwise_corr",175,0.9119659226955835,0.054606268914654144,"{""mean_pairwise_corr"": -0.1816182318783388, ""n_species"": 0.12803730543613162, ""phi_ldm"": 0.5955974649986941, ""rho_eff"": 0.029259863658778973, ""sigma_env"": 0.6134494950812347}"
