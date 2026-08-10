@@ -9,6 +9,8 @@ Run:
 
 Outputs:
   analysis/reports/numerical_guard_rates.csv
+  analysis/reports/numerical_guard_rates_summary.csv
+  analysis/reports/numerical_guard_rates_summary.md
 """
 
 from __future__ import annotations
@@ -72,6 +74,44 @@ def run_guard_scenario(scenario: GuardScenario, n_reps: int, seed: int) -> pd.Da
         )
 
     return pd.DataFrame.from_records(rows)
+
+
+def summarize_guard_rates(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate replicate-level guard rates by stress-test scenario."""
+    group_cols = ["scenario", "slope_mode", "n_species", "phi", "sigma_env", "rho_env_requested"]
+    summary = df.groupby(group_cols, as_index=False)[
+        ["frac_exp_clipped_high", "frac_exp_clipped_low", "frac_floor"]
+    ].agg(["mean", "max"])
+    summary.columns = [
+        "_".join(part for part in col if part).rstrip("_")
+        if isinstance(col, tuple)
+        else str(col)
+        for col in summary.columns.to_flat_index()
+    ]
+    return pd.DataFrame(summary).sort_values("scenario").reset_index(drop=True)
+
+
+def write_guard_markdown(summary: pd.DataFrame, out_path: Path) -> None:
+    """Write the compact manuscript-facing numerical-guard table."""
+    lines = [
+        "# Numerical Guard Diagnostics Summary",
+        "",
+        "Derived from `analysis/reports/numerical_guard_rates.csv`.",
+        "",
+        "| scenario | frac_exp_clipped_high_mean | frac_exp_clipped_low_mean | frac_floor_mean | frac_floor_max |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for _, row in summary.iterrows():
+        lines.append(
+            "| {scenario} | {hi:.4f} | {lo:.4f} | {fm:.4f} | {fx:.4f} |".format(
+                scenario=row["scenario"],
+                hi=float(row["frac_exp_clipped_high_mean"]),
+                lo=float(row["frac_exp_clipped_low_mean"]),
+                fm=float(row["frac_floor_mean"]),
+                fx=float(row["frac_floor_max"]),
+            )
+        )
+    out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> None:
@@ -140,16 +180,13 @@ def main() -> None:
     out_path = out_dir / "numerical_guard_rates.csv"
     out.to_csv(out_path, index=False)
 
-    summary = (
-        out.groupby(["scenario", "slope_mode", "n_species", "phi", "sigma_env", "rho_env_requested"])[
-            ["frac_exp_clipped_high", "frac_exp_clipped_low", "frac_floor"]
-        ]
-        .mean()
-        .reset_index()
-        .sort_values(["scenario"])
-    )
+    # Preserve the release artefact's established decimal representation by
+    # summarising the just-written interchange file, as the former runner did.
+    summary = summarize_guard_rates(pd.read_csv(out_path))
+    summary.to_csv(out_dir / "numerical_guard_rates_summary.csv", index=False)
+    write_guard_markdown(summary, out_dir / "numerical_guard_rates_summary.md")
     print(summary.to_string(index=False))
-    print(f"\nWrote replicate-level diagnostics to {out_path}")
+    print(f"\nWrote numerical-guard diagnostics to {out_dir}")
 
 
 if __name__ == "__main__":

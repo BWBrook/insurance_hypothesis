@@ -8,7 +8,6 @@ summaries needed to regenerate analysis outputs.
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import shutil
 from pathlib import Path
@@ -34,6 +33,13 @@ TEXT_IDENTITY_NEEDLES = [
     "/mnt/",
     "/private/var/folders/",
 ]
+
+
+ANALYSIS_FILES = (
+    "check_numerical_guards.py",
+    "production_grid.py",
+    "run_all.py",
+)
 
 
 README_TEXT = """# Insurance Hypothesis Simulation Review Package
@@ -67,9 +73,9 @@ From this package directory:
 
 ```bash
 uv sync --python 3.12 --frozen --dev
-uv run pytest -q
-uv run pyright
-uv run python analysis/run_all.py --skip-guard-audit --skip-paper-export
+uv run --frozen pytest -q
+uv run --frozen pyright
+uv run --frozen python analysis/run_all.py
 ```
 
 The final command reads the included compact production summaries and writes
@@ -151,18 +157,6 @@ def write_sanitized_pyproject(target: Path) -> None:
     (target / "pyproject.toml").write_text(text, encoding="utf-8")
 
 
-def write_sanitized_specs(target: Path) -> None:
-    out_dir = target / "analysis/production_specs"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for spec_path in sorted((REPO_ROOT / "analysis/production_specs").glob("*.json")):
-        spec = json.loads(spec_path.read_text(encoding="utf-8"))
-        execution = spec.get("execution")
-        if isinstance(execution, dict):
-            execution["host"] = "review-compute"
-            execution["remote_root"] = "review-scratch"
-        (out_dir / spec_path.name).write_text(json.dumps(spec, indent=2) + "\n", encoding="utf-8")
-
-
 def copy_production_summaries(target: Path) -> None:
     production_root = REPO_ROOT / "data/sim/production"
     if not production_root.exists():
@@ -175,7 +169,6 @@ def copy_production_summaries(target: Path) -> None:
 
 def write_review_files(target: Path) -> None:
     (target / "README.md").write_text(README_TEXT, encoding="utf-8")
-    (target / "README_REVIEW.md").write_text(README_TEXT, encoding="utf-8")
     (target / ".python-version").write_text("3.12\n", encoding="utf-8")
     (target / ".gitignore").write_text(
         "\n".join(
@@ -242,9 +235,9 @@ def main() -> None:
     copy_tree(REPO_ROOT / "src/python/insurance_sim", target / "src/python/insurance_sim")
     copy_review_tests(target / "tests/python")
     target.joinpath("analysis").mkdir(exist_ok=True)
-    for script in sorted((REPO_ROOT / "analysis").glob("*.py")):
-        copy_file(script, target / "analysis" / script.name)
-    write_sanitized_specs(target)
+    for name in ANALYSIS_FILES:
+        copy_file(REPO_ROOT / "analysis" / name, target / "analysis" / name)
+    copy_tree(REPO_ROOT / "analysis/production_specs", target / "analysis/production_specs")
     copy_production_summaries(target)
     (target / "analysis/reports").mkdir(parents=True, exist_ok=True)
 

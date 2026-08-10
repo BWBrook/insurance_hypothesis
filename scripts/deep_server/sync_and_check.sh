@@ -11,9 +11,9 @@ set -euo pipefail
 cd "$REMOTE_REPO"
 git fetch origin
 git pull --ff-only origin "$BRANCH"
-uv sync --dev
-uv run python -m pytest
-uv run python -m pyright
+uv sync --frozen --dev
+uv run --frozen pytest -q
+uv run --frozen pyright
 EOF
 
 # shellcheck disable=SC2029

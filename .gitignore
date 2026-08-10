@@ -24,15 +24,15 @@ analysis/reports/production/
 # OS junk
 .DS_Store
 
-# Image and output files (these will end up in Zenodo)
+# Generated image and table files
 *.png
 *.csv
 *.pdf
 
-# Allow checked-in key outputs for review (overrides above)
-!analysis/reports/*.png
-!analysis/reports/*.pdf
-!analysis/reports/*summary.csv
-!analysis/reports/*panels*.png
-!paper/manuscript/figures/*.png
-!paper/manuscript/figures/*.pdf
+# Allow only the canonical manuscript display suite and derived summaries.
+!analysis/reports/fig*.png
+!analysis/reports/fig*.pdf
+!analysis/reports/fig*_summary.csv
+!analysis/reports/numerical_guard_rates_summary.csv
+!analysis/reports/variance_decomposition_fig2_mixed_summary.csv
+!analysis/reports/variance_decomposition_fig2_mixed_selected_summary.csv

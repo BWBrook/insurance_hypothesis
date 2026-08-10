@@ -184,7 +184,7 @@ def _prepare_K(K: float | Sequence[float], n_species: int) -> np.ndarray:
     return K_arr
 
 
-def simulate_ricker(
+def _simulate_ricker_core(
     env: np.ndarray,
     *,
     r0: float,
@@ -195,31 +195,9 @@ def simulate_ricker(
     floor: float = DEFAULT_FLOOR,
     max_exp: float = DEFAULT_MAX_EXP,
     initial: Optional[Sequence[float]] = None,
-) -> np.ndarray:
-    """
-    Simulate discrete-time stochastic Ricker dynamics with competition.
-
-    Parameters
-    ----------
-    env : array (T, S)
-        Environmental anomalies per time step and species.
-    r0 : float
-        Intrinsic growth intercept (shared).
-    K : float or array
-        Carrying capacities per species.
-    b_slopes : array
-        Species-specific slopes linking environment to per-capita growth.
-    alpha_intra : float
-        Intraspecific competition coefficient.
-    alpha_inter : float
-        Interspecific competition coefficient (relative strength).
-    floor : float
-        Minimum abundance to avoid zeros.
-    max_exp : float
-        Cap on the exponent to prevent overflow in exp().
-    initial : array or None
-        Initial abundances. If None, starts at K / 2.
-    """
+    collect_diagnostics: bool,
+) -> tuple[np.ndarray, dict[str, float] | None]:
+    """Run the shared Ricker recurrence, optionally counting numerical guards."""
     T, S = env.shape
     b = _prepare_b_slopes(b_slopes, S)
     K_arr = _prepare_K(K, S)
@@ -233,13 +211,60 @@ def simulate_ricker(
             raise ValueError("Initial abundance must have length n_species.")
         N[0] = init
 
+    n_hi = 0
+    n_lo = 0
+    n_floor = 0
     for t in range(T):
         total_abundance = np.sum(N[t])
         comp = alpha_intra * N[t] + alpha_inter * (total_abundance - N[t])
-        exponent = r0 + b * env[t] - comp / K_arr
-        exponent = np.clip(exponent, -max_exp, max_exp)
+        exponent_raw = r0 + b * env[t] - comp / K_arr
+        if collect_diagnostics:
+            n_hi += int(np.sum(exponent_raw > max_exp))
+            n_lo += int(np.sum(exponent_raw < -max_exp))
+        exponent = np.clip(exponent_raw, -max_exp, max_exp)
         N[t + 1] = np.maximum(floor, N[t] * np.exp(exponent))
-    return N[1:]  # drop initial state to align length with env
+        if collect_diagnostics:
+            n_floor += int(np.sum(N[t + 1] <= floor))
+
+    traj = N[1:]
+    if not collect_diagnostics:
+        return traj, None
+
+    denom = T * S
+    diagnostics = {
+        "frac_exp_clipped_high": float(n_hi / denom) if denom > 0 else np.nan,
+        "frac_exp_clipped_low": float(n_lo / denom) if denom > 0 else np.nan,
+        "frac_floor": float(n_floor / denom) if denom > 0 else np.nan,
+    }
+    return traj, diagnostics
+
+
+def simulate_ricker(
+    env: np.ndarray,
+    *,
+    r0: float,
+    K: float | Sequence[float],
+    b_slopes: SlopeSpec | None,
+    alpha_intra: float,
+    alpha_inter: float,
+    floor: float = DEFAULT_FLOOR,
+    max_exp: float = DEFAULT_MAX_EXP,
+    initial: Optional[Sequence[float]] = None,
+) -> np.ndarray:
+    """Simulate discrete-time stochastic Ricker dynamics with competition."""
+    traj, _ = _simulate_ricker_core(
+        env,
+        r0=r0,
+        K=K,
+        b_slopes=b_slopes,
+        alpha_intra=alpha_intra,
+        alpha_inter=alpha_inter,
+        floor=floor,
+        max_exp=max_exp,
+        initial=initial,
+        collect_diagnostics=False,
+    )
+    return traj
 
 
 def simulate_ricker_with_diagnostics(
@@ -269,40 +294,19 @@ def simulate_ricker_with_diagnostics(
         - frac_exp_clipped_low: fraction of (t,i) where exponent < -max_exp
         - frac_floor: fraction of (t,i) where N_i(t) == floor (post-update)
     """
-    T, S = env.shape
-    b = _prepare_b_slopes(b_slopes, S)
-    K_arr = _prepare_K(K, S)
-
-    N = np.zeros((T + 1, S), dtype=float)
-    if initial is None:
-        N[0] = K_arr * 0.5
-    else:
-        init = np.asarray(initial, dtype=float)
-        if init.size != S:
-            raise ValueError("Initial abundance must have length n_species.")
-        N[0] = init
-
-    n_hi = 0
-    n_lo = 0
-    n_floor = 0
-    denom = T * S
-
-    for t in range(T):
-        total_abundance = np.sum(N[t])
-        comp = alpha_intra * N[t] + alpha_inter * (total_abundance - N[t])
-        exponent_raw = r0 + b * env[t] - comp / K_arr
-        n_hi += int(np.sum(exponent_raw > max_exp))
-        n_lo += int(np.sum(exponent_raw < -max_exp))
-        exponent = np.clip(exponent_raw, -max_exp, max_exp)
-        N[t + 1] = np.maximum(floor, N[t] * np.exp(exponent))
-        n_floor += int(np.sum(N[t + 1] <= floor))
-
-    traj = N[1:]
-    diagnostics = {
-        "frac_exp_clipped_high": float(n_hi / denom) if denom > 0 else np.nan,
-        "frac_exp_clipped_low": float(n_lo / denom) if denom > 0 else np.nan,
-        "frac_floor": float(n_floor / denom) if denom > 0 else np.nan,
-    }
+    traj, diagnostics = _simulate_ricker_core(
+        env,
+        r0=r0,
+        K=K,
+        b_slopes=b_slopes,
+        alpha_intra=alpha_intra,
+        alpha_inter=alpha_inter,
+        floor=floor,
+        max_exp=max_exp,
+        initial=initial,
+        collect_diagnostics=True,
+    )
+    assert diagnostics is not None
     return traj, diagnostics
 
 
@@ -363,6 +367,33 @@ def summarise_timeseries(
     }
 
 
+def simulate_once(
+    config: SimulationConfig,
+    rng: np.random.Generator | int | None,
+) -> dict:
+    """Simulate and summarize one scenario replicate."""
+    env = generate_environment(
+        n_steps=config.n_steps,
+        n_species=config.n_species,
+        phi=config.phi,
+        sigma_env=config.sigma_env,
+        rho=config.rho_env,
+        rng=rng,
+    )
+    traj = simulate_ricker(
+        env,
+        r0=config.r0,
+        K=config.K,
+        b_slopes=config.b_slopes,
+        alpha_intra=config.alpha_intra,
+        alpha_inter=config.alpha_inter,
+        floor=config.floor,
+        max_exp=config.max_exp,
+        initial=None,
+    )
+    return summarise_timeseries(traj, burn_in=config.burn_in, floor=config.floor)
+
+
 def simulate_replicates(
     config: SimulationConfig,
     n_reps: int,
@@ -383,26 +414,7 @@ def simulate_replicates(
 
     for rep in range(n_reps):
         rng = base_rng if seed is None else np.random.default_rng(base_rng.integers(0, 2**32 - 1))
-        env = generate_environment(
-            n_steps=config.n_steps,
-            n_species=config.n_species,
-            phi=config.phi,
-            sigma_env=config.sigma_env,
-            rho=config.rho_env,
-            rng=rng,
-        )
-        traj = simulate_ricker(
-            env,
-            r0=config.r0,
-            K=config.K,
-            b_slopes=config.b_slopes,
-            alpha_intra=config.alpha_intra,
-            alpha_inter=config.alpha_inter,
-            floor=config.floor,
-            max_exp=config.max_exp,
-            initial=None,
-        )
-        stats = summarise_timeseries(traj, burn_in=config.burn_in, floor=config.floor)
+        stats = simulate_once(config, rng)
         records.append(
             {
                 "replicate": rep,

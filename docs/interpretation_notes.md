@@ -1,298 +1,107 @@
-# Interpretation notes
+# Production-result interpretation
 
-> The AI agent uses this file to record what figures/tables/results seem to be saying, and to track follow-up tasks.
+These notes retain the decision-relevant reading of the validated production
+evidence. Exploratory chronology and completed task lists are in Git history.
 
-## FIGURE / RESULT ENTRIES
+## Headline contrast: Figure 1
 
-### PREVIEW_sigma0_0.5_rho0_0.5_S2
+- Across the shared environmental grid, aligned positive responses are markedly
+  more variable than mixed responses. Averaged over effective driver correlation,
+  the aligned/mixed mean-CV ratio is about 3.0 at `sigma_env = 1`, 3.5 at 1.5,
+  and 4.3 at 2.
+- Mixed-response communities remain buffered until stronger forcing, but they
+  also become highly variable in the stress extension. At `sigma_env = 4`, mean
+  CV is about 4.39 for mixed slopes and 11.13 for aligned slopes.
+- The relative contrast persists at the stress edge but narrows, while floor
+  occupancy becomes scientifically non-negligible. Claims should foreground the
+  core grid and label `sigma_env >= 3` as a stress regime.
+- The simple effect of `rho_eff` is not monotone at every high-variance edge;
+  the robust result is the response-regime contrast, not a universal monotonic
+  correlation law.
 
-- **Artefact**: `data/sim/preview/summaries.parquet`
-- **Summary (plain language)**:
-  - Deterministic baseline (σ_env = 0) yields zero variance and community mean ≈154 (sum of species equilibria).
-  - With σ_env = 0.5 and ρ = 0, community CV ≈ 0.20 across 20 replicates.
-  - With σ_env = 0.5 and ρ = 0.5, community CV drops to ≈ 0.15; opposing species slopes likely create compensatory dynamics despite correlated drivers.
-  - Realised synchrony: mean pairwise growth correlation shifts from ~0.09 (ρ=0) to ~-0.34 (ρ=0.5), and φ_LdM drops from ~0.34 to ~0.19, confirming compensatory responses dominate imposed driver correlation.
-- **Relation to hypothesis**:
-  - Supports insurance effect when species responses are asynchronous (opposing slopes) even under moderate driver synchrony.
-  - Shows imposed driver synchrony (ρ) interacts with response direction; synchrony in drivers ≠ synchrony in growth.
-- **Surprises / concerns**:
-  - Higher ρ reduced community variability here; need realised synchrony metrics to confirm mechanism.
-- **Follow-up tasks**:
-  - [x] Add realised synchrony metrics (growth-rate correlations, Loreau–de Mazancourt) to summaries.
-  - [x] Run same scenarios with all slopes positive to isolate effect of driver synchrony vs response direction.
-  - [ ] Extend preview to S = 4, 8 to check richness effect with mixed slope signs.
+## Richness sequence and variance decomposition: Figure 2
 
-### RUN1_mixed_fullgrid
+- In the implemented mixed-slope assembly sequence, mean community CV declines
+  monotonically from `S = 2` to `S = 8` at every non-zero `sigma_env` after
+  averaging over the shared non-negative `rho_eff` values.
+- The `S = 2` to `S = 8` mean-CV ratio is roughly 2.2–2.8 across the production
+  environmental-variance range.
+- Floor occupancy is too small in this grid to explain the pattern.
+- This is not an independent richness manipulation: slope composition, response
+  balance, and abundance weighting change with `S`. The result supports a
+  richness-associated buffering pattern for this deterministic assembly
+  sequence, not a general causal richness coefficient.
+- The exact decomposition
+  `Var(sum N_i) = sum Var(N_i) + 2 sum Cov(N_i, N_j)` should be used to connect
+  the aggregate pattern to abundance covariance without treating raw associations
+  as mediation.
 
-- **Artefact**: `data/sim/grid/run1/summaries.parquet` + `analysis/reports/run1_cv.png`, `run1_phi.png`, `run1_summary.csv`
-- **Summary (plain language)**:
-  - Across σ_env–ρ–S grid (mixed slopes), community CV falls steeply with increasing richness (max CV: S=2 ~0.92, S=4 ~0.49, S=8 ~0.41).
-  - For a fixed σ_env (e.g., 0.5), higher ρ lowers community CV and φ_LdM because opposing slopes yield compensatory growth; mean growth correlations become negative as ρ rises (S=2: ρ 0→1 yields corr 0.12→-0.81).
-  - At high σ_env (1.5), variability rises overall but richness still dampens CV and φ_LdM.
-- **Additional visuals**: line plots `analysis/reports/run1_cv_lines_sigma0.5.png` and `run1_driver_vs_realised_sigma0.5.png` show CV and realised synchrony vs ρ at σ=0.5; `cv_mixed_vs_positive_sigma0.5_S4.png` contrasts slope modes.
-- **Relation to hypothesis**:
-  - Confirms insurance via both richness and asynchronous responses: mixed-sign slopes plus greater S reduce aggregate variance even as environmental variance increases.
-  - Demonstrates that imposed driver synchrony does not guarantee synchronous growth when response directions differ.
-- **Surprises / concerns**:
-  - CV decreases with ρ in mixed-slope setup—counter to classical expectation under aligned responses; highlights need to separate driver vs response synchrony.
-  - Current Figure 1 heatmap panels are visually blocky because they summarise a coarse 5 x 5 `sigma_env`-by-`rho_env` grid; the strong visual change at `sigma_env > 1` should be checked with a denser production grid rather than hidden by plotting interpolation alone.
-- **Follow-up tasks**:
-  - [ ] Quantify realised growth synchrony vs imposed ρ across grid to visualise divergence.
-  - [x] Repeat grid with φ sensitivity (0, 0.7) to check robustness.
-  - [x] Produce richness-scaling plot of CV and φ_LdM averaged over ρ for each σ_env.
-  - [x] Run a focused high-resolution Figure 1 surface grid (mixed and positive slopes, S=4 first) with denser `sigma_env`/`rho_env` values and 1000 replicates per scenario/slice, then compare against the coarse grid before changing display defaults.
+## Imposed versus realised synchrony: Figure 3
 
-### POS_subset_positive_slopes
+- At `sigma_env = 0.5`, mixed responses produce realised per-capita growth
+  correlations far below imposed environmental correlation; aligned responses
+  remain strongly positive and rise with `rho_eff`.
+- Near `rho_eff = 1`, mixed-response mean growth correlations are approximately
+  -0.81, -0.16, and 0.08 for `S = 2, 4, 8`, whereas aligned-response values are
+  approximately 0.64, 0.81, and 0.86.
+- This is direct evidence that common environmental orientation plus response
+  sign structure can transform shared forcing into compensatory realised
+  dynamics. Imposed driver correlation is not itself biological synchrony.
 
-- **Artefact**: `data/sim/grid/pos_subset/summaries.parquet`
-- **Summary (plain language)**:
-  - All-positive slopes (S=2) show community CV increasing with ρ at both σ_env=0.5 (CV 0.32→0.33) and σ_env=1.0 (CV ~0.94→1.0); φ_LdM and growth correlations also rise with ρ (to ~0.76).
-  - Aligns with expectation: when responses are synchronous in sign, higher driver synchrony amplifies variability.
-- **Relation to hypothesis**:
-  - Provides contrast: synchrony in responses removes insurance; increasing environmental variance and ρ destabilise aggregate biomass.
-- **Surprises / concerns**:
-  - None yet; need larger S and more σ_env points to confirm pattern holds.
-- **Follow-up tasks**:
-  - [ ] Extend positive-slope runs to S=4,8 and full σ_env grid with moderate reps.
-  - [ ] Overlay mixed vs positive slope results in a single figure for clarity.
+## Magnitude-matched sign control: Figure S3, to be promoted
 
-### POS_full_positive_S4_S8
+- `positive_matched = abs(mixed)` preserves the mixed regime's slope magnitudes
+  while aligning all response directions.
+- Near `rho_eff = 1`, positive-matched community CV is about 0.184 versus 0.319
+  for the steeper positive regime at `S = 4`, and 0.158 versus 0.316 at `S = 8`.
+  Magnitude therefore affects absolute variability.
+- Nevertheless, positive-matched realised growth correlations remain high
+  (about 0.90 at `S = 4` and 0.84 at `S = 8`) and do not reproduce the weak or
+  negative synchrony of mixed responses.
+- This is the cleanest existing control for the central sign-structure mechanism
+  and should move into the main evidential hierarchy.
 
-- **Artefact**: `data/sim/grid/pos_full/summaries.parquet` + `analysis/reports/pos_full_{cv,phi}.png`, `pos_full_summary.csv`
-- **Summary (plain language)**:
-  - For S=4,8 with all-positive slopes, CV and φ_LdM increase monotonically with ρ across σ_env; effect size shrinks with richness but direction holds (e.g., S=4 σ=0.5 CV ~0.12→0.22 as ρ -0.5→1.0; S=8 σ=0.5 CV ~0.07→0.15).
-  - Richness still reduces overall variability but cannot reverse the destabilising effect of high ρ when responses align.
-- **Relation to hypothesis**:
-  - Supports conditional insurance: richness helps, but synchrony in responses overrides the stabilising effect of diversity.
-- **Surprises / concerns**:
-  - None; patterns consistent with expectation for aligned responses.
-- **Follow-up tasks**:
-  - [ ] Combine mixed vs positive slope heatmaps into comparative figure for manuscript-ready visual.
+## Persistence sensitivity: Figure 5
 
-### PHI_sensitivity_mixed
+- At fixed innovation SD `sigma_env = 0.5`, increasing `phi` raises both temporal
+  persistence and stationary environmental variance, strongly increasing
+  community CV.
+- At `rho_eff = 0.5`, mean CV rises from about 0.14 to 0.58 for `S = 2` and from
+  0.07 to 0.35 for `S = 4` as `phi` moves from 0 to 0.95.
+- The `S = 4` sequence remains less variable than `S = 2` throughout the shared
+  grid, but this does not isolate a pure autocorrelation effect.
+- Floor occupancy is negligible through `phi <= 0.7`, low at 0.9, and locally
+  non-negligible at 0.95. High persistence is a stress test.
 
-- **Artefacts**: `data/sim/grid/phi0_reduced/summaries.parquet`, `phi07_reduced/summaries.parquet`, `phi09_reduced/summaries.parquet`; reports `analysis/reports/phi{0,07,09}_reduced_*`, overlay `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png`.
-- **Summary (plain language)**:
-  - Lower persistence (φ=0) reduces CV; higher persistence (φ=0.7, 0.9, 0.95) increases CV, with amplification noticeable by φ=0.95 but qualitative pattern (CV decreases with richness and with ρ under mixed slopes) unchanged.
-  - Example at σ=0.5, ρ=0.5: CV for S=2 is 0.138 (φ=0), 0.153 (φ=0.4), 0.201 (φ=0.7), 0.223 (φ=0.9), 0.585 (φ=0.95); S=4 is 0.074, 0.084, 0.114, 0.125, 0.354.
-  - Floor occupancy is still low at φ=0 and φ=0.7, but becomes substantial in part of the stress grid at φ=0.9/0.95 (mostly S=2, σ_env=1.0): max mean extinction frequency ~0.24 (`phi09_reduced`) and ~0.43 (`phi095_reduced`).
-- **Relation to hypothesis**:
-  - Insurance patterns persist across φ ∈ [0, 0.95]; autocorrelation modulates magnitude but not direction of stabilisation, though very high φ inflates variability substantially.
-- **Surprises / concerns**:
-  - φ=0.95 shows larger CV inflation, especially for S=2, and enters a regime with meaningful floor occupancy. These runs remain useful as stress tests, but are less representative of the low-extinction regime used for the core inference figures.
-- **Follow-up tasks**:
-  - [ ] None immediate; document φ sensitivity in manuscript.
+## Current Figure 4
 
-### NO_COMP_alpha0_mixed_vs_positive
+- Raw production scenario means show strong positive association between CV and
+  Loreau-de Mazancourt synchrony (Pearson `r` about 0.85) and a moderate
+  association with realised pairwise growth correlation (about 0.57).
+- The first association is partly mathematical because both quantities contain
+  `Var(N_total)`. Both panels also mix richness, forcing magnitude, and imposed
+  correlation.
+- The plot is descriptive, not an independent-effect or mediation analysis. It
+  is the lowest-value main display and is scheduled for replacement in Stage 3.
 
-- **Artefacts**: `data/sim/grid/no_comp_mixed/summaries.parquet`, `no_comp_positive/summaries.parquet` and corresponding reports (`analysis/reports/no_comp_*`).
-- **Summary (plain language)**:
-  - With α_inter=0 (no interspecific competition), mixed slopes still show community CV decreasing with both richness and ρ_env (e.g. at σ=0.5, CV S=2: 0.24→0.07 as ρ_env -0.5→1.0; S=8: 0.07→0.03).
-  - Positive slopes with α_inter=0 retain the destabilising pattern: CV increases with ρ_env (σ=0.5, S=4: CV ≈0.14→0.32 as ρ_env -0.5→1.0), and φ_LdM rises with ρ_env (often >0.9 at high ρ_env).
-- **Relation to hypothesis**:
-  - Insurance patterns (mixed vs positive contrast, richness effect) persist even without competition, indicating that they arise primarily from response heterogeneity and shared environment rather than competition-driven dynamics.
-- **Surprises / concerns**:
-  - None; removing competition mainly rescales CV but does not alter qualitative patterns.
-- **Follow-up tasks**:
-  - [ ] Mention no-competition control briefly in Methods/Discussion as evidence that competition is not required for insurance in this model.
+## Numerical boundaries
 
-### SLOPE_magnitude_mixed_narrow
+- Core production inference grids have negligible floor occupancy and no NaN or
+  infinite summaries.
+- High-variance and high-persistence extensions deliberately reach regions where
+  the abundance floor participates in the dynamics. These are retained to show
+  robustness boundaries, not to strengthen the core low-stress inference.
+- Exponent clipping, floor occupancy, and abundance plausibility must be checked
+  whenever the bounded sensitivity changes `r0`, response balance, or abundance
+  weights.
 
-- **Artefacts**: `data/sim/grid/mixed_narrow/summaries.parquet`, `analysis/reports/mixed_narrow_*`.
-- **Summary (plain language)**:
-  - Narrowing mixed slopes to -0.25…0.25 reduces overall CV levels but preserves qualitative patterns: at σ=0.5, CV_total still decreases with both richness and ρ_env (e.g. S=2: CV 0.12→0.02, S=8: 0.03→0.016 from ρ_env -0.5→1.0).
-  - Richness remains strongly stabilising and the contrast with positive-slope grids (higher CV at comparable σ_env and ρ_env) is retained.
-- **Relation to hypothesis**:
-  - Shows that the insurance patterns are not an artefact of “extreme” slope heterogeneity; milder response variation still yields buffering when responses differ in sign.
-- **Surprises / concerns**:
-  - None; narrower slopes mainly reduce magnitude, not pattern.
-- **Follow-up tasks**:
-  - [ ] Briefly note slope-magnitude robustness in Discussion.
+## Questions Stage 3 must decide
 
-### Comparative figures (new)
-
-- **Artefacts**: `analysis/reports/cv_mixed_vs_positive_sigma0.5_S4.png`, `cv_mixed_vs_positive_sigma0.5_S8.png`, `fig2_richness_scaling_mixed.png`, `fig3_imposed_vs_realised_panels.png`, `cv_phi_sensitivity_sigma0.5.png`, `fig4_cv_vs_synchrony_mixed.png`.
-- **Summary**:
-  - Mixed vs positive slopes: at σ=0.5, S=4/8, mixed slopes show declining CV with ρ (compensatory), while positive slopes increase CV with ρ; richness dampens but does not reverse positive-slope destabilisation.
-  - Richness scaling (mixed): mean CV drops sharply from S=2→4 and continues to decline to S=8 across σ_env values.
-  - Imposed vs realised synchrony: mixed slopes yield realised correlations substantially below imposed ρ_env (mean delta_corr ≈ -0.32), often negative even when ρ_env>0; positive slopes yield realised > imposed (delta_corr ≈ +0.18), as growth tracks the shared driver (Figure 2).
-  - CV–synchrony link: in the mixed-slope grid, CV_total is positively related to φ_LdM and mean pairwise growth correlation; scenarios with lower synchrony consistently have lower CV_total, especially at higher richness (Figure 3).
-  - φ sensitivity (σ=0.5): CV increases with φ; at ρ_env=0.5, CV for S=2 shifts 0.138→0.585 (φ 0→0.95), S=4 shifts 0.074→0.354; qualitative patterns unchanged.
-- **Follow-up tasks**:
-  - [x] Prepare combined panel figure (heatmaps + line panels) for manuscript draft.
-  - [x] Decide whether to include φ ≥ 0.95 sensitivity; currently low-impact in tested range (φ=0.95 run confirms stability).
-
-### Extinction sanity check (main inference grids)
-
-- **Artefact**: computed from `data/sim/grid/run1/summaries.parquet`
-- **Summary**: Max mean extinction frequency across scenarios ≈0.003; worst cases at σ_env=1.5, high ρ, S=8. Indicates dynamics remain well above floor—no numerical extinctions in main grid.
-- **Follow-up**: None urgent; keep monitoring if parameters change.
-
-### Extinction sanity check (high-persistence stress tests)
-
-- **Artefacts**: `analysis/reports/phi09_reduced_summary.csv`, `analysis/reports/phi095_reduced_summary.csv`
-- **Summary**:
-  - In φ stress tests, floor occupancy is not negligible in a subset of scenarios, with max mean extinction frequency ≈0.2425 (`phi09_reduced`) and ≈0.4275 (`phi095_reduced`).
-  - Elevated floor occupancy is concentrated in low-richness/high-variance corners (primarily S=2, σ_env=1.0), while lower-φ and main grids remain much less affected.
-- **Follow-up**:
-  - [x] Update docs/manuscript wording to distinguish the low-extinction main grids from high-φ stress-test behaviour.
-
-### PROD_fig1_s4_highres_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig1-s4-highres-v1`; local retrieved summary `data/sim/production/fig1_s4_highres_v1/summaries.parquet`; quicklooks under `analysis/reports/production/fig1_s4_highres_v1_*`.
-- **Summary (plain language)**:
-  - The production run validated cleanly: 570 scenarios, 5700 shards, 570000 replicate-summary rows, 1000 replicates for every S=4 mixed/positive scenario.
-  - The main contrast is strong and smooth at production resolution. Across `sigma_env`, positive aligned slopes have much higher community CV than mixed slopes; the positive/mixed CV ratio averages ~3.0 at `sigma_env=1.0`, ~3.5 at 1.5, and ~4.3 at 2.0.
-  - Mixed slopes remain strongly buffered: mean CV is ~0.089 at `sigma_env=0.5`, ~0.232 at 1.0, ~0.451 at 1.5, and ~0.784 at 2.0 averaged across `rho_eff`.
-  - The simple monotonic effect of `rho_eff` weakens at the high-variance edge. For mixed slopes, CV declines with `rho_eff` at moderate `sigma_env`, but is nearly flat by `sigma_env=2.0`; for positive slopes, CV generally increases with `rho_eff` at moderate `sigma_env`, but the `sigma_env=2.0` edge is slightly non-monotonic.
-  - Floor/extinction frequency is still negligible for mixed slopes (max scenario mean ~0.0005), but positive slopes at `sigma_env=2.0` reach mean floor/extinction frequency ~0.019, with replicate maxima up to ~0.068. This is useful as a stress edge but should be labelled carefully if retained in main display.
-- **Relation to hypothesis**:
-  - Strongly supports the conditional-insurance story: heterogeneous/mixed responses buffer aggregate biomass relative to aligned positive responses under the same environmental variance and imposed driver correlation.
-  - The high-resolution grid confirms that the coarse Figure 1 pattern was not a sampling artefact, while revealing that the highest `sigma_env` edge enters a nonlinear/high-stress regime where monotonic `rho_eff` expectations are less clean.
-- **Follow-up tasks**:
-  - [ ] Rebuild a manuscript-quality Figure 1 from the production summary, likely with display choices that avoid letting the `sigma_env=2.0` stress edge dominate the colour scale.
-  - [ ] Decide whether `sigma_env=2.0` belongs in the main panel, an inset/extended axis, or supplementary stress-region display.
-  - [ ] Compare production surfaces directly with the coarse/interim Figure 1 before replacing display defaults.
-
-### PROD_fig1_s4_highsigma_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig1-s4-highsigma-v1`; local retrieved summary `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet`; combined quicklooks under `analysis/reports/production/fig1_s4_combined_highsigma_v1_*`.
-- **Summary (plain language)**:
-  - The high-sigma extension validated cleanly: 180 scenarios, 1800 shards, 180000 replicate-summary rows, 1000 replicates per scenario.
-  - Extending to `sigma_env=4.0` confirms that mixed-slope communities eventually enter a high-CV regime too. Mean CV across the `rho_env` grid rises from ~0.78 at `sigma_env=2.0` to ~2.04 at 3.0 and ~4.39 at 4.0.
-  - Positive aligned slopes remain substantially more variable, rising from mean CV ~3.36 at `sigma_env=2.0` to ~8.09 at 3.0 and ~11.13 at 4.0.
-  - The insurance contrast persists but narrows at the most extreme forcing: positive/mixed mean-CV ratio is ~4.5 around `sigma_env=2.5`, ~4.0 at 3.0, and ~2.5 at 4.0.
-  - Floor/extinction frequency is now scientifically non-negligible at the high end: averaged across `rho_env`, by `sigma_env=4.0` it is ~0.030 for mixed slopes and ~0.102 for positive slopes, with worst replicate-level positive-slope floor frequency ~0.194.
-- **Relation to hypothesis**:
-  - Strongly supports the main conditional-insurance claim over a wider forcing range: heterogeneous responses continue to buffer aggregate biomass relative to aligned responses.
-  - Also identifies a plausible stress-boundary: at extreme environmental forcing, both regimes become highly variable and floor effects become part of the system behaviour, so interpretation should shift from clean low-extinction insurance to stress-regime dynamics.
-- **Follow-up tasks**:
-  - [x] Build a first display variant that drops the mixed-slope heatmap from the main panel, shows the aligned-response surface, and uses a `sigma_env` gradient panel for the mixed-vs-positive contrast.
-  - [ ] Decide whether the main text should stop at `sigma_env=3.0` and place 3.5-4.0 in supplementary stress diagnostics.
-  - [ ] Consider adding a small numerical-guard diagnostic for representative `sigma_env=4.0` scenarios before any strong claims are made about that edge.
-
-### PROD_fig1_display_promoted
-
-- **Artefacts**: `analysis/reports/fig1_panels.png`, `analysis/reports/fig1_panels.pdf`, and `analysis/reports/fig1_panels_summary.csv`.
-- **Summary (plain language)**:
-  - The revised candidate drops the mixed-slope heatmap from the main Figure 1 because `rho_eff` structure is weak relative to the environmental-variability gradient.
-  - Panel A shows the aligned positive-slope response surface, where the combination of high `sigma_env` and response synchrony is most destabilising.
-  - Panel B makes the insurance contrast explicit: mixed and aligned mean `CV_tot` trajectories across `sigma_env`, averaged over the `rho_eff` grid with faint ranges across `rho_eff`, plus the aligned-minus-mixed CV gap.
-  - The `sigma_env > 3` region is shaded as a stress extension, preserving the ecological distinction between the main response surface and extreme/boom-bust forcing regimes.
-- **Relation to hypothesis**:
-  - This layout foregrounds the main paper claim more directly than the earlier side-by-side mixed/positive heatmaps: aligned responses destabilise rapidly with environmental variability, while mixed responses remain buffered until much more extreme forcing.
-- **Follow-up tasks**:
-  - [x] Human review of the layout, labels, and stress-extension treatment.
-  - [x] Promote the display to the main Figure 1 generation path and update the manuscript caption.
-  - [ ] Re-review the manuscript Results text once Figure 2 production output is available.
-
-### PROD_fig2_richness_mixed_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig2-richness-mixed-v1`; local compact output `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig2_richness_scaling_mixed.png` and `.pdf`.
-- **Summary (plain language)**:
-  - The production grid validated cleanly: 210 scenarios, 2100 shards, 210000 replicate-summary rows, 1000 replicates per scenario.
-  - All non-zero `sigma_env` curves show a monotone decline in mean `CV_tot` from S=2 to S=8 after averaging across the non-negative `rho_eff` grid.
-  - Richness buffering remains substantial across the production range: S=2/S=8 mean-CV ratios are ~2.77 at `sigma_env=0.2`, ~2.41 at 0.5, ~2.20 at 1.0, ~2.22 at 1.5, and ~2.29 at 2.0.
-  - Floor/extinction is not driving the pattern. The maximum replicate-level `mean_extinction_freq` is 0.02375, but the maximum scenario-mean value is only ~0.00143, occurring at `sigma_env=2.0`, high `rho_eff`, S=8.
-- **Relation to hypothesis**:
-  - Strongly supports the richness component of the conditional-insurance story: when response directions are mixed, adding species lowers aggregate variability across the environmental-variability gradient.
-- **Follow-up tasks**:
-  - [x] Launch and validate `fig2-richness-mixed-v1` on `deep-server`.
-  - [x] Summarise floor/extinction frequencies across `sigma_env` and richness.
-  - [x] Rebuild Figure 2 from production output and check whether the richness decline is monotonic for each non-zero `sigma_env`.
-  - [x] Decide after visual review whether the faint range bands across `rho_eff` should remain in the main Figure 2 panel or move to a supplementary diagnostic. Barry prefers to keep them in the main panel.
-  - [x] Next production reinforcement: refresh the imposed-vs-realised synchrony mechanism figure at production scale.
-
-### PROD_fig3_synchrony_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig3-synchrony-v1`; local compact output `data/sim/production/fig3_synchrony_v1/summaries.parquet`; display outputs `analysis/reports/fig3_imposed_vs_realised_panels.png` and `.pdf`.
-- **Summary (plain language)**:
-  - The production grid validated cleanly: 66 scenarios, 660 shards, 66000 replicate-summary rows, 1000 replicates per scenario.
-  - The mechanism is very clear. As `rho_eff` rises, mixed responses fall well below the imposed-correlation line, whereas positive responses rise with `rho_eff` and remain strongly positive.
-  - At `rho_eff≈1`, mixed responses have mean growth correlations of ~-0.81 (S=2), ~-0.16 (S=4), and ~0.08 (S=8). Positive responses at the same endpoint remain positive: ~0.64 (S=2), ~0.81 (S=4), and ~0.86 (S=8).
-  - Richness-averaged `delta_corr` changes from ~0.13 to ~-1.30 for mixed responses as `rho_eff` moves from 0 to 1, while positive responses change only from ~0.26 to ~-0.23.
-  - Floor/extinction is absent in this focused mechanism run: maximum `mean_extinction_freq` is 0.
-- **Relation to hypothesis**:
-  - Strongly supports the mechanistic interpretation of the insurance effect: response-direction heterogeneity turns increasingly shared environmental forcing into compensatory or weakly synchronised realised growth, rather than simply transmitting the imposed covariance to aggregate biomass.
-- **Follow-up tasks**:
-  - [x] Launch and validate `fig3-synchrony-v1` on `deep-server`.
-  - [x] Rebuild Figure 3 from production output.
-  - [x] Update manuscript caption/results text for production Figure 3.
-  - [x] Review production Figure 3 visually with Barry before deciding whether to tune labels, legends, or the panel C band display. Barry accepted the rebuilt Figure 3 as excellent.
-
-### PROD_fig4_cv_synchrony_mixed
-
-- **Artefacts**: source compact output `data/sim/production/fig2_richness_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig4_cv_vs_synchrony_mixed.png` and `.pdf`; scenario summary `analysis/reports/fig4_cv_vs_synchrony_mixed_summary.csv`.
-- **Summary (plain language)**:
-  - No new production run was needed. The validated Figure 2 richness grid already contains the mixed-slope `CV_tot`, `phi_ldm`, and mean pairwise growth-correlation summaries required for Figure 4.
-  - The rebuilt figure uses 175 non-zero-`sigma_env` scenario means from S=2..8, `sigma_env` from 0.2 to 2.0, and non-negative `rho_eff`.
-  - Across these scenario means, `CV_tot` is strongly associated with abundance synchrony (`phi_LdM`, Pearson r ~0.85) and moderately associated with mean pairwise growth correlation (r ~0.57).
-  - The lowest community variability occurs mostly in higher-richness, low-synchrony mixed-slope scenarios. The highest values are concentrated at S=2 and high environmental variability.
-- **Relation to hypothesis**:
-  - Supports the synchrony-mediated interpretation of mixed-slope insurance: low realised synchrony, especially at higher richness, corresponds to lower aggregate variability.
-- **Follow-up tasks**:
-  - [x] Rebuild Figure 4 from production-scale scenario means.
-  - [x] Add a focused test for the Figure 4 production summary and writer.
-  - [x] Update the Figure 4 caption to describe the production-scale source, colour scale, and point-size encoding.
-  - [x] Review production Figure 4 visually with Barry before deciding whether to keep the richness colour scale and `sigma_env` point-size encoding unchanged. Barry accepted the display as looking good.
-
-### PROD_fig5_persistence_mixed_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/fig5-persistence-mixed-v1`; local compact output `data/sim/production/fig5_persistence_mixed_v1/summaries.parquet`; display outputs `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended.png` and `.pdf`; scenario summary `analysis/reports/fig5_phi_sensitivity_sigma0.5_extended_summary.csv`.
-- **Summary (plain language)**:
-  - The production grid validated cleanly: 64 scenarios, 640 shards, 64000 replicate-summary rows, 1000 replicates per scenario.
-  - Increasing `phi` strongly inflates mean `CV_tot`, as expected from the AR(1) stationary-variance scaling at fixed innovation SD.
-  - At `sigma_env=0.5` and `rho_eff=0.5`, mean `CV_tot` rises from ~0.137 at `phi=0` to ~0.581 at `phi=0.95` for S=2, and from ~0.074 to ~0.346 for S=4.
-  - Richer mixed-slope communities remain less variable than S=2 communities at every shared `phi` and `rho_eff`; S=2/S=4 mean-CV ratios remain >1.38 across the shared grid.
-  - Floor/extinction is negligible for `phi <= 0.7`, low for `phi=0.9` (maximum scenario mean ~0.005), and non-negligible but still modest at `phi=0.95` (maximum scenario mean ~0.049; maximum replicate-level value 0.335).
-- **Relation to hypothesis**:
-  - Supports persistence robustness: temporal autocorrelation inflates absolute variability, but does not erase the relative richness-buffering pattern in mixed-slope communities.
-- **Follow-up tasks**:
-  - [x] Launch and validate `fig5-persistence-mixed-v1` on `deep-server`.
-  - [x] Retrieve compact outputs and rebuild Figure 5 from production output.
-  - [x] Update manuscript caption/results text for production Figure 5.
-  - [x] Review production Figure 5 visually with Barry; accepted without further display changes.
-
-### TABLE_AND_SUPPLEMENT_SWEEP_2026_05_19
-
-- **Artefacts**: `paper/manuscript/text/tables.md`; `analysis/reports/figS1_production_mixed_cv_total.*`; `analysis/reports/figS2_production_mixed_phi_ldm.*`; `analysis/reports/figS4_production_species_cv_vs_rho.*`; retained lower-replicate `analysis/reports/figS3_positive_matched_control.png`.
-- **Summary (plain language)**:
-  - Table 1 now describes the core Ricker model, environmental driver, numerical safeguards, and the production grids used for Figures 1-5.
-  - Table S1 records the production run inventory and row counts; Table S2 records production floor-occupancy maxima and stress-region interpretation; Table S3 records lower-replicate robustness/control grids.
-  - Supplementary Figures S1 and S2 now use the Figure 2/4 production grid rather than the old coarse mixed grid, so the supplementary heatmaps align with the accepted production main figures.
-  - Supplementary Figure S4 now uses the Figure 3 production grid at `sigma_env=0.5`, giving a 1000-replicate species-level CV diagnostic for mixed and positive regimes at S=4 and S=8.
-  - Supplementary Figure S3 was initially retained as a lower-replicate positive-matched sign-structure control, then refreshed in `PROD_figS3_positive_matched_control_v1`.
-- **Relation to hypothesis**:
-  - The supplementary set now supports the main claim without mixing stale exploratory figures into the final evidence hierarchy: production-backed supplements cover the richness/synchrony/species-CV diagnostics, while non-production controls are clearly separated as robustness checks.
-- **Follow-up tasks**:
-  - [x] Replace Table 1 placeholder.
-  - [x] Add supplementary tables for production specs, floor occupancy, and controls.
-  - [x] Rebuild production-backed supplementary Figures S1/S2/S4.
-  - [x] Refresh Figure S3 with a focused production positive-matched control.
-  - [x] Run final manuscript build/lint pass after this tranche.
-
-### PROD_figS3_positive_matched_control_v1
-
-- **Artefacts**: remote production run `/data/codex/scratch/insurance_hypothesis/figs3-positive-matched-control-v1`; local compact output `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet`; display outputs `analysis/reports/figS3_positive_matched_control.png` and `.pdf`; summary `analysis/reports/figS3_positive_matched_control_summary.csv`.
-- **Summary (plain language)**:
-  - The production grid validated cleanly: 66 scenarios, 660 shards, 66000 replicate-summary rows, 1000 replicates per scenario.
-  - Floor occupancy is zero across all scenarios and replicates in this focused control.
-  - At `rho_eff` near 1, the positive-matched control remains much less variable than fully aligned positive slopes: mean `CV_tot` is ~0.184 vs ~0.319 for S=4, and ~0.158 vs ~0.316 for S=8.
-  - Positive-matched realised growth correlations remain high at `rho_eff` near 1 (~0.896 for S=4 and ~0.836 for S=8), showing that magnitude matching does not recreate the mixed-slope negative/weak synchrony pattern.
-  - Mixed-slope community CV declines or remains low as `rho_eff` increases in this focused slice, whereas positive-matched and fully positive regimes increase with `rho_eff`.
-- **Relation to hypothesis**:
-  - Supports the interpretation that response sign structure, not merely slope magnitude, is central to the insurance contrast. Magnitude-matched positive slopes reduce community variability relative to the steeper fully aligned positive regime, but they do not produce the realised asynchrony of mixed-sign responses.
-- **Follow-up tasks**:
-  - [x] Launch and validate `figs3-positive-matched-control-v1` on `deep-server`.
-  - [x] Retrieve compact outputs and rebuild Figure S3 from production output.
-  - [x] Update captions, tables, decisions, and plan so Figure S3 is no longer labelled as lower-replicate.
-
-_(Add new sections for subsequent artefacts.)_
-
-## Summary
-
-- **Headline**: Environmental variability tends to destabilise individual species, but heterogeneous responses and higher richness **buffer** this variability at the community level relative to single-species or aligned-response baselines. When responses are aligned (positive slopes), community biomass closely tracks the environment and variability remains high.
-- **Mechanism evidence**: Imposed driver correlation (ρ_env) diverges from realised growth synchrony—negative deltas for mixed slopes, positive for aligned slopes—showing that response direction controls insurance. φ_LdM stays ≤1 after clipping and covaries with CV patterns: lower φ_LdM is associated with lower CV_total.
-- **Robustness**: Production-backed main figures now span core `sigma_env` values up to 2.0, a labelled Figure 1 stress extension to 4.0, `rho_eff` from moderately negative to near one where feasible, richness up to S=8, and environmental persistence `phi` from 0 to 0.95. Extinction/floor occupancy is negligible in the main low-stress inference grids but rises in labelled high-`sigma_env` and high-`phi` stress regimes.
-- **Key numbers** (mixed slopes, `sigma_env=0.5`, `rho_eff=0.5`): CV S=2 ~0.15, S=4 ~0.08, S=8 ~0.06; positive slopes (S=4) CV ~0.26 at the same forcing. Figure 5 persistence check at the same `sigma_env` and `rho_eff` gives S=2 CV ~0.14 at `phi=0` and ~0.58 at `phi=0.95`, with S=4 remaining lower (~0.07 to ~0.35).
-- **Next focus**: Review the compiled manuscript artefact and decide whether the remaining lower-replicate no-competition and mixed-narrow controls need any further production reinforcement before submission.
+1. Does the mixed-versus-aligned contrast persist away from the special
+   `r0 = 1`/equal-abundance boundary?
+2. How does controlled response imbalance change the abundance-weighted first-
+   order covariance criterion and simulated aggregate variability?
+3. Which diagnostic most compactly replaces current Figure 4 without opening a
+   broad new modelling programme?
+4. After these checks, what is the narrowest accurate statement of the mechanism
+   and richness/persistence limitations?

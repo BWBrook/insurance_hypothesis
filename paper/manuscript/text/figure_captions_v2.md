@@ -22,4 +22,4 @@
 
 ---
 
-Figure assets are generated into `analysis/reports/` and copied to `paper/manuscript/figures/` by `analysis/run_all.py`.
+Figure assets are generated into the canonical `analysis/reports/` directory by `analysis/run_all.py`; the manuscript figure blocks reference those files directly.

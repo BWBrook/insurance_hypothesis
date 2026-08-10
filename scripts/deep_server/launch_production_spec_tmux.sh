@@ -18,14 +18,12 @@ import sys
 with open(sys.argv[1], encoding="utf-8") as handle:
     spec = json.load(handle)
 print(spec["run_id"])
-print(spec.get("execution", {}).get("default_jobs", 1))
 PY
 )"
 DEFAULT_RUN_ID="$(printf '%s\n' "$SPEC_META" | sed -n '1p')"
-DEFAULT_JOBS="$(printf '%s\n' "$SPEC_META" | sed -n '2p')"
 
 RUN_ID="${RUN_ID:-$DEFAULT_RUN_ID}"
-JOBS="${JOBS:-$DEFAULT_JOBS}"
+JOBS="${JOBS:-48}"
 REMOTE_WORK="${REMOTE_WORK:-/data/codex/scratch/insurance_hypothesis/$RUN_ID}"
 SESSION="${SESSION:-ih_${RUN_ID//[^A-Za-z0-9_]/_}}"
 
@@ -71,22 +69,22 @@ cd "$REMOTE_REPO"
   printf "jobs=%s\n" "$JOBS"
 } > "$REMOTE_WORK/production_context.txt"
 
-uv sync --dev
-uv run python analysis/production_grid.py create-manifest-from-spec \
+uv sync --frozen --dev
+uv run --frozen python analysis/production_grid.py create \
   --spec "$REMOTE_SPEC_PATH" \
   --output "$REMOTE_WORK/manifest.json" \
   --run-id "$RUN_ID"
 
 /usr/bin/time -v -o "$REMOTE_WORK/time_run_pending.txt" \
-  uv run python analysis/production_grid.py run-pending \
+  uv run --frozen python analysis/production_grid.py run-pending \
     --manifest "$REMOTE_WORK/manifest.json" \
     --jobs "$JOBS"
 
-uv run python analysis/production_grid.py combine \
+uv run --frozen python analysis/production_grid.py combine \
   --manifest "$REMOTE_WORK/manifest.json" \
   --output "$REMOTE_WORK/summaries.parquet" \
   --validation-output "$REMOTE_WORK/validation.json"
-uv run python analysis/production_grid.py validate \
+uv run --frozen python analysis/production_grid.py validate \
   --manifest "$REMOTE_WORK/manifest.json" \
   --combined "$REMOTE_WORK/summaries.parquet"
 printf "finished_at_utc=%s\n" "\$(date -u --iso-8601=seconds)" >> "$REMOTE_WORK/production_context.txt"

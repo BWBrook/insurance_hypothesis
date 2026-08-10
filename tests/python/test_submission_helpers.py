@@ -75,3 +75,15 @@ def test_review_package_copies_only_runnable_reproduction_tests(tmp_path: Path) 
 
     assert (destination / "test_sim_basic.py").is_file()
     assert not (destination / "test_submission_helpers.py").exists()
+
+
+def test_review_package_uses_the_single_active_analysis_path() -> None:
+    builder = _load_script("build_deidentified_review_package")
+
+    assert builder.ANALYSIS_FILES == (
+        "check_numerical_guards.py",
+        "production_grid.py",
+        "run_all.py",
+    )
+    assert "uv run --frozen python analysis/run_all.py" in builder.README_TEXT
+    assert "README_REVIEW.md" not in builder.README_TEXT

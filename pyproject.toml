@@ -12,9 +12,7 @@ authors = [{name = "Barry W. Brook"}]
 dependencies = [
   "numpy>=2.1",
   "pandas>=2.2",
-  "scipy>=1.13",
   "pyarrow>=16.0",
-  "pytest>=8.3",
   "matplotlib>=3.9",
 ]
 
@@ -28,4 +26,5 @@ index-url = "https://pypi.org/simple"
 [dependency-groups]
 dev = [
     "pyright>=1.1.408",
+    "pytest>=8.3",
 ]

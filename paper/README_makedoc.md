@@ -70,6 +70,6 @@ make all CONFIG="$TMP_CONFIG"
 
 1. Canonical bibliography file is:
    - `/Users/bwbrook/papers/insurance_hypothesis/paper/references/ih_references.yaml`
-2. Current known strict-lint blocker is manuscript citation syntax (`[REF]` placeholders and manual author-year formatting in `draft_ms_v2.md`).
-3. Figure blocks are managed in:
+2. There are no known strict-lint blockers at the current checkpoint; a failed gate should be investigated rather than treated as expected debt.
+3. Figure blocks reference the canonical assets in `analysis/reports/` and are managed in:
    - `/Users/bwbrook/papers/insurance_hypothesis/paper/manuscript/text/figures.md`

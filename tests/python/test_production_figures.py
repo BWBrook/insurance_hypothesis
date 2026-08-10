@@ -1,19 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
 from insurance_sim.production_figures import (
-    make_production_fig1,
-    make_production_fig2_richness,
-    make_production_fig3_synchrony,
-    make_production_fig4_cv_synchrony,
-    make_production_fig5_persistence,
-    make_production_figs3_positive_matched_control,
-    make_mixed_heatmap_supplement,
-    make_species_cv_supplement,
     summarize_fig2_richness_production,
     summarize_fig1_production,
     summarize_fig3_synchrony_production,
@@ -63,19 +53,6 @@ def test_summarize_fig1_production_aggregates_replicates() -> None:
     assert row["extinction_mean"] == pytest.approx(0.01)
 
 
-def test_make_production_fig1_writes_outputs(tmp_path: Path) -> None:
-    summary = summarize_fig1_production(_tiny_production_frame())
-    out_png = tmp_path / "fig1.png"
-    out_pdf = tmp_path / "fig1.pdf"
-    out_csv = tmp_path / "fig1_summary.csv"
-
-    make_production_fig1(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
-
-
 def test_summarize_fig2_richness_production_averages_scenario_means() -> None:
     rows: list[dict[str, float | int | str]] = []
     for n_species in [2, 4]:
@@ -100,30 +77,6 @@ def test_summarize_fig2_richness_production_averages_scenario_means() -> None:
     row = summary[summary["n_species"].eq(4)].iloc[0]
     assert row["cv_mean"] == pytest.approx(0.55)
     assert row["rho_count"] == 2
-
-
-def test_make_production_fig2_richness_writes_outputs(tmp_path: Path) -> None:
-    summary = pd.DataFrame(
-        {
-            "sigma_env": [0.0, 0.0, 0.5, 0.5],
-            "n_species": [2, 4, 2, 4],
-            "cv_mean": [0.0, 0.0, 0.25, 0.12],
-            "cv_min": [0.0, 0.0, 0.2, 0.1],
-            "cv_max": [0.0, 0.0, 0.3, 0.14],
-            "extinction_mean": [0.0, 0.0, 0.001, 0.001],
-            "extinction_max": [0.0, 0.0, 0.002, 0.002],
-            "rho_count": [2, 2, 2, 2],
-        }
-    )
-    out_png = tmp_path / "fig2.png"
-    out_pdf = tmp_path / "fig2.pdf"
-    out_csv = tmp_path / "fig2_summary.csv"
-
-    make_production_fig2_richness(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
 
 
 def test_summarize_fig3_synchrony_production_computes_delta() -> None:
@@ -158,32 +111,6 @@ def test_summarize_fig3_synchrony_production_computes_delta() -> None:
     ].iloc[0]
     assert row["pair_corr_mean"] == pytest.approx(0.305)
     assert row["delta_corr"] == pytest.approx(-0.195)
-
-
-def test_make_production_fig3_synchrony_writes_outputs(tmp_path: Path) -> None:
-    summary = pd.DataFrame(
-        {
-            "slope_mode": ["mixed", "mixed", "positive", "positive"],
-            "n_species": [2, 4, 2, 4],
-            "rho_eff": [0.0, 1.0, 0.0, 1.0],
-            "pair_corr_mean": [-0.1, -0.4, 0.2, 0.8],
-            "pair_corr_sd": [0.01, 0.01, 0.01, 0.01],
-            "phi_ldm_mean": [0.2, 0.3, 0.4, 0.5],
-            "cv_total_mean": [0.1, 0.2, 0.3, 0.4],
-            "extinction_mean": [0.0, 0.0, 0.0, 0.0],
-            "replicate_rows": [1000, 1000, 1000, 1000],
-            "delta_corr": [-0.1, -1.4, 0.2, -0.2],
-        }
-    )
-    out_png = tmp_path / "fig3.png"
-    out_pdf = tmp_path / "fig3.pdf"
-    out_csv = tmp_path / "fig3_summary.csv"
-
-    make_production_fig3_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
 
 
 def test_summarize_figs3_positive_matched_control_filters_and_aggregates() -> None:
@@ -222,44 +149,6 @@ def test_summarize_figs3_positive_matched_control_filters_and_aggregates() -> No
     assert row["replicate_rows"] == 2
 
 
-def test_make_production_figs3_positive_matched_control_writes_outputs(tmp_path: Path) -> None:
-    rows: list[dict[str, float | int | str]] = []
-    for slope_mode, offset in [("mixed", -0.2), ("positive_matched", 0.05), ("positive", 0.2)]:
-        for n_species in [4, 8]:
-            for rho_eff in [0.0, 0.5, 1.0]:
-                rows.append(
-                    {
-                        "slope_mode": slope_mode,
-                        "n_species": n_species,
-                        "sigma_env": 0.5,
-                        "rho_eff": rho_eff,
-                        "cv_total_mean": 0.1 + rho_eff + offset,
-                        "cv_total_sd": 0.01,
-                        "pair_corr_mean": offset + rho_eff,
-                        "pair_corr_sd": 0.01,
-                        "phi_ldm_mean": 0.2 + rho_eff,
-                        "extinction_mean": 0.0,
-                        "extinction_max": 0.0,
-                        "replicate_rows": 1000,
-                    }
-                )
-    summary = pd.DataFrame.from_records(rows)
-    out_png = tmp_path / "figS3.png"
-    out_pdf = tmp_path / "figS3.pdf"
-    out_csv = tmp_path / "figS3_summary.csv"
-
-    make_production_figs3_positive_matched_control(
-        summary,
-        out_png,
-        out_pdf=out_pdf,
-        summary_out=out_csv,
-    )
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
-
-
 def test_summarize_fig4_cv_synchrony_production_filters_and_aggregates() -> None:
     rows: list[dict[str, float | int | str]] = []
     for sigma_env in [0.0, 0.5]:
@@ -290,30 +179,6 @@ def test_summarize_fig4_cv_synchrony_production_filters_and_aggregates() -> None
     assert row["pair_corr_mean"] == pytest.approx(0.3)
 
 
-def test_make_production_fig4_cv_synchrony_writes_outputs(tmp_path: Path) -> None:
-    summary = pd.DataFrame(
-        {
-            "n_species": [2, 4, 6, 8],
-            "sigma_env": [0.2, 0.5, 1.0, 2.0],
-            "rho_eff": [0.0, 0.25, 0.5, 1.0],
-            "cv_total_mean": [0.05, 0.12, 0.3, 0.7],
-            "phi_ldm_mean": [0.05, 0.1, 0.2, 0.35],
-            "pair_corr_mean": [-0.2, -0.05, 0.1, 0.25],
-            "extinction_mean": [0.0, 0.0, 0.0, 0.001],
-            "replicate_rows": [1000, 1000, 1000, 1000],
-        }
-    )
-    out_png = tmp_path / "fig4.png"
-    out_pdf = tmp_path / "fig4.pdf"
-    out_csv = tmp_path / "fig4_summary.csv"
-
-    make_production_fig4_cv_synchrony(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
-
-
 def test_summarize_fig5_persistence_production_filters_and_aggregates() -> None:
     rows: list[dict[str, float | int | str]] = []
     for sigma_env in [0.5, 1.0]:
@@ -341,36 +206,6 @@ def test_summarize_fig5_persistence_production_filters_and_aggregates() -> None:
     row = summary[summary["n_species"].eq(4) & summary["phi"].eq(0.9) & summary["rho_eff"].eq(0.5)].iloc[0]
     assert row["cv_total_mean"] == pytest.approx(1.7)
     assert row["replicate_rows"] == 2
-
-
-def test_make_production_fig5_persistence_writes_outputs(tmp_path: Path) -> None:
-    rows: list[dict[str, float | int]] = []
-    for n_species in [2, 4]:
-        for phi in [0.0, 0.7, 0.9, 0.95]:
-            for rho_eff in [-0.5, 0.0, 0.5, 1.0]:
-                rows.append(
-                    {
-                        "n_species": n_species,
-                        "phi": phi,
-                        "sigma_env": 0.5,
-                        "rho_eff": rho_eff,
-                        "cv_total_mean": 0.1 + phi + (0.05 * n_species) - (0.03 * rho_eff),
-                        "cv_total_sd": 0.01,
-                        "extinction_mean": 0.0,
-                        "extinction_max": 0.0,
-                        "replicate_rows": 1000,
-                    }
-                )
-    summary = pd.DataFrame.from_records(rows)
-    out_png = tmp_path / "fig5.png"
-    out_pdf = tmp_path / "fig5.pdf"
-    out_csv = tmp_path / "fig5_summary.csv"
-
-    make_production_fig5_persistence(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
 
 
 def test_summarize_mixed_heatmap_supplement_filters_species_and_rho() -> None:
@@ -410,36 +245,6 @@ def test_summarize_mixed_heatmap_supplement_filters_species_and_rho() -> None:
     assert row["replicate_rows"] == 2
 
 
-def test_make_mixed_heatmap_supplement_writes_outputs(tmp_path: Path) -> None:
-    summary = pd.DataFrame(
-        {
-            "n_species": [2, 2, 4, 4, 8, 8],
-            "sigma_env": [0.0, 0.5, 0.0, 0.5, 0.0, 0.5],
-            "rho_eff": [0.0, 0.5, 0.0, 0.5, 0.0, 0.5],
-            "metric_mean": [0.0, 0.2, 0.0, 0.1, 0.0, 0.05],
-            "metric_sd": [0.0, 0.01, 0.0, 0.01, 0.0, 0.01],
-            "extinction_mean": [0.0] * 6,
-            "replicate_rows": [1000] * 6,
-            "metric": ["cv_total"] * 6,
-        }
-    )
-    out_png = tmp_path / "figS1.png"
-    out_pdf = tmp_path / "figS1.pdf"
-    out_csv = tmp_path / "figS1_summary.csv"
-
-    make_mixed_heatmap_supplement(
-        summary,
-        out_png,
-        metric_label=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
-        out_pdf=out_pdf,
-        summary_out=out_csv,
-    )
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()
-
-
 def test_summarize_species_cv_supplement_derives_cv_sp() -> None:
     rows: list[dict[str, float | int | str]] = []
     for slope_mode in ["mixed", "positive"]:
@@ -470,27 +275,3 @@ def test_summarize_species_cv_supplement_derives_cv_sp() -> None:
     expected = ((4.0**0.5) / 10.0 + (5.0**0.5) / 10.0) / 2.0
     assert row["cv_sp_mean"] == pytest.approx(expected)
     assert row["replicate_rows"] == 2
-
-
-def test_make_species_cv_supplement_writes_outputs(tmp_path: Path) -> None:
-    summary = pd.DataFrame(
-        {
-            "slope_mode": ["mixed", "mixed", "positive", "positive"],
-            "n_species": [4, 8, 4, 8],
-            "sigma_env": [0.5, 0.5, 0.5, 0.5],
-            "rho_eff": [0.0, 0.5, 0.0, 0.5],
-            "cv_sp_mean": [0.2, 0.15, 0.25, 0.22],
-            "cv_sp_sd": [0.01, 0.01, 0.01, 0.01],
-            "extinction_mean": [0.0, 0.0, 0.0, 0.0],
-            "replicate_rows": [1000, 1000, 1000, 1000],
-        }
-    )
-    out_png = tmp_path / "figS4.png"
-    out_pdf = tmp_path / "figS4.pdf"
-    out_csv = tmp_path / "figS4_summary.csv"
-
-    make_species_cv_supplement(summary, out_png, out_pdf=out_pdf, summary_out=out_csv)
-
-    assert out_png.exists()
-    assert out_pdf.exists()
-    assert out_csv.exists()

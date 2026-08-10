@@ -20,10 +20,8 @@ import pandas as pd
 from .model import (
     SimulationConfig,
     effective_rho,
-    generate_environment,
-    simulate_ricker,
+    simulate_once,
     slopes_for_mode,
-    summarise_timeseries,
 )
 
 
@@ -79,7 +77,12 @@ class ProductionScenario:
     phi: float
     steps: int
     burn: int
+    r0: float
+    K: float
+    alpha_intra: float
     alpha_inter: float
+    floor: float
+    max_exp: float
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ProductionScenario:
@@ -93,7 +96,12 @@ class ProductionScenario:
             phi=float(data["phi"]),
             steps=int(data["steps"]),
             burn=int(data["burn"]),
+            r0=float(data["r0"]),
+            K=float(data["K"]),
+            alpha_intra=float(data["alpha_intra"]),
             alpha_inter=float(data["alpha_inter"]),
+            floor=float(data["floor"]),
+            max_exp=float(data["max_exp"]),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -107,7 +115,12 @@ class ProductionScenario:
             "phi": self.phi,
             "steps": self.steps,
             "burn": self.burn,
+            "r0": self.r0,
+            "K": self.K,
+            "alpha_intra": self.alpha_intra,
             "alpha_inter": self.alpha_inter,
+            "floor": self.floor,
+            "max_exp": self.max_exp,
         }
 
     def config(self) -> SimulationConfig:
@@ -118,11 +131,13 @@ class ProductionScenario:
             sigma_env=self.sigma_env,
             rho_env=self.rho_env,
             phi=self.phi,
-            r0=1.0,
-            K=100.0,
+            r0=self.r0,
+            K=self.K,
             b_slopes=slopes_for_mode(self.slope_mode, self.n_species),
-            alpha_intra=1.0,
+            alpha_intra=self.alpha_intra,
             alpha_inter=self.alpha_inter,
+            floor=self.floor,
+            max_exp=self.max_exp,
         )
 
 
@@ -168,27 +183,6 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def parse_float_list(raw: str) -> list[float]:
-    values = [float(item.strip()) for item in raw.split(",") if item.strip()]
-    if not values:
-        raise ValueError("Expected at least one float value.")
-    return values
-
-
-def parse_int_list(raw: str) -> list[int]:
-    values = [int(item.strip()) for item in raw.split(",") if item.strip()]
-    if not values:
-        raise ValueError("Expected at least one integer value.")
-    return values
-
-
-def parse_str_list(raw: str) -> list[str]:
-    values = [item.strip() for item in raw.split(",") if item.strip()]
-    if not values:
-        raise ValueError("Expected at least one string value.")
-    return values
-
-
 def build_scenarios(
     *,
     sigma_vals: Sequence[float],
@@ -199,7 +193,12 @@ def build_scenarios(
     phi_vals: Sequence[float] | None = None,
     steps: int,
     burn: int,
+    r0: float,
+    K: float,
+    alpha_intra: float,
     alpha_inter: float,
+    floor: float,
+    max_exp: float,
 ) -> list[ProductionScenario]:
     phis = [float(phi)] if phi_vals is None else [float(value) for value in phi_vals]
     if not phis:
@@ -225,7 +224,12 @@ def build_scenarios(
                                 phi=float(phi_value),
                                 steps=int(steps),
                                 burn=int(burn),
+                                r0=float(r0),
+                                K=float(K),
+                                alpha_intra=float(alpha_intra),
                                 alpha_inter=float(alpha_inter),
+                                floor=float(floor),
+                                max_exp=float(max_exp),
                             )
                         )
     return scenarios
@@ -276,7 +280,12 @@ def create_manifest(
     phi_vals: Sequence[float] | None = None,
     steps: int,
     burn: int,
+    r0: float,
+    K: float,
+    alpha_intra: float,
     alpha_inter: float,
+    floor: float,
+    max_exp: float,
     base_seed: int,
 ) -> dict[str, Any]:
     if not run_id.strip():
@@ -295,7 +304,12 @@ def create_manifest(
         phi_vals=phi_vals,
         steps=steps,
         burn=burn,
+        r0=r0,
+        K=K,
+        alpha_intra=alpha_intra,
         alpha_inter=alpha_inter,
+        floor=floor,
+        max_exp=max_exp,
     )
     shards = build_shards(
         scenarios,
@@ -345,7 +359,12 @@ def create_manifest_from_spec(
         phi_vals=None if phi_values is None else [float(value) for value in phi_values],
         steps=int(manifest_spec["steps"]),
         burn=int(manifest_spec["burn"]),
+        r0=float(manifest_spec["r0"]),
+        K=float(manifest_spec["K"]),
+        alpha_intra=float(manifest_spec["alpha_intra"]),
         alpha_inter=float(manifest_spec["alpha_inter"]),
+        floor=float(manifest_spec["floor"]),
+        max_exp=float(manifest_spec["max_exp"]),
         base_seed=int(manifest_spec["base_seed"]),
     )
     expected = spec.get("expected")
@@ -399,26 +418,7 @@ def _replicate_record(
     shard_id: str,
 ) -> dict[str, Any]:
     config = scenario.config()
-    env = generate_environment(
-        n_steps=config.n_steps,
-        n_species=config.n_species,
-        phi=config.phi,
-        sigma_env=config.sigma_env,
-        rho=config.rho_env,
-        rng=np.random.default_rng(replicate_seed),
-    )
-    traj = simulate_ricker(
-        env,
-        r0=config.r0,
-        K=config.K,
-        b_slopes=config.b_slopes,
-        alpha_intra=config.alpha_intra,
-        alpha_inter=config.alpha_inter,
-        floor=config.floor,
-        max_exp=config.max_exp,
-        initial=None,
-    )
-    stats = summarise_timeseries(traj, burn_in=config.burn_in, floor=config.floor)
+    stats = simulate_once(config, np.random.default_rng(replicate_seed))
     rho_eff = effective_rho(config.rho_env, config.n_species)
     rho_clipped = bool(abs(rho_eff - float(config.rho_env)) > 1e-12)
     return {

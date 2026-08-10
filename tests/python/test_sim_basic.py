@@ -6,6 +6,7 @@ from insurance_sim.model import (
     effective_rho,
     generate_environment,
     simulate_ricker,
+    simulate_ricker_with_diagnostics,
     simulate_replicates,
     summarise_timeseries,
 )
@@ -67,6 +68,36 @@ def test_non_negative_with_variation():
         max_exp=config.max_exp,
     )
     assert np.all(traj >= 0), "Abundances must remain non-negative"
+
+
+def test_diagnostic_and_standard_simulators_share_the_same_trajectory():
+    env = generate_environment(
+        n_steps=80,
+        n_species=4,
+        phi=0.4,
+        sigma_env=0.8,
+        rho=0.25,
+        rng=20260810,
+    )
+    kwargs = {
+        "r0": 1.0,
+        "K": 100.0,
+        "b_slopes": [-0.5, -1 / 6, 1 / 6, 0.5],
+        "alpha_intra": 1.0,
+        "alpha_inter": 0.3,
+        "floor": 1e-9,
+        "max_exp": 50.0,
+    }
+
+    standard = simulate_ricker(env, **kwargs)
+    diagnostic, rates = simulate_ricker_with_diagnostics(env, **kwargs)
+
+    assert np.array_equal(standard, diagnostic)
+    assert set(rates) == {
+        "frac_exp_clipped_high",
+        "frac_exp_clipped_low",
+        "frac_floor",
+    }
 
 
 def test_simulate_replicates_returns_expected_length():

@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
 import re
 from typing import Callable
 
-import pandas as pd
 import pytest
 
 from insurance_sim.model import SimulationConfig, simulate_replicates, slopes_for_mode
-from insurance_sim.reporting import summarize_numerical_guard_csv, validate_phi_run_lengths, write_guard_summary_markdown
 
 
 def test_positive_slopes_high_rho_increases_cv_and_realised_correlation() -> None:
@@ -97,50 +94,3 @@ def test_simulate_replicates_requires_positive_n_reps() -> None:
     config = SimulationConfig(n_species=2, n_steps=10)
     with pytest.raises(ValueError, match="n_reps must be positive."):
         simulate_replicates(config, n_reps=0, seed=1)
-
-
-def test_validate_phi_run_lengths_rejects_mismatched_lengths() -> None:
-    phi_runs = {
-        "phi_bad": pd.DataFrame(
-            {
-                "n_steps": [300, 300],
-                "burn_in": [100, 100],
-            }
-        )
-    }
-
-    with pytest.raises(ValueError, match="expected 400/200"):
-        validate_phi_run_lengths(phi_runs)
-
-
-def test_summarize_numerical_guard_csv_and_markdown(tmp_path: Path) -> None:
-    in_path = tmp_path / "guards.csv"
-    pd.DataFrame(
-        {
-            "scenario": ["a", "a", "b"],
-            "slope_mode": ["mixed", "mixed", "positive"],
-            "n_species": [2, 2, 4],
-            "phi": [0.4, 0.4, 0.95],
-            "sigma_env": [0.5, 0.5, 1.0],
-            "rho_env_requested": [0.0, 0.0, 1.0],
-            "frac_exp_clipped_high": [0.1, 0.3, 0.5],
-            "frac_exp_clipped_low": [0.0, 0.2, 0.1],
-            "frac_floor": [0.0, 0.4, 0.2],
-        }
-    ).to_csv(in_path, index=False)
-
-    summary = summarize_numerical_guard_csv(in_path)
-    assert list(summary["scenario"]) == ["a", "b"]
-    assert {
-        "frac_exp_clipped_high_mean",
-        "frac_exp_clipped_high_max",
-        "frac_exp_clipped_low_mean",
-        "frac_floor_mean",
-        "frac_floor_max",
-    }.issubset(summary.columns)
-
-    md_path = tmp_path / "guards.md"
-    write_guard_summary_markdown(summary, md_path)
-    text = md_path.read_text(encoding="utf-8")
-    assert "| scenario | frac_exp_clipped_high_mean |" in text
-    assert "| a |" in text

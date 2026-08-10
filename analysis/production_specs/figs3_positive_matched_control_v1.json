@@ -14,8 +14,13 @@
     "replicates_per_shard": 100,
     "steps": 600,
     "burn": 300,
+    "r0": 1.0,
+    "K": 100.0,
+    "alpha_intra": 1.0,
     "phi": 0.4,
     "alpha_inter": 0.3,
+    "floor": 1e-9,
+    "max_exp": 50.0,
     "base_seed": 2026051901,
     "sigma_vals": [
       0.5
@@ -42,11 +47,6 @@
       "positive_matched",
       "positive"
     ]
-  },
-  "execution": {
-    "host": "deep-server",
-    "remote_root": "/data/codex/scratch/insurance_hypothesis",
-    "default_jobs": 48
   },
   "expected": {
     "scenario_count": 66,

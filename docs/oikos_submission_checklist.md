@@ -39,7 +39,7 @@ Current against the Oikos and NSO author guidance checked on 2026-07-24:
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
-## Implemented and verified on 2026-07-24
+## Last full submission verification: 2026-07-24
 
 - The main manuscript is anonymous and contains a specific AI-use statement
   before the References.
@@ -61,8 +61,8 @@ Current against the Oikos and NSO author guidance checked on 2026-07-24:
 - The manuscript reference audit found 26 cited keys, zero unknown keys, and
   four unused non-fatal bibliography entries.
 - The source-repository test suite and Pyright pass.
-- The de-identified review package was freshly rebuilt and verified from inside
-  the package; see `docs/deidentified_review_package_plan.md`.
+- The de-identified review package was rebuilt and verified from inside the
+  package. Stage 4 will repeat this gate after the final scientific revision.
 
 ## Important format choice
 
@@ -83,8 +83,6 @@ and will be required in clean and tracked forms at revision.
   used in the project.
 - Name the intended permanent data/code repository in the Data Availability
   statement.
-- Confirm whether ScholarOne accepts the 72,617,256-byte review zip; otherwise
-  use an anonymous repository/private-for-review route.
 - Read the cover letter once in the author’s own voice.
 
 ## WSL build and verification commands
@@ -102,11 +100,11 @@ make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_author_title_page
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_cover_letter
 
-uv run python scripts/sanitize_docx_identity.py --check \
+uv run --frozen python scripts/sanitize_docx_identity.py --check \
   /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
   /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
 
-uv run pytest -q
-uv run pyright
-uv run python scripts/build_deidentified_review_package.py --zip
+uv run --frozen pytest -q
+uv run --frozen pyright
+uv run --frozen python scripts/build_deidentified_review_package.py --zip
 ```

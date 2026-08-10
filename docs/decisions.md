@@ -1,230 +1,137 @@
-# Decisions
-
-> The AI agent must record here any non-trivial, irreversible decision it makes.
-
-For each entry, include:
-
-- an identifier,
-- date,
-- decision,
-- rationale,
-- status (active / superseded).
-
----
-
-## Decision log
-
-### DEC-001 – Language choice
-
-- **Date**: 2025-12-09
-- **Decision**: Python 3.12 for core simulations.  
-- **Rationale**: Python offers sufficient performance for the planned grid, strong ecosystem for testing/plotting (numpy/pandas/pytest), and uv makes reproducible environments straightforward; Julia not needed for anticipated scales.
-- **Status**: active
-
-### DEC-002 – Core model form
-
-- **Date**: 2025-12-09
-- **Decision**: Discrete-time stochastic Ricker model with intra/interspecific competition; per-capita growth modulated by species-specific slopes on a correlated multivariate AR(1) environmental driver.
-- **Rationale**: Captures density dependence and competitive interactions while remaining simple and fast for large scenario grids; AR(1) allows tunable environmental variance and persistence aligned with hypothesis needs.
-- **Status**: active
-
-### DEC-003 – Synchrony metric
-
-- **Date**: 2025-12-09
-- **Decision**: Manipulate **imposed environmental correlation** via equicorrelated environmental innovations (parameter ρ_env); quantify **realised synchrony** using pairwise growth-rate correlations and the Loreau–de Mazancourt community synchrony index in analyses.
-- **Rationale**: Separates the driver parameter (ρ_env) from emergent synchrony and uses established ecological indices for realised synchrony and its link to variance.
-- **Status**: active
-
-### DEC-004 – Persistence range and stability safeguards
-
-- **Date**: 2025-12-09
-- **Decision**: Environmental persistence φ explored over [0, 0.95]; σ_env interpreted as **innovation** standard deviation in the AR(1) process so that stationary variance is σ_env²/(1−φ²); covariance clipped to keep ρ_env < 1 for PD; φ_LdM clipped to [0,1] to avoid numerical overshoot.
-- **Rationale**: Ensures numerical stability while probing high persistence; makes explicit that φ sweeps change both temporal autocorrelation and effective environmental variance, and prevents artefactual synchrony values outside theoretical bounds.
-- **Status**: active
-
-### DEC-005 – Requested vs effective correlation logging
-
-- **Date**: 2025-12-12
-- **Decision**: Keep the requested grid value as `rho_env` and always store the actual value used by the simulator as `rho_eff`, plus a `rho_clipped` flag when clipping occurs.
-- **Rationale**: Equicorrelation has feasibility bounds that tighten with richness; explicit `rho_eff` avoids mislabeling infeasible negative-correlation scenarios and keeps cross-richness comparisons auditable.
-- **Status**: active
-
-### DEC-006 – Fixed φ-sensitivity run length convention
-
-- **Date**: 2025-12-12
-- **Decision**: Use 400 steps with 200 burn-in for φ-sensitivity grids, passed explicitly in runner commands; keep 600/300 for the main and positive full grids.
-- **Rationale**: Resolves a documentation-vs-command mismatch and standardises reduced-grid persistence sweeps without changing the main-inference grid convention.
-- **Status**: active
-
-### DEC-007 – Sign-structure control with magnitude matching
-
-- **Date**: 2025-12-12
-- **Decision**: Add a `positive_matched` control slope mode where aligned slopes are matched to the absolute-value magnitude distribution of mixed slopes.
-- **Rationale**: Separates the effect of slope sign structure from slope magnitude, directly addressing the “aligned responses also have larger |b_i|” confound.
-- **Status**: active
-
-### DEC-008 – Interpretation boundary for high-persistence stress runs
-
-- **Date**: 2026-02-11
-- **Decision**: Treat φ=0.9/0.95 reduced-grid results as stress tests when floor occupancy is elevated (especially low S and high σ_env), and avoid describing these scenarios as uniformly low-extinction.
-- **Rationale**: Post-hiatus audit showed non-negligible floor occupancy in subsets of high-φ scenarios (`phi09_reduced` and `phi095_reduced`) despite low extinction rates in main inference grids; documentation must distinguish these regimes.
-- **Status**: active
-
-### DEC-009 – Keep CLI scripts thin and reusable analysis logic importable
-
-- **Date**: 2026-03-07
-- **Decision**: Move reusable reporting and figure-generation logic into importable Python modules under `src/python/insurance_sim/`, leaving `analysis/*.py` as thin CLI/orchestration entry points.
-- **Rationale**: Reduces duplication (`rho_eff` handling, slope-mode definitions, reporting helpers), makes behavior easier to test under `pytest`, and keeps future refactors reviewable without changing the public CLI or scientific outputs.
-- **Status**: active
-
-### DEC-010 – Production-grid compute target and replicate convention
-
-- **Date**: 2026-05-14
-- **Decision**: Use `deep-server` as the default execution host for production-scale single-host simulation grids, and use 1000 replicates per scenario/slice for final-paper production grids unless a run is explicitly labelled as a smoke test, pilot, or stress-test subset.
-- **Rationale**: The Nectar control-plane repo identifies `deep-server` as the best fit for durable CPU-heavy single-host jobs, with 64 logical CPUs, 125 GiB RAM, and large `/data` storage. A fixed 1000-replicate convention is easy to justify in the paper and reduces reviewer concern about Monte Carlo sampling uncertainty, even where diminishing returns would likely begin earlier.
-- **Status**: active
-
-### DEC-011 – Production-only shard seeding
-
-- **Date**: 2026-05-14
-- **Decision**: For production manifests, derive each replicate seed deterministically from `(base_seed, scenario_index, replicate)` using NumPy `SeedSequence`; keep the existing exploratory `analysis/run_full_grid.py` seeding behaviour unchanged.
-- **Rationale**: Production runs must be shardable and resumable across many independent worker processes on `deep-server`. Per-replicate deterministic seeds let shards run in any order or be re-run independently without changing already-completed replicate identities, while preserving the older exploratory runner as a compatibility surface.
-- **Status**: active
-
-### DEC-012 – First-batch production shard size and concurrency
-
-- **Date**: 2026-05-14
-- **Decision**: Use 100 replicates per shard and launch the first production batch with `run-pending --jobs 48` on `deep-server`.
-- **Rationale**: Remote benchmarks with S=4, 600/300-step, 1000-replicate-per-scenario workloads validated cleanly. A 48-worker benchmark processed 10000 replicate summaries across 10 scenarios in 6.85 seconds of `run-pending` wall time with low memory use. Forty-eight workers use most of the 64 logical CPUs while leaving conservative headroom for OS, SSH/tmux, and filesystem activity; `--jobs 56` remains a later option if the first full grid shows no contention.
-- **Status**: active
-
-### DEC-013 – First high-resolution Figure 1 production grid
-
-- **Date**: 2026-05-14
-- **Decision**: Use `analysis/production_specs/fig1_s4_highres_v1.json` as the first production batch: S=4, `phi=0.4`, mixed and positive slope modes, 19 `sigma_env` values from 0.0 to 2.0, 15 `rho_env` values from -0.3 to 1.0, and 1000 replicates per scenario.
-- **Rationale**: This grid directly addresses the ecologist-facing concern that the interim Figure 1 surfaces were blocky and that visual change was compressed at high `sigma_env`. It densifies the displayed gradients without expanding to other richness levels or controls before the main S=4 story is rechecked.
-- **Status**: active
-
-### DEC-014 – Label high-sigma Figure 1 work as a stress extension
-
-- **Date**: 2026-05-15
-- **Decision**: Add `analysis/production_specs/fig1_s4_highsigma_v1.json` as a separate S=4 production extension from `sigma_env=2.25` to `4.0`, rather than expanding the core Figure 1 grid in place.
-- **Rationale**: The first production surface indicates that the mixed-slope response is still buffered at `sigma_env=2.0`, while positive slopes are already entering a high-CV/high-floor edge. Extending to `sigma_env=3-4` is ecologically plausible for high-variability taxa such as many invertebrates, but should be explicitly treated as a high-variability stress regime until floor occupancy and nonlinear dynamics are inspected.
-- **Status**: active
-
-### DEC-015 – Promote the production Figure 1 display
-
-- **Date**: 2026-05-15
-- **Decision**: Promote the accepted S=4 production display to the canonical `fig1_panels` output. Main Figure 1 now uses an aligned positive-slope response surface as panel A and a mixed-vs-aligned $\sigma_{\mathrm{env}}$ gradient/gap panel as panel B; the full mixed-slope heatmap remains diagnostic/supplementary rather than central.
-- **Rationale**: Barry's review identified weak `rho_eff` structure relative to the strong `sigma_env` gradient, and the two-panel layout communicates the conditional-insurance contrast more directly than paired mixed/positive heatmaps. Keeping the high-sigma region shaded as a stress extension preserves the ecological boundary around extreme forcing.
-- **Status**: active
-
-### DEC-016 – Figure 2 production richness grid
-
-- **Date**: 2026-05-15
-- **Decision**: Use `analysis/production_specs/fig2_richness_mixed_v1.json` for Figure 2: mixed slopes only, S=2 through S=8, `phi=0.4`, `sigma_env` in {0.0, 0.2, 0.5, 1.0, 1.5, 2.0}, non-negative `rho_env` in {0.0, 0.25, 0.5, 0.75, 1.0}, and 1000 replicates per scenario.
-- **Rationale**: Figure 2 supports the richness-buffering claim rather than the mixed-vs-aligned contrast, so the production run should stay focused on mixed responses and the shared non-negative correlation subset used in the display. Extending to `sigma_env=2.0` aligns with the Figure 1 core boundary without adding the high-sigma stress extension.
-- **Status**: active
-
-### DEC-017 – Figure 3 production synchrony grid
-
-- **Date**: 2026-05-18
-- **Decision**: Use `analysis/production_specs/fig3_synchrony_v1.json` for Figure 3: mixed and positive slope modes, S=2,4,8, `phi=0.4`, `sigma_env=0.5`, non-negative `rho_env` from 0.0 to 1.0 in 0.1 increments, and 1000 replicates per scenario.
-- **Rationale**: Figure 3 is the mechanism figure linking imposed environmental correlation to realised growth synchrony. A focused production run gives it the same replicate standard as Figures 1 and 2 without launching an unnecessary broad parameter sweep, and the non-negative `rho_env` grid avoids cross-richness complications from infeasible negative equicorrelations.
-- **Status**: active
-
-### DEC-018 – Reuse Figure 2 production grid for Figure 4
-
-- **Date**: 2026-05-18
-- **Decision**: Rebuild Figure 4 from the validated `fig2-richness-mixed-v1` production output rather than launching a separate production run.
-- **Rationale**: Figure 4 needs mixed-slope scenario means for $\mathrm{CV}_{\mathrm{tot}}$, $\phi_{\mathrm{LdM}}$, and mean pairwise growth correlation across richness and environmental forcing. The Figure 2 production grid already provides these quantities for S=2..8, `sigma_env` up to 2.0, non-negative `rho_eff`, and 1000 replicates per scenario, so a new run would be redundant.
-- **Status**: active
-
-### DEC-019 – Production persistence grid for Figure 5
-
-- **Date**: 2026-05-18
-- **Decision**: Use `analysis/production_specs/fig5_persistence_mixed_v1.json` for Figure 5: mixed slopes only, S=2 and S=4, `sigma_env=0.5`, `phi` in {0, 0.7, 0.9, 0.95}, `rho_env` in {-0.5, -0.25, 0, 0.25, 0.5, 0.75, 0.9, 1.0}, 600 steps with 300 burn-in, and 1000 replicates per scenario.
-- **Rationale**: Figure 5 is the remaining main persistence-sensitivity figure not yet supported by a production-scale run. The focused grid preserves the current ecological comparison while replacing the 80-replicate exploratory sensitivity data with the final 1000-replicate convention and modestly denser correlation resolution.
-- **Status**: active
-
-### DEC-020 – Production-backed supplementary figure set
-
-- **Date**: 2026-05-19
-- **Decision**: Rebuild supplementary Figures S1, S2, and S4 from production outputs (`fig2-richness-mixed-v1` for mixed-slope CV/synchrony heatmaps and `fig3-synchrony-v1` for species-level CV), while retaining Figure S3 as an explicitly labelled lower-replicate positive-matched robustness control.
-- **Rationale**: Figures S1/S2/S4 support claims made by the production main figures and can be refreshed from already validated 1000-replicate grids, avoiding stale coarse-grid diagnostics. The positive-matched control addresses a distinct slope-magnitude confound and has not yet been selected for production refresh, so it should remain supplementary and clearly labelled as lower-replicate rather than treated as a main evidence source.
-- **Status**: superseded in part by DEC-021 for Figure S3; active for S1/S2/S4
-
-### DEC-021 – Production Figure S3 sign-structure control
-
-- **Date**: 2026-05-19
-- **Decision**: Use `analysis/production_specs/figs3_positive_matched_control_v1.json` for Supplementary Figure S3: mixed, positive_matched, and positive slope modes; S=4 and S=8; `sigma_env=0.5`; `phi=0.4`; non-negative `rho_env` from 0.0 to 1.0 in 0.1 increments; and 1000 replicates per scenario.
-- **Rationale**: Barry judged that Figure S3 should be refreshed at production scale rather than remain the only lower-replicate figure in the supplementary set. A focused grid is enough to test the sign-versus-magnitude control without launching an unnecessary broad surface, and it aligns directly with the Figure 3 mechanism setting.
-- **Status**: active
-
-### DEC-022 – Treat production summaries as the primary regeneration cache
-
-- **Date**: 2026-05-21
-- **Decision**: Update `analysis/run_all.py` so compact summaries under `data/sim/production/` are sufficient to regenerate the production-backed manuscript figures, with older `data/sim/grid/` caches loaded only when present and required only for legacy fallback paths.
-- **Rationale**: The manuscript figure suite is now production-backed, but the orchestration script still failed early if untracked exploratory grid caches such as `data/sim/grid/run1/summaries.parquet` were absent. Making legacy caches lazy preserves old fallback behaviour while removing an avoidable fresh-checkout reproducibility trap for the production figure suite.
-- **Status**: active
-
-### DEC-023 – Separate double-blind review outputs from author-facing submission material
-
-- **Date**: 2026-05-21
-- **Decision**: Add a double-blind `ih_submission` build profile with no injected author metadata, plus separate `ih_supplementary_info` and `ih_author_title_page` profiles. Defer the de-identified review-code zip until final code lock, but document its include/exclude rules now.
-- **Rationale**: Oikos uses double-anonymised review and expects a separate title page. Keeping author metadata out of the review manuscript, while preserving an unblinded title-page profile and a deferred anonymous code package plan, reduces the risk of identity leakage without forcing premature packaging before the code is frozen.
-- **Status**: active
-
-### DEC-024 – Sanitize generated DOCX metadata for double-blind review
-
-- **Date**: 2026-05-21
-- **Decision**: Add `scripts/sanitize_docx_identity.py` and treat it as a required post-build step for the blinded main manuscript and anonymous supplementary DOCX outputs. Run makedoc submission profiles sequentially rather than in parallel.
-- **Rationale**: The PDF text scans were clean, but generated DOCX internals can retain local absolute image and bibliography paths such as `/home/bwbrook/...` or `/Users/bwbrook/...` in invisible XML metadata. The sanitizer strips those local-path leaks without changing visible text. Sequential builds avoid shared-cache races between makedoc profiles.
-- **Status**: active
-
-### DEC-025 – Address pre-submission review with text and existing-output diagnostics before new simulations
-
-- **Date**: 2026-05-23
-- **Decision**: Respond to the independent pre-submission critique first by adding the first-order environmental-response covariance argument, correcting manuscript wording and equations, deriving variance-decomposition and Figure 4 association diagnostics from existing production summaries, and describing Figure 5 as a persistence–stationary-variance stress gradient rather than launching a new variance-standardised $\phi$ simulation immediately.
-- **Rationale**: The review identified predictable reviewer vulnerabilities that can be fixed without changing numerical outputs: the algebraic sign of $b_i b_j$, the false paired-seeding claim, the deterministic equilibrium expression, richness wording, and CV interpretation. Existing 1000-replicate production summaries already support the covariance and association diagnostics. New simulations on `deep-server` remain available if the later submission-format and figure-design pass shows the variance-standardised $\phi$ comparison is still needed.
-- **Status**: active
-
-### DEC-026 – Mac-native final submission handoff paths
-
-- **Date**: 2026-05-28
-- **Decision**: Treat `/Users/bwbrook/work/makedoc`, `/Users/bwbrook/papers/insurance_hypothesis`, and `~/papers/de_identified_repos/` as the local Mac mini submission/build paths; reserve `/home/bwbrook/...` paths for historical WSL/deep-server records and explicit remote helper defaults.
-- **Rationale**: The project has moved from a WSL-controlled finalisation path to the Mac mini. The manuscript build config is already config-relative, so final-stage reliability mostly depends on correcting path-facing runbooks, DOCX identity checks, and review-package staging safeguards without changing simulation code or scientific outputs.
-- **Status**: active
-
-### DEC-027 – Use the compliant PDF as the initial main-text upload
-
-- **Date**: 2026-07-24
-- **Decision**: Use the direct `ih_submission` PDF as the initial Oikos main-text upload. Retain the anonymous DOCX as an editable fallback, but do not use it as the initial review file unless its pagination is deliberately reformatted.
-- **Rationale**: The current NSO guidance accepts PDF at initial submission and requires the Introduction to begin on page 2. The direct A4 PDF is anonymous, double-spaced, continuously line-numbered, and begins the Introduction on page 2. LibreOffice renders the generated DOCX on US-letter pages and begins the Introduction on page 3.
-- **Status**: active
-
-### DEC-028 – Keep repository-only submission tests out of the anonymous review package
-
-- **Date**: 2026-07-24
-- **Decision**: Package only tests that can run within the intentionally narrow simulation/reproduction archive. Exclude `test_submission_helpers.py`, while retaining it and its new regression test in the source repository.
-- **Rationale**: The excluded test exercises the package builder and DOCX sanitizer, both intentionally absent from the anonymous review archive, and contains deliberate author/path fixtures to test sanitization. Copying it made the anonymous scan fail and would leave a non-runnable test in the package. The final archive still includes all seven simulator, production-harness, plotting, diagnostic, and analysis-workflow test files.
-- **Status**: active
-
-### DEC-029 – Separate cold-review evidence from author and internal project context
-
-- **Date**: 2026-08-09
-- **Decision**: Build the external-review dress-rehearsal bundle from source components rather than an assembled manuscript, with anonymous manuscript, Supporting Information, and reproducibility directories separated from an explicitly unblinded editorial-materials directory. Exclude internal plans, logs, earlier critiques, Git metadata, scratch material, and assembled manuscript PDF/DOCX files; include both PNG and PDF versions of every locked display item.
-- **Rationale**: A reviewer encountering the work cold needs the complete scientific and computational evidence without prior-review framing or internal project history that could bias the assessment. The separated editorial directory preserves the complete submission dossier while allowing a double-anonymized review simulation simply by leaving that directory unopened.
-- **Status**: active
-
-_(The agent should add more entries as needed.)_
-
----
-
-# Example template (dispose, use, modify as you see fit):
-
-| Date (UTC) | Decision            | Rationale / evidence | Status | Links                  |
-| ---------- | ------------------- | -------------------- | ------ | ---------------------- |
-| _[fill]_   | _[what was chosen]_ | _[why]_              | active | _[log entry / commit]_ |
-
-Add new rows as decisions are made; do not delete old ones. Mark superseded items in **Status** (e.g., superseded, reverted) rather than removing them.
+# Active scientific and release decisions
+
+This file records consequential choices that still govern the paper. Historical
+implementation detail is recoverable through Git history.
+
+## Scientific design
+
+### Competitive stochastic Ricker model
+
+- **Decision:** Use a discrete-time Ricker model with shared `r0 = 1`, `K = 100`,
+  intraspecific competition `1`, and interspecific competition `0.3`.
+- **Reason:** It is the smallest density-regulated community model that exposes
+  environmental response covariance while retaining interpretable dynamics.
+- **Status:** active; sensitivity at other `r0` values is part of the bounded
+  final revision, not a replacement of the core design.
+
+### AR(1) forcing and correlation
+
+- **Decision:** `sigma_env` is the innovation SD of a multivariate AR(1) process;
+  `phi` controls persistence, so stationary SD is
+  `sigma_env / sqrt(1 - phi^2)`. Innovations use an equicorrelation request
+  `rho_env`; infeasible negative requests are clipped to a positive-definite
+  value recorded as `rho_eff`.
+- **Reason:** This separates the implemented inputs from realised growth
+  synchrony and makes feasibility transparent.
+- **Status:** active. Figure 5 is a fixed-innovation compound persistence–variance
+  sensitivity, not an isolated autocorrelation effect.
+
+### Response regimes
+
+- **Decision:** Compare `mixed` slopes in `[-0.5, 0.5]`, `positive` slopes in
+  `[0.1, 1]`, and `positive_matched = abs(mixed)`.
+- **Reason:** Mixed versus positive tests the headline contrast; positive-matched
+  isolates response sign structure from slope magnitude.
+- **Status:** active. The positive-matched control will be promoted in the final
+  revision.
+
+### Outcomes and mechanism
+
+- **Decision:** Use temporal CV of total abundance as the main response. Treat
+  Loreau-de Mazancourt synchrony, realised per-capita growth correlations, and
+  the exact abundance variance decomposition as mechanistic diagnostics.
+- **Reason:** These quantities distinguish aggregate stability from species-level
+  variability and imposed environmental correlation.
+- **Status:** active. The analytical mechanism will be stated as an
+  abundance-weighted covariance criterion and limited to its first-order scope.
+
+### Richness and persistence claims
+
+- **Decision:** Describe richness as an ordered assembly sequence in which slope
+  composition and other quantities covary with `S`; describe `phi` sensitivity at
+  fixed innovation variance.
+- **Reason:** The production grids do not independently randomize response
+  balance across richness or hold stationary environmental variance fixed.
+- **Status:** active; claims must remain calibrated to these compound designs.
+
+### Stress regions
+
+- **Decision:** Retain high-`sigma_env` and high-`phi` runs as labelled stress
+  extensions and report floor occupancy explicitly.
+- **Reason:** They reveal where the qualitative contrast persists while the model
+  enters boom–bust/floor-influenced dynamics; they should not be presented as the
+  same low-extinction regime as the core inference.
+- **Status:** active.
+
+## Reproducibility architecture
+
+### Production specifications and seeds
+
+- **Decision:** Versioned JSON specs are the only production-creation interface.
+  All fixed model constants are explicit. Production uses 1000 replicates per
+  scenario and deterministic seeds derived from the base seed, scenario index,
+  and replicate index.
+- **Reason:** A spec is a compact auditable design record; deterministic
+  per-replicate seeds make sharding and reruns order-independent.
+- **Status:** active.
+
+### Single active analysis path
+
+- **Decision:** `analysis/production_grid.py` is the full-run entry point and
+  `analysis/run_all.py` is the only figure/table regeneration entry point. The six
+  production summaries are mandatory inputs; canonical outputs live only in
+  `analysis/reports/`.
+- **Reason:** The previous collection of wrappers, fallbacks, exploratory caches,
+  and copied figure trees obscured provenance without adding current capability.
+- **Status:** active from the 2026-08-10 structural cleanup.
+
+### Proportional test boundary
+
+- **Decision:** Test distinct scientific contracts, deterministic production
+  bookkeeping, numerical summary functions, failure on missing inputs, and one
+  complete display workflow. Do not separately test every plotting wrapper or
+  obsolete interface.
+- **Reason:** This protects inferential validity while keeping a private
+  scientific repository fast to change and easy to understand.
+- **Status:** active.
+
+## Manuscript and submission
+
+### Evidence and display hierarchy
+
+- **Decision:** Production-backed results are the paper's evidence base. The
+  current display suite remains locked during structural cleanup; Stage 3 may
+  replace Figure 4 and promote the positive-matched control with explicit PI
+  review.
+- **Reason:** Display changes should follow scientific decisions, not code
+  tidying.
+- **Status:** active.
+
+### Oikos build composition
+
+- **Decision:** Keep anonymous main manuscript, anonymous Supporting Information,
+  submission-form statements, unblinded title page, and cover letter as separate
+  `makedoc` profiles. Use the compliant A4 anonymous PDF as the initial main-text
+  upload; keep DOCX as an editable fallback.
+- **Reason:** This matches double-blind review needs and avoids accidental identity
+  disclosure or unsuitable DOCX pagination.
+- **Status:** active.
+
+### Anonymous reproducibility package
+
+- **Decision:** Build an allowlisted code/data package containing the active
+  simulator, production runner, figure workflow, tests, six compact summaries,
+  specs, and locked environment. Exclude manuscript/internal history and
+  repository-only submission tests.
+- **Reason:** Reviewers need complete reproducibility evidence without author
+  identity or internal project context.
+- **Status:** active.
+
+### Final-review response boundary
+
+- **Decision:** Address the external review with a bounded response-balance,
+  abundance-weight, and `r0` tranche plus calibrated prose. Defer broader model
+  extensions unless this focused test changes the decision.
+- **Reason:** The review found no fatal defect; expanding every defensible
+  sensitivity would diffuse a tight paper without proportionate inferential gain.
+- **Status:** active.
