@@ -15,8 +15,8 @@ factorial experiment.
 
 ## Locked evidence base
 
-Six validated baseline production grids contain 1,156,000 replicate summaries
-in total:
+Seven validated production grids contain 1,196,000 replicate summaries in
+total:
 
 | Grid | Rows | Primary use |
 | --- | ---: | --- |
@@ -26,10 +26,10 @@ in total:
 | `fig3_synchrony_v1` | 66,000 | Imposed-versus-realised synchrony and species-CV diagnostic |
 | `fig5_persistence_mixed_v1` | 64,000 | Fixed-innovation persistence sensitivity |
 | `figs3_positive_matched_control_v1` | 66,000 | Magnitude-matched response-sign control |
+| `fig4_weighted_balance_r0_v1` | 40,000 | Weighted-balance boundary and `r0` sensitivity |
 
-The present numerical summaries and display items are protected during structural
-cleanup. New simulations in the scientific revision will be written to a new,
-versioned spec and output directory.
+The present numerical summaries and display items are protected. Any future
+simulation analysis must use a new, versioned spec and output directory.
 
 ## External-review response boundary
 
@@ -65,7 +65,7 @@ fails to support an honest focused claim.
   central boundary conditions. Promote the existing magnitude-matched control,
   replace Figure 4, and revise the manuscript's mechanism and claim hierarchy.
   Verify claim-specific invariants and pause for PI review.
-- [ ] **Stage 4 — release and submission gate.** Run the full code/data/display
+- [x] **Stage 4 — release and submission gate.** Run the full code/data/display
   checks, sequential manuscript profiles, identity sanitization, visual review,
   anonymous package rebuild, and submission checklist. Resolve only the remaining
   PI-supplied submission facts, then prepare the final handoff.
@@ -143,6 +143,31 @@ $A=1/S=0.25$. Balanced ratios remained below one and aligned ratios above one at
 every tested $r_0$. Floor contact was absent except for negligible occupancy in
 the most uneven abundance-weight treatment. Figure 4 and the manuscript now use
 these results, and obsolete Figure 4 association outputs are retired.
+
+## Stage 4 outcome
+
+The final release gate passed on 2026-08-10. All seven production summaries
+validated at 1,196 scenarios and 1,196,000 replicate rows; 39 repository tests,
+Pyright, numerical guards, and the canonical display workflow passed. Consecutive
+full display regenerations produced identical PDF hashes, and all PNG plus
+rasterized-PDF comparisons matched the PI-approved Stage 3 suite.
+
+All six manuscript profiles passed their current makedoc checks. The anonymous
+main PDF is 28 pages with a 230-word abstract and the Introduction on page 2; its
+golden contract, identity sanitization, and page-by-page PDF/DOCX inspection
+passed, as did the 9-page Supporting information. A live check of the Oikos/NSO
+guidance prompted one narrow compliance correction: the main text now refers to
+the separate file only as “Supporting information”. A simulation-appropriate
+equity, diversity and inclusion response was also added to the submission-form
+statements.
+
+The rebuilt anonymous package contains all seven specs and compact summaries.
+From inside that package, 35 reviewer-facing tests, Pyright, and regeneration of
+nine figures and 11 tabular summaries passed; the clean zip also passed archive,
+path, and identity checks. The only remaining submission tasks are the
+author-supplied facts recorded in `docs/questions_for_human.md`. An optional
+anonymous cold-review bundle and cover note were also prepared for one final Pro
+review without expanding the scientific scope.
 
 ## Stopping rule
 

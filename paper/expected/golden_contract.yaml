@@ -3,7 +3,7 @@ expect_drawings: 5
 min_pdf_pages: 1
 required_text:
   - Abundance-weighted response balance determines
-  - when environmental correlation stabilises communities
+  - correlation stabilises communities
   - Introduction
   - Methods
   - Results

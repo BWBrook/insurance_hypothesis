@@ -32,8 +32,8 @@ implementation detail is recoverable through Git history.
   `[0.1, 1]`, and `positive_matched = abs(mixed)`.
 - **Reason:** Mixed versus positive tests the headline contrast; positive-matched
   isolates response sign structure from slope magnitude.
-- **Status:** active. The positive-matched control will be promoted in the final
-  revision.
+- **Status:** active. The positive-matched control is the primary sign-structure
+  comparison in the revised evidential hierarchy.
 
 ### Outcomes and mechanism
 
@@ -42,8 +42,8 @@ implementation detail is recoverable through Git history.
   the exact abundance variance decomposition as mechanistic diagnostics.
 - **Reason:** These quantities distinguish aggregate stability from species-level
   variability and imposed environmental correlation.
-- **Status:** active. The analytical mechanism will be stated as an
-  abundance-weighted covariance criterion and limited to its first-order scope.
+- **Status:** active. The manuscript states the analytical mechanism as an
+  abundance-weighted covariance criterion and limits it to its first-order scope.
 
 ### Bounded weighted-balance sensitivity
 
@@ -110,6 +110,16 @@ implementation detail is recoverable through Git history.
   scientific repository fast to change and easy to understand.
 - **Status:** active.
 
+### Reproducible display metadata
+
+- **Decision:** `analysis/run_all.py` sets a stable default
+  `SOURCE_DATE_EPOCH` before importing the plotting stack, while allowing an
+  explicit caller override.
+- **Reason:** Canonical PDF content was reproducible, but Matplotlib's embedded
+  creation timestamp changed the file hash on every release run.
+- **Status:** active. Consecutive full regenerations now produce identical PDF
+  hashes, and raster comparison confirmed no rendered change.
+
 ## Manuscript and submission
 
 ### Evidence and display hierarchy
@@ -120,8 +130,8 @@ implementation detail is recoverable through Git history.
   positive-matched diagnostic in the Supporting information.
 - **Reason:** Display changes should follow scientific decisions, not code
   tidying.
-- **Status:** approved for Stage 3; the revised display and claims remain subject
-  to PI review at the stage boundary.
+- **Status:** approved by the PI at the Stage 3 boundary; the revised display and
+  calibrated claims are current.
 
 ### Oikos build composition
 
@@ -141,7 +151,9 @@ implementation detail is recoverable through Git history.
   repository-only submission tests.
 - **Reason:** Reviewers need complete reproducibility evidence without author
   identity or internal project context.
-- **Status:** active.
+- **Status:** active. The 2026-08-10 package contains all seven production specs
+  and summaries and passes its reviewer-facing test, type, and display workflow
+  from inside the package.
 
 ### Final-review response boundary
 

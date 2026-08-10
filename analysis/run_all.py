@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pandas as pd
+
+# Keep generated PDF metadata reproducible while allowing an explicit caller override.
+os.environ.setdefault("SOURCE_DATE_EPOCH", "0")
 
 from insurance_sim.diagnostics import (
     select_variance_decomposition_rows,

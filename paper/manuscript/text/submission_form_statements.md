@@ -14,6 +14,10 @@ No empirical datasets were used; all results are generated from simulation code.
 
 No field sampling, live-animal work, human participants, or empirical sensitive data were involved.
 
+## Equity, Diversity and Inclusion Statement
+
+This theoretical simulation study used no human participants, field sites, study taxa, or empirical sampling frame; equity, diversity and inclusion considerations therefore did not enter sampling or recruitment decisions.
+
 ## Conflict of Interest Statement
 
 No competing interests are declared.
