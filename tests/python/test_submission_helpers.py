@@ -64,3 +64,14 @@ def test_review_package_target_guard_uses_macos_home_root(tmp_path: Path, monkey
         assert "Refusing to build package inside source repository" in str(exc)
     else:
         raise AssertionError("Expected target inside source repository to be rejected.")
+
+
+def test_review_package_copies_only_runnable_reproduction_tests(tmp_path: Path) -> None:
+    builder = _load_script("build_deidentified_review_package")
+    assert hasattr(builder, "copy_review_tests")
+
+    destination = tmp_path / "tests" / "python"
+    builder.copy_review_tests(destination)
+
+    assert (destination / "test_sim_basic.py").is_file()
+    assert not (destination / "test_submission_helpers.py").exists()

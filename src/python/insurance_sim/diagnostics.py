@@ -32,7 +32,7 @@ def summarize_variance_decomposition(
 
     Production rows store the mean species variance for each replicate. Multiplying
     by richness gives the summed species-variance term; subtracting this from
-    total-biomass variance gives the aggregate covariance term, i.e.
+    total-abundance variance gives the aggregate covariance term, i.e.
     ``2 * sum_{i<j} cov(N_i, N_j)``.
     """
     required = {

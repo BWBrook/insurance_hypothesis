@@ -196,6 +196,27 @@ For each entry, include:
 - **Rationale**: The project has moved from a WSL-controlled finalisation path to the Mac mini. The manuscript build config is already config-relative, so final-stage reliability mostly depends on correcting path-facing runbooks, DOCX identity checks, and review-package staging safeguards without changing simulation code or scientific outputs.
 - **Status**: active
 
+### DEC-027 – Use the compliant PDF as the initial main-text upload
+
+- **Date**: 2026-07-24
+- **Decision**: Use the direct `ih_submission` PDF as the initial Oikos main-text upload. Retain the anonymous DOCX as an editable fallback, but do not use it as the initial review file unless its pagination is deliberately reformatted.
+- **Rationale**: The current NSO guidance accepts PDF at initial submission and requires the Introduction to begin on page 2. The direct A4 PDF is anonymous, double-spaced, continuously line-numbered, and begins the Introduction on page 2. LibreOffice renders the generated DOCX on US-letter pages and begins the Introduction on page 3.
+- **Status**: active
+
+### DEC-028 – Keep repository-only submission tests out of the anonymous review package
+
+- **Date**: 2026-07-24
+- **Decision**: Package only tests that can run within the intentionally narrow simulation/reproduction archive. Exclude `test_submission_helpers.py`, while retaining it and its new regression test in the source repository.
+- **Rationale**: The excluded test exercises the package builder and DOCX sanitizer, both intentionally absent from the anonymous review archive, and contains deliberate author/path fixtures to test sanitization. Copying it made the anonymous scan fail and would leave a non-runnable test in the package. The final archive still includes all seven simulator, production-harness, plotting, diagnostic, and analysis-workflow test files.
+- **Status**: active
+
+### DEC-029 – Separate cold-review evidence from author and internal project context
+
+- **Date**: 2026-08-09
+- **Decision**: Build the external-review dress-rehearsal bundle from source components rather than an assembled manuscript, with anonymous manuscript, Supporting Information, and reproducibility directories separated from an explicitly unblinded editorial-materials directory. Exclude internal plans, logs, earlier critiques, Git metadata, scratch material, and assembled manuscript PDF/DOCX files; include both PNG and PDF versions of every locked display item.
+- **Rationale**: A reviewer encountering the work cold needs the complete scientific and computational evidence without prior-review framing or internal project history that could bias the assessment. The separated editorial directory preserves the complete submission dossier while allowing a double-anonymized review simulation simply by leaving that directory unopened.
+- **Status**: active
+
 _(The agent should add more entries as needed.)_
 
 ---

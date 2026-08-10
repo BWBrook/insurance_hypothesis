@@ -807,14 +807,14 @@ references:
   URL: https://esj-journals.onlinelibrary.wiley.com/doi/10.1111/1440-1703.12434
   volume: '39'
 
-- id: ross2025ExpertledPrioritiesResponse
+- id: ross2026ExpertledPrioritiesResponse
   abstract: |-
     Abstract
               Response diversity aims to capture and explain the variation in ecological responses to environmental change. Response diversity is expected to drive ecological stability since a wider variety of responses to one or more environmental factors should stabilise fluctuations of ecosystem functions. However, uptake of empirical response diversity research has been slow. Here we assess current thinking around response diversity by conducting a targeted expert survey of response diversity researchers. Our survey revealed that one barrier to a unified research agenda on response diversity is the lack of agreement among respondents on the definition of response diversity, and to which dimension(s) of ecological stability response diversity might relate. When asked to select the temporal, spatial, and biological scales at which response diversity may be most relevant for ecological stability, respondents chose a wide range of scales indicating differences in how experts view response diversity’s stabilising effect. Respondents considered studies incorporating both biotic interactions and abiotic environmental responses to be especially challenging, as were those thinking about responses to multiple environmental changes simultaneously. Moreover, respondents thought inconsistencies in the definitions of, and methods for measuring, response diversity were a major challenge facing the field. Despite these barriers, the survey revealed a desire for globally coordinated research efforts on response diversity in the form of syntheses, workshops, and distributed experiments, but that a standardised response diversity metric across diverse use-cases could be too restrictive. Our findings suggest we can shift response diversity from a loose collection of conceptual studies and inconsistent empirical applications towards a quantitative and coordinated research programme mechanistically linking biodiversity and ecological stability. As such, we are launching the Response Diversity Network—a research community interested in the science and application of response diversity— whose activities we hope will benefit both individual studies of response diversity and globally coordinated research efforts.
   accessed:
-    - year: 2025
-      month: 12
-      day: 11
+    - year: 2026
+      month: 7
+      day: 10
   author:
     - family: Ross
       given: Samuel R.P-J.
@@ -832,17 +832,22 @@ references:
       given: Hannah J.
     - family: LoPresti
       given: Anna
-  citation-key: ross2025ExpertledPrioritiesResponse
-  DOI: 10.1101/2025.09.17.676972
+  citation-key: ross2026ExpertledPrioritiesResponse
+  container-title: Oikos
+  container-title-short: Oikos
+  DOI: 10.1002/oik.11358
+  ISSN: 0030-1299, 1600-0706
   issued:
-    - year: 2025
+    - year: 2026
+      month: 1
+      day: 25
   language: en
-  license: http://creativecommons.org/licenses/by-nc/4.0/
-  publisher: Ecology
-  source: DOI.org (Crossref)
+  page: e11358
+  source: Wiley Online Library
   title: Expert-led priorities for a response diversity research agenda in ecology
-  type: article
-  URL: http://biorxiv.org/lookup/doi/10.1101/2025.09.17.676972
+  type: article-journal
+  URL: https://nsojournals.onlinelibrary.wiley.com/doi/10.1002/oik.11358
+  volume: '2026'
 
 - id: sasaki2019SpeciesAsynchronyResponse
   abstract: |-

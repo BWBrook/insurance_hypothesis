@@ -61,7 +61,7 @@ profiles:
     output_stem: insurance_hypothesis_blinded_main
 
     page_numbers: lower_right
-    line_spacing: 1.5
+    line_spacing: 2
     line_numbering: continuous
 
     figures:

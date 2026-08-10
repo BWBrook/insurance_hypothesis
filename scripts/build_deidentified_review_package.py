@@ -126,6 +126,20 @@ def copy_tree(src: Path, dst: Path) -> None:
     )
 
 
+def copy_review_tests(dst: Path) -> None:
+    """Copy tests that can run inside the intentionally narrow review package."""
+    shutil.copytree(
+        REPO_ROOT / "tests/python",
+        dst,
+        ignore=shutil.ignore_patterns(
+            "__pycache__",
+            "*.pyc",
+            ".pytest_cache",
+            "test_submission_helpers.py",
+        ),
+    )
+
+
 def copy_file(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
@@ -226,7 +240,7 @@ def main() -> None:
     write_sanitized_pyproject(target)
     copy_file(REPO_ROOT / "uv.lock", target / "uv.lock")
     copy_tree(REPO_ROOT / "src/python/insurance_sim", target / "src/python/insurance_sim")
-    copy_tree(REPO_ROOT / "tests/python", target / "tests/python")
+    copy_review_tests(target / "tests/python")
     target.joinpath("analysis").mkdir(exist_ok=True)
     for script in sorted((REPO_ROOT / "analysis").glob("*.py")):
         copy_file(script, target / "analysis" / script.name)

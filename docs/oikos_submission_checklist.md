@@ -1,77 +1,112 @@
 # Oikos Submission Readiness Checklist
 
-This checklist captures the current submission-facing interpretation of the Oikos and NSO author guidelines checked on 2026-05-25.
-
-Sources:
+Current against the Oikos and NSO author guidance checked on 2026-07-24:
 
 - <https://nso-journals.org/oikos-for-authors>
 - <https://nso-journals.org/author-guidelines>
 
-## Current Build Profiles
+## Files and classification
 
-- `ih_draft`: internal author-aware draft profile.
-- `ih_submission`: double-blind main manuscript profile for review, with author metadata omitted.
-- `ih_submission_form_statements`: separate statements profile for submission-system fields and editor/upload support.
-- `ih_supplementary_info`: anonymous supplementary information profile.
-- `ih_author_title_page`: separate unblinded title page and author-statement profile.
-- `ih_cover_letter`: separate editor-facing cover letter profile.
+- `insurance_hypothesis_blinded_main.pdf`: anonymous main text for initial
+  review. **Use this PDF as the main upload candidate.**
+- `insurance_hypothesis_title_page.pdf`: unblinded title page.
+- `insurance_hypothesis_supplementary_info.pdf`: anonymous Supporting
+  information.
+- `insurance_hypothesis_cover_letter.pdf`: editor-facing cover letter.
+- `insurance_hypothesis_submission_form_statements.pdf`: source for
+  copy-pasting required submission-system statements.
+- `ih_package.zip`: anonymous code and simulated-data package, uploaded as
+  **Additional file for review but NOT for publication**, not as Supporting
+  information.
 
-## Oikos-Facing Requirements
+## Current NSO requirements checked
 
-- Initial submission can use PDF, DOC, DOCX, RTF, or ODT; PDF plus DOCX fallback is therefore acceptable for review.
-- Double-anonymised review requires author names, affiliations, acknowledgements, and contribution statements to be removed from the main text file.
-- A separate title page should contain title, author names, affiliations, email addresses, corresponding author details, and ORCID information.
-- The main manuscript should include line numbers and page numbers.
-- Oikos asks authors to be ready to provide statements on data availability, significance, conflict of interest, ethics, funding, and acknowledgements through the submission workflow.
-- NSO explicitly says the data availability statement should not be included in the main text file; for consistency and double-blind hygiene, the submission-support profile keeps all required statements outside the main review manuscript.
-- Supplementary material should also be anonymised for review.
-- Data archiving is required; for this simulation study, the review route is a de-identified reproducibility package supplied as supplementary material, followed by a permanent public archive with DOI if accepted.
+- The main text must be anonymous, single-column, double-spaced, and have
+  continuous page and line numbers.
+- Page 1 contains the title and abstract; the Introduction begins on page 2.
+- Initial main-text formats may be PDF, DOC, DOCX, RTF, or ODT.
+- The abstract is no more than 300 words and contains no references.
+- All figures and tables are numbered and cited in the text.
+- Supporting information is a separate anonymous file. The main text refers to
+  it only as “Supporting information”, without named subsections or specific
+  item numbers.
+- Data and custom code must be available at first submission, either through an
+  anonymous repository link or as an “Additional file for review but NOT for
+  publication”.
+- The Data Availability, Significance, Conflict of Interest, Funding, and
+  Acknowledgements material belongs in the submission system rather than the
+  anonymous main file.
+- Use of LLM tools for literature search, content, code, or analysis must be
+  disclosed in a specific AI-use statement at the end of the main text.
 
-## Implemented Now
+## Implemented and verified on 2026-07-24
 
-- The significance statement has been rewritten as concise, journal-neutral submission-form text.
-- The submission profile no longer injects author metadata into the main manuscript.
-- The submission profile no longer includes the significance statement, data/code availability statement, conflict statement, ethics statement, funding statement, or acknowledgements in the blinded main manuscript.
-- A separate `ih_submission_form_statements` profile carries these statements for copy-paste or separate upload as needed.
-- Main figures/tables and supplementary figures/tables are split into separate source files so the review manuscript and supplementary information can be built separately.
-- A separate title-page source carries the unblinded author metadata and placeholders for Barry-only submission details.
-- A separate cover-letter source has been drafted for Barry's editorial pass.
+- The main manuscript is anonymous and contains a specific AI-use statement
+  before the References.
+- The abstract remains below the 300-word limit and states the principal
+  numerical contrast.
+- The Introduction begins on page 2 of the 29-page A4 submission PDF.
+- The main PDF is double-spaced, single-column, continuously line-numbered, and
+  contains all five cited main figures and Table 1.
+- Main-text references to supplementary material use the generic term
+  “Supporting information”.
+- Main and Supporting-information PDF text and metadata contain no configured
+  author, institution, ORCID, email, or local-path identity strings.
+- Main and Supporting-information DOCX metadata were sanitized and rechecked.
+- The duplicated italic title note was removed from the unblinded title page.
+- All six makedoc profiles passed config validation, manuscript lint, reference
+  audit, author-injection tests, and the 61-test makedoc suite.
+- The submission golden contract passed against the actual PDF and DOCX: one
+  table, five drawings, 29 PDF pages, and all 12 required text markers.
+- The manuscript reference audit found 26 cited keys, zero unknown keys, and
+  four unused non-fatal bibliography entries.
+- The source-repository test suite and Pyright pass.
+- The de-identified review package was freshly rebuilt and verified from inside
+  the package; see `docs/deidentified_review_package_plan.md`.
 
-## Barry-Only Confirmations Before Final Submission
+## Important format choice
 
-- Confirm final funding text.
-- Confirm conflict-of-interest wording.
-- Confirm whether acknowledgements are absent or should be supplied after review.
-- Confirm final data/code archive destination and whether the review package should later be mirrored to Dryad, Zenodo, OSF, or another permanent archive.
-- Review and finalise the cover-letter text for tone, author voice, and any ScholarOne-specific fields.
+LibreOffice renders the generated DOCX main file with the Introduction on page
+3, whereas the direct makedoc PDF begins it on page 2 and otherwise satisfies
+the current initial-submission layout. Because NSO explicitly accepts PDF at
+initial submission, use the PDF main file unless the DOCX pagination is
+deliberately reformatted first. The DOCX remains useful as an editable fallback
+and will be required in clean and tracked forms at revision.
 
-## Local Build Commands
+## Author confirmations still required
 
-Run the `makedoc` checks sequentially rather than in parallel because the profiles share build cache state. On the Mac mini, use:
+- Replace the funding placeholder with the correct funding statement or an
+  explicit no-specific-funding statement.
+- Replace the acknowledgements placeholder with final text or “None”.
+- Confirm the current conflict-of-interest wording.
+- Confirm that the AI-use statement accurately describes the tools and purposes
+  used in the project.
+- Name the intended permanent data/code repository in the Data Availability
+  statement.
+- Confirm whether ScholarOne accepts the 72,617,256-byte review zip; otherwise
+  use an anonymous repository/private-for-review route.
+- Read the cover letter once in the author’s own voice.
+
+## WSL build and verification commands
+
+Run profiles sequentially because they share makedoc cache state:
 
 ```bash
-MAKEDOC=/Users/bwbrook/work/makedoc
-CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
+MAKEDOC=/home/bwbrook/work/makedoc
+CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
 
+make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_draft
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_submission
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_submission_form_statements
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_author_title_page
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_cover_letter
-```
 
-After building DOCX files, run the local metadata sanitizer from `/Users/bwbrook/papers/insurance_hypothesis`:
-
-```bash
 uv run python scripts/sanitize_docx_identity.py --check \
-  /Users/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
-  /Users/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
-```
+  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
+  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
 
-Run from `/Users/bwbrook/papers/insurance_hypothesis`:
-
-```bash
 uv run pytest -q
 uv run pyright
-uv run python analysis/run_all.py --skip-guard-audit
+uv run python scripts/build_deidentified_review_package.py --zip
 ```

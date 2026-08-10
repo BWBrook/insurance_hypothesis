@@ -9,7 +9,7 @@
   - Community coefficient of variation (CV_total) compared to a species-poor or aligned-response baseline under the same σ_env, ρ_env, S, and φ.
   - CV_total relative to an approximate mean species CV, estimated from simulated species-level means and variances.  
   - Response synchrony indices (Loreau–de Mazancourt φ_LdM and mean pairwise realised per-capita log-growth correlation), which serve as mechanistic indicators of (a)synchrony that covary with CV_total.
-  - Variance decomposition of total biomass into summed species variances and aggregate covariance terms for selected production scenarios.
+  - Variance decomposition of total abundance into summed species variances and aggregate covariance terms for selected production scenarios.
 - **Asynchrony**: low or negative correlations among species’ realised per-capita log-growth rates; operationalised via φ_LdM and mean pairwise realised log-growth correlations. Here **ρ_env is an imposed environmental correlation between species’ drivers**, not a synchrony metric by itself; realised synchrony emerges from ρ_env, slopes, and competition.
 
 ## 2. Model design (implemented)
@@ -40,10 +40,10 @@
 
 ## 4. Response metrics
 
-- Community mean, variance, and CV of total biomass (post burn-in).
+- Community mean, variance, and CV of total abundance (post burn-in).
 - Loreau–de Mazancourt community synchrony index (φ_LdM) and average pairwise realised per-capita log-growth correlations.
 - Variance decomposition: $\operatorname{Var}(N_{\mathrm{tot}})=\sum_i\operatorname{Var}(N_i)+2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$.
-- Species-level extinction frequency and mean biomass.
+- Species-level numerical-floor occupancy and mean abundance.
 - Stability ratio: variance at given σ_env, ρ relative to baseline σ_env = 0 case.
 - Optional: temporal β-diversity/turnover (if informative).
 
@@ -69,7 +69,7 @@
 
 ## 8. Current status & next steps
 
-- **Current phase**: post-review polishing and reproducibility QA (pre-submission handoff state).
+- **Current phase**: external-review triage and design of a targeted pre-submission revision.
 - **Recently completed**:
   1) Full mixed and positive grids plus controls (`positive_matched`, `no_comp_*`, `mixed_narrow`) and φ sensitivity through 0.95.
   2) Numbered manuscript figure suite (`fig1_*` to `fig5_*`, `figS1_*` to `figS3_*`) and cached-data orchestration (`analysis/run_all.py`) with reproducible regeneration.
@@ -107,9 +107,16 @@
   34) Oikos/NSO submission-composition check completed on 2026-05-25: live NSO guidance now confirms that data/code availability should not be in the main text file, so the blinded main profile contains only the anonymous article text, tables, and figures; required submission statements are held in a separate `ih_submission_form_statements` profile for ScholarOne support.
   35) De-identified review-code package built on 2026-05-25 from the WSL-era path; the current Mac mini builder now stages the final rebuilt package under `/Users/bwbrook/papers/de_identified_repos/ih_package.zip` by default, with the same minimal anonymous Python/uv package contract.
   36) Mac mini submission-path hardening completed on 2026-05-28: final-build docs now point to `/Users/bwbrook/work/makedoc`, the DOCX identity sanitizer strips both Linux and macOS local paths, the de-identified package builder defaults to `~/papers/de_identified_repos/`, and remote helper scripts explicitly label `/home/bwbrook/...` as the deep-server path.
-- **Next steps if more work is requested**:
-  1) Run one final submission artefact build/identity check after committing this package-hardening pass.
-  2) Barry-only final pass: confirm funding text, acknowledgements, conflict statement, title-page metadata, cover-letter voice, and final archive destination.
-  3) Approval-gated work only for changes that would alter scientific metric definitions, output schemas, new simulation scope, or the data-distribution strategy for fresh-clone reproducibility.
+  37) AI-writing audit pass completed on 2026-06-29: the main text, figure captions, cover letter, and submission statements were line-edited to reduce generic machine-like cadence while preserving scientific claims, citations, and makedoc structure.
+  38) Fresh-model two-pass manuscript review completed on 2026-07-10: a second AI-writing audit was followed by a source-to-result scientific consistency pass across the manuscript, captions, tables, figures, bibliography, and generated DOCX/PDF artefacts. The pass corrected abundance/biomass terminology, narrowed richness and synchrony claims to the supported production-grid regions, updated the 2026 Oikos response-diversity record, and repaired main/supplementary table and cover-letter pagination without changing simulations or numerical outputs.
+  39) Final hard pre-submission review completed on 2026-07-24: three independent cold-read workstreams and a root verification pass audited scientific claims, source/result alignment, displays, references, prose, and current Oikos/NSO requirements. The manuscript was tightened around the supported balanced-opposing-response mechanism; richness was explicitly reframed as a deterministic assembly sequence; stress-region clipping, zero-sum slope balance, and local high-persistence reversals were disclosed; and the current mandatory AI-use statement was added. Six makedoc profiles passed, the anonymous A4 submission PDF was visually checked with the Introduction on page 2, and a clean 72.6 MB review archive passed its own 48-test, Pyright, workflow, hash, contents, and identity checks.
+  40) External peer-review dress-rehearsal bundle assembled on 2026-08-09: current anonymous manuscript and Supporting Information source components, locked PNG/PDF displays, separated unblinded editorial materials, source/build metadata, a cold-review brief and response template, and a freshly rebuilt anonymous reproducibility repository were packaged at `/mnt/c/Temp/insurance_hypothesis_external_peer_review_2026-08-09.zip`. The archive passed source-fidelity, identity/path, local-link, per-file checksum, ZIP integrity, safe-path, and extracted-tree comparisons; the enclosed code package separately passed 48 tests, Pyright, and its analysis-facing workflow.
+  41) External review received and triaged on 2026-08-09: the unchanged report is stored at `docs/oikos_external_review_and_line_edit_2026-08-09.md` (SHA-256 `42454eeb6891c494f773a0e4061a06794c2c39b30ca049bf56cace669b077483`). The review found no fatal defect and recommended major revision followed by submission. Its strongest findings are accepted: promote the production magnitude-matched sign control, complete and properly scope the first-order weighted covariance criterion, clarify the common orientation of environmental exposures, test the special `r0=1`/equal-abundance boundary with a compact sensitivity, and replace the low-value descriptive Figure 4. Richness and fixed-innovation autocorrelation claims should be narrowed using the already documented compound-design interpretation rather than automatically launching broad new grids.
+- **Immediate submission steps**:
+  1) Agree and prespecify the smallest new simulation tranche needed to test response imbalance, unequal abundance weighting, and `r0` sensitivity; keep richness, fixed-stationary-variance, alternative covariance, and alternative density-dependence expansions optional unless the revised claims require them.
+  2) Rebuild the manuscript's evidential hierarchy around the existing magnitude-matched production control and the properly scoped first-order covariance/eigenmode criterion, with only the justified main-display substitution.
+  3) Barry reviews the resulting Git diff and resolves the funding, acknowledgements, AI-disclosure, conflict-statement, archive, and cover-letter confirmations.
+  4) Use the direct blinded PDF as the initial main-text upload; retain the generated DOCX as an editable fallback unless deliberately reformatted.
+  5) After the revision, rerun the six sequential makedoc profiles, DOCX identity sanitizer, repository tests/type check, visual page check, and final package build/checksum.
 
 _This plan should be updated as design choices are made or adjusted._

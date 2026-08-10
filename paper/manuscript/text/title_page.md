@@ -1,10 +1,10 @@
-# Biodiversity buffers environmental variability only when species responses diverge
+# Biodiversity buffers correlated environmental variability through divergent species responses
 
 <div id="authors"></div>
 
 ## Article Type
 
-Research article.
+Research paper.
 
 ## Running Title
 
@@ -14,7 +14,7 @@ Response direction and biodiversity insurance.
 
 ### Data and Code Availability
 
-A de-identified reproducibility package will be supplied as a supplementary file for review. If the manuscript is accepted, the final code and simulated-data package will be deposited in a permanent public archive with a DOI.
+A de-identified reproducibility package will be supplied as an additional file for review but not for publication. If the manuscript is accepted, the final code and simulated-data package will be deposited in a public repository and cited with a DOI.
 
 ### Funding
 

@@ -519,7 +519,7 @@ def make_richness_scaling(summary_mixed: pd.DataFrame, out_path: Path) -> None:
 
     ax.set_xlabel(r"Species richness $S$")
     ax.set_ylabel(r"Mean $\mathrm{CV}_{\mathrm{tot}}$ across $\rho_{\mathrm{env}}$")
-    ax.set_title(r"Richness stabilises community biomass (mixed slopes)")
+    ax.set_title(r"Richness stabilises community abundance (mixed slopes)")
     ax.legend(title=r"$\sigma_{\mathrm{env}}$", fontsize=8, title_fontsize=9, frameon=False)
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)

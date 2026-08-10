@@ -2,15 +2,15 @@
 
 Dear Editor,
 
-I am pleased to submit the manuscript **"Biodiversity buffers environmental variability only when species responses diverge"** for consideration as a research paper in *Oikos*.
+I am pleased to submit the manuscript **"Biodiversity buffers correlated environmental variability through divergent species responses"** for consideration as a research paper in *Oikos*.
 
-This manuscript develops a deliberately simple simulation testbed for a central question in biodiversity-stability theory: when does response diversity actually produce ecological insurance, and when does it fail? Using a stochastic multispecies Ricker model, the study separates imposed environmental correlation among species' drivers from the realised synchrony of species' growth responses. This separation shows that strong compensatory insurance emerges only when species differ in response direction; when all species respond in the same direction, shared environmental forcing produces synchrony and high community-level variability despite greater richness.
+This manuscript asks a central question in biodiversity–stability theory: when does response diversity produce ecological insurance, and when does it fail? Using a deliberately simple stochastic multispecies Ricker model, I distinguish correlation among species-specific environmental exposures from realised population-growth synchrony. Balanced opposing response directions generate strong compensatory insurance; aligned responses turn correlated forcing into high synchrony and community variability, even as richness increases.
 
-The paper is well aligned with *Oikos* because it offers a mechanistic, theory-driven contribution to ecology rather than a taxon- or system-specific extension. The study clarifies the conditions under which the insurance hypothesis should hold, links response diversity to observable synchrony and variability metrics, and provides a compact framework for interpreting why empirical diversity-stability results can differ across systems.
+The paper addresses a priority in the response-diversity research agenda recently published by *Oikos*: connecting differing environmental responses and biotic interactions to explicit dimensions of ecological stability. Here, signed response slopes and environmental covariance map directly to realised synchrony and community variability.
 
-The manuscript is fully simulation-based and uses no empirical datasets, field sampling, live-animal work, or human participants. A de-identified, uv-managed reproducibility package will be supplied with the submission so that reviewers and editors can inspect the analysis code, tests, production simulation specifications, compact simulation summaries, and figure/table generation workflow. If the manuscript is accepted, the final code and simulated-data package will be deposited in a permanent public archive with a DOI.
+The study uses no empirical data, field sampling, live animals, or human participants. A de-identified, uv-managed reproducibility package will accompany submission, allowing reviewers and editors to inspect the code, tests, simulation specifications, compact summaries, and figure/table workflow. On acceptance, the final code and simulated-data package will be deposited in a permanent public archive with a DOI.
 
-The manuscript is not under consideration elsewhere. I have prepared the submission in line with the journal's double-anonymised review process, with author-identifying information restricted to the title-page and editor-facing submission materials.
+The manuscript is not under consideration elsewhere and follows the journal's double-anonymised review process; author-identifying information appears only in the title page and editor-facing materials.
 
 Thank you for considering this manuscript for publication in *Oikos*.
 

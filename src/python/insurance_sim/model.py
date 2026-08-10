@@ -234,8 +234,8 @@ def simulate_ricker(
         N[0] = init
 
     for t in range(T):
-        total_biomass = np.sum(N[t])
-        comp = alpha_intra * N[t] + alpha_inter * (total_biomass - N[t])
+        total_abundance = np.sum(N[t])
+        comp = alpha_intra * N[t] + alpha_inter * (total_abundance - N[t])
         exponent = r0 + b * env[t] - comp / K_arr
         exponent = np.clip(exponent, -max_exp, max_exp)
         N[t + 1] = np.maximum(floor, N[t] * np.exp(exponent))
@@ -288,8 +288,8 @@ def simulate_ricker_with_diagnostics(
     denom = T * S
 
     for t in range(T):
-        total_biomass = np.sum(N[t])
-        comp = alpha_intra * N[t] + alpha_inter * (total_biomass - N[t])
+        total_abundance = np.sum(N[t])
+        comp = alpha_intra * N[t] + alpha_inter * (total_abundance - N[t])
         exponent_raw = r0 + b * env[t] - comp / K_arr
         n_hi += int(np.sum(exponent_raw > max_exp))
         n_lo += int(np.sum(exponent_raw < -max_exp))

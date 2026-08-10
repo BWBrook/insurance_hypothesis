@@ -1,38 +1,63 @@
-# De-Identified Review Package Plan
+# De-Identified Review Package
 
-This is a deferred packaging plan. Do not build the package until the final code is locked for submission.
+## Purpose and submission classification
 
-## Target Location
+The package supplies the minimum code, simulation specifications, compact
+production summaries, and tests needed for double-anonymized peer review. It is
+an **additional file for review but not for publication**, not Supporting
+information. The distinction matters because NSO publishes Supporting
+information as received, whereas the review package will be replaced by a
+permanent public archive if the manuscript is accepted.
 
-- Staging directory on the Mac mini: `/Users/bwbrook/papers/de_identified_repos/ih_package/`
-- Expected final artefact: a zip file suitable for uploading as anonymous supplementary material.
+## Current artefacts
 
-## Purpose
+- Staging directory: `/home/bwbrook/papers/de_identified_repos/ih_package/`
+- Upload candidate: `/home/bwbrook/papers/de_identified_repos/ih_package.zip`
+- Rebuilt: 2026-07-24
+- Archive size: 72,617,256 bytes (about 69.3 MiB)
+- SHA-256:
+  `f2cada4521af344fe156023740da4b1475e16cd8ef897dbe1e16d9c65dbbecea`
+- Contents: 66 archive members, including six compact production-summary
+  parquet files and seven runnable reproduction-test files.
 
-Provide the minimum viable code/analysis package needed for double-blind review of the simulation workflow, without requiring GitHub access and without including identifying author information or manuscript-production material.
+Because the zip exceeds 50 MB, confirm that ScholarOne accepts it under
+“Additional file for review but NOT for publication”. If not, use an anonymous
+repository route, such as a private-for-review archive, rather than relabelling
+the package as Supporting information.
 
-## Include
+## Included
 
-- `README_REVIEW.md` with anonymous setup and run instructions.
-- `pyproject.toml` and `uv.lock`.
+- Anonymous `README.md` and `README_REVIEW.md` with setup and run instructions.
+- Sanitized `pyproject.toml`, `uv.lock`, and `.python-version`.
 - `src/python/insurance_sim/`.
-- `tests/python/`.
-- Analysis scripts required to regenerate code-facing outputs from compact production summaries.
-- `analysis/production_specs/`.
-- Compact production summaries under `data/sim/production/`, if final package size remains practical.
-- Minimal `.gitignore` and non-identifying metadata required for local execution.
+- Runnable simulation and reproduction tests under `tests/python/`.
+- Analysis scripts required to regenerate analysis-facing outputs.
+- Sanitized versioned production specifications.
+- Six compact production summaries under `data/sim/production/`.
 
-## Exclude
+## Excluded
 
-- `.git/` and GitHub remotes.
-- `paper/`, `manuscript/`, `csl/`, `references/`, `reports/`, and manuscript-build outputs.
-- `docs/`, unless a short anonymous review README is generated specifically for the package.
-- Logs or comments containing author names, affiliations, email addresses, ORCIDs, institutional paths, or GitHub repository URLs.
-- Remote-compute scratch outputs, tmux logs, shard-level production artefacts, and other bulky non-minimal intermediates.
+- `.git/`, Git remotes, and local virtual environments.
+- Manuscript, title-page, bibliography, and build sources.
+- Project documentation, questions, logs, and submission-helper scripts.
+- The repository-only submission-helper test, which depends on deliberately
+  excluded packaging and DOCX-sanitization scripts.
+- Remote-compute scratch outputs, tmux logs, shards, and bulky intermediates.
 
-## Required Review Commands
+## Build command
 
-The package should support, at minimum:
+Run from `/home/bwbrook/papers/insurance_hypothesis`:
+
+```bash
+uv run python scripts/build_deidentified_review_package.py --zip
+```
+
+The builder defaults to `~/papers/de_identified_repos/ih_package`. Set
+`IH_REVIEW_PACKAGE_ROOT` only when deliberately staging elsewhere.
+
+## Verified package workflow
+
+The following commands were run from a newly built package on 2026-07-24:
 
 ```bash
 uv sync --python 3.12 --frozen --dev
@@ -41,26 +66,19 @@ uv run pyright
 uv run python analysis/run_all.py --skip-guard-audit --skip-paper-export
 ```
 
-The review-safe `--skip-paper-export` switch lets the package regenerate analysis outputs without creating or requiring the manuscript tree.
+Results:
 
-## Build Command
-
-Run from `/Users/bwbrook/papers/insurance_hypothesis`:
-
-```bash
-uv run python scripts/build_deidentified_review_package.py --zip
-```
-
-The package builder defaults to `~/papers/de_identified_repos/ih_package`.
-Set `IH_REVIEW_PACKAGE_ROOT` only if a different local staging root is deliberately needed.
-
-## Pre-Zip Checks
-
-- Search for identifying strings: `Barry`, `Brook`, `University`, `Tasmania`, `UTAS`, `utas`, `ORCID`, email addresses, and repository URLs.
-- Run the review commands from inside the staged package directory, not the source repo.
-- Confirm the zip contents with `zipinfo`.
-- Confirm no hidden Git metadata or manuscript sources are present.
-
-## Status
-
-- Deferred until final code lock.
+- 48 tests passed.
+- Pyright reported zero errors and zero warnings.
+- The analysis workflow completed and regenerated report outputs.
+- The final archive was rebuilt after testing so it contains neither `.venv/`
+  nor generated report files.
+- Packaged simulator code, runnable tests, analysis scripts, production
+  summaries, and `uv.lock` match the source repository byte-for-byte.
+- Production specifications differ only in the deliberately sanitized execution
+  host and remote-root fields; `pyproject.toml` differs only by replacing the
+  author with `Anonymous`.
+- Text files and parquet metadata/string fields contain none of the configured
+  author, institution, repository, or local-path identity markers.
+- The archive contains no Git metadata, manuscript material, author metadata,
+  submission-helper scripts, or repository-only submission-helper test.
