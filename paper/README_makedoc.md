@@ -1,75 +1,61 @@
-# IH Paper Build Guide (`makedoc`)
+# Insurance hypothesis manuscript builds (`makedoc`)
 
-This file explains how to build the Insurance Hypothesis manuscript from the external `makedoc` repository.
+The manuscript sources and generated submission components are kept together in
+this repository. `makedoc` remains the external rendering tool, but all six
+profiles write to:
 
-## Prerequisites
-
-1. Run commands from the **makedoc repo root** (the repo that provides `make validate-config`, `make check`, and `make all`). On this Mac, that repo is at `/Users/bwbrook/work/makedoc`.
-2. Ensure this manuscript repo exists at:
-
-```bash
-/Users/bwbrook/papers/insurance_hypothesis
+```text
+/home/bwbrook/papers/insurance_hypothesis/build/oikos_submission_aug_2026
 ```
 
-3. Use this config:
+The portable path recorded in `settings/build.yaml` is
+`../../build/oikos_submission_aug_2026`, resolved relative to that configuration
+file. The generated `build/` tree is deliberately ignored by Git; source files
+and build settings remain the reproducible record.
+
+## WSL build workflow
+
+Run profiles sequentially because they share `makedoc` cache state:
 
 ```bash
-CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
+REPO=/home/bwbrook/papers/insurance_hypothesis
+MAKEDOC=/home/bwbrook/work/makedoc
+CONFIG="$REPO/paper/settings/build.yaml"
+
+for PROFILE in \
+  ih_draft \
+  ih_submission \
+  ih_submission_form_statements \
+  ih_supplementary_info \
+  ih_author_title_page \
+  ih_cover_letter
+do
+  make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE="$PROFILE"
+done
+
+uv run --project "$REPO" --frozen python \
+  "$REPO/scripts/sanitize_docx_identity.py" --check \
+  "$REPO/build/oikos_submission_aug_2026/insurance_hypothesis_blinded_main.docx" \
+  "$REPO/build/oikos_submission_aug_2026/insurance_hypothesis_supplementary_info.docx"
+
+make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_submission
+make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 ```
 
-The config contains the current manuscript/submission profiles:
+The anonymous main manuscript and Supporting-information DOCX files must be
+sanitized after each rebuild because Pandoc can embed local source paths in
+otherwise invisible image metadata. Refresh their manifests afterwards so the
+recorded hashes describe the sanitized upload candidates.
 
-- `ih_draft` (default): scoped lint for iterative drafting.
-- `ih_submission`: strict full-lint gate for the double-blind main manuscript.
-- `ih_submission_form_statements`: submission-system statements for copy-paste or separate upload.
-- `ih_supplementary_info`: anonymous supplementary information.
+## Profiles
+
+- `ih_draft`: complete unblinded working manuscript.
+- `ih_submission`: anonymous, double-spaced main manuscript and golden-contract
+  target.
+- `ih_submission_form_statements`: submission-system statements.
+- `ih_supplementary_info`: anonymous Supporting information.
 - `ih_author_title_page`: unblinded title page and author statements.
 - `ih_cover_letter`: editor-facing cover letter.
 
-The config file itself is passed in via an absolute path, but the profile file references inside it are now **config-relative**.
-This keeps the manuscript portable across macOS and Linux while still allowing external-path `makedoc` builds.
-
-## Draft build workflow (fast iteration)
-
-```bash
-CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
-
-make validate-config CONFIG="$CONFIG"
-make all CONFIG="$CONFIG"
-```
-
-Because `default_profile` is `ih_draft`, this path is suitable while manuscript text is still evolving.
-
-## Strict submission gate (full lint)
-
-To avoid editing tracked config files, create a temporary config that switches `default_profile` to `ih_submission`:
-
-```bash
-CONFIG=/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
-TMP_CONFIG=/tmp/ih_build_submission.yaml
-
-python - <<'PY'
-import yaml
-from pathlib import Path
-
-src = Path("/Users/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml")
-dst = Path("/tmp/ih_build_submission.yaml")
-
-cfg = yaml.safe_load(src.read_text(encoding="utf-8"))
-cfg["default_profile"] = "ih_submission"
-dst.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
-print(f"Wrote {dst}")
-PY
-
-make validate-config CONFIG="$TMP_CONFIG"
-make check CONFIG="$TMP_CONFIG"
-make all CONFIG="$TMP_CONFIG"
-```
-
-## Notes
-
-1. Canonical bibliography file is:
-   - `/Users/bwbrook/papers/insurance_hypothesis/paper/references/ih_references.yaml`
-2. There are no known strict-lint blockers at the current checkpoint; a failed gate should be investigated rather than treated as expected debt.
-3. Figure blocks reference the canonical assets in `analysis/reports/` and are managed in:
-   - `/Users/bwbrook/papers/insurance_hypothesis/paper/manuscript/text/figures.md`
+The canonical bibliography is `references/ih_references.yaml`; figure sources
+are the accepted display suite in `../analysis/reports/`.

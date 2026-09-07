@@ -7,6 +7,9 @@ Current against the Oikos and NSO author guidance checked on 2026-08-10:
 
 ## Files and classification
 
+Canonical generated files are in
+`build/oikos_submission_aug_2026/` within this repository.
+
 - `insurance_hypothesis_blinded_main.pdf`: anonymous main text for initial
   review. **Use this PDF as the main upload candidate.**
 - `insurance_hypothesis_title_page.pdf`: unblinded title page.
@@ -104,6 +107,7 @@ Run profiles sequentially because they share makedoc cache state:
 ```bash
 MAKEDOC=/home/bwbrook/work/makedoc
 CONFIG=/home/bwbrook/papers/insurance_hypothesis/paper/settings/build.yaml
+BUILD=/home/bwbrook/papers/insurance_hypothesis/build/oikos_submission_aug_2026
 
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_draft
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_submission
@@ -113,8 +117,11 @@ make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_author_title_page
 make -C "$MAKEDOC" check CONFIG="$CONFIG" PROFILE=ih_cover_letter
 
 uv run --frozen python scripts/sanitize_docx_identity.py --check \
-  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_blinded_main.docx \
-  /home/bwbrook/work/makedoc/dist/paper/insurance_hypothesis_supplementary_info.docx
+  "$BUILD/insurance_hypothesis_blinded_main.docx" \
+  "$BUILD/insurance_hypothesis_supplementary_info.docx"
+
+make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_submission
+make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 
 uv run --frozen pytest -q
 uv run --frozen pyright

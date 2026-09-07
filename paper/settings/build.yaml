@@ -19,7 +19,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_draft
 
     page_numbers: lower_right
@@ -57,7 +57,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_blinded_main
 
     page_numbers: lower_right
@@ -93,7 +93,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_submission_form_statements
 
     page_numbers: lower_right
@@ -131,7 +131,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_supplementary_info
 
     page_numbers: lower_right
@@ -166,7 +166,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_title_page
 
     page_numbers: lower_right
@@ -200,7 +200,7 @@ profiles:
       - ../csl
       - csl
 
-    output_dir: dist
+    output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_cover_letter
 
     page_numbers: lower_right

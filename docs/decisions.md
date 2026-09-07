@@ -138,9 +138,12 @@ implementation detail is recoverable through Git history.
 - **Decision:** Keep anonymous main manuscript, anonymous Supporting Information,
   submission-form statements, unblinded title page, and cover letter as separate
   `makedoc` profiles. Use the compliant A4 anonymous PDF as the initial main-text
-  upload; keep DOCX as an editable fallback.
+  upload; keep DOCX as an editable fallback. Write every profile to the
+  repo-local `build/oikos_submission_aug_2026/` directory rather than
+  `makedoc/dist/`.
 - **Reason:** This matches double-blind review needs and avoids accidental identity
-  disclosure or unsuitable DOCX pagination.
+  disclosure or unsuitable DOCX pagination, while keeping manuscript sources and
+  their generated submission components together.
 - **Status:** active.
 
 ### Anonymous reproducibility package

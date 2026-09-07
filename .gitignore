@@ -21,6 +21,9 @@ analysis/reports/production/
 # Packaging artefacts
 *.egg-info/
 
+# Generated manuscript builds
+build/
+
 # OS junk
 .DS_Store
 
