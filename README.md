@@ -55,13 +55,13 @@ The last command reads these seven files:
 
 | Production summary | Main use |
 | --- | --- |
-| `data/sim/production/fig1_s4_highres_v1/summaries.parquet` | Figure 1 core grid |
-| `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet` | Figure 1 stress extension |
-| `data/sim/production/fig2_richness_mixed_v1/summaries.parquet` | Figures 2, S1, and S2; variance decomposition |
-| `data/sim/production/fig3_synchrony_v1/summaries.parquet` | Figures 3 and S4 |
+| `data/sim/production/fig1_s4_highres_v1/summaries.parquet` | Figure 3 core grid |
+| `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet` | Figure 3 stress extension |
+| `data/sim/production/fig2_richness_mixed_v1/summaries.parquet` | Figures 4, S1, and S2; variance decomposition |
+| `data/sim/production/fig3_synchrony_v1/summaries.parquet` | Figures 2 and S4 |
 | `data/sim/production/fig5_persistence_mixed_v1/summaries.parquet` | Figure 5 |
-| `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet` | Figures 4A and S3 |
-| `data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet` | Figure 4B,C weighted-balance boundary |
+| `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet` | Figures 1A and S3 |
+| `data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet` | Figure 1B,C weighted-balance boundary |
 
 These parquet files contain replicate-level simulation summaries, not empirical
 data. They are omitted from the ordinary Git checkout because of their size and
@@ -70,6 +70,14 @@ included in the reviewer-facing reproducibility package. If any are missing,
 
 Canonical generated outputs are written only to `analysis/reports/`. Paper
 sources reference that directory directly.
+
+The manuscript figure order follows the revised evidential hierarchy; generated
+filenames and production IDs remain stable. Figure 1 uses
+`fig4_weighted_balance_boundary`, Figure 2 uses
+`fig3_imposed_vs_realised_panels`, Figure 3 uses `fig1_panels`, Figure 4 uses
+`fig2_richness_scaling_mixed`, and Figure 5 uses
+`fig5_phi_sensitivity_sigma0.5_extended`. Each stem has PNG and PDF outputs.
+The anonymous package README provides the same mapping.
 
 ## Model and experimental conventions
 
@@ -82,7 +90,7 @@ N_i(t+1) = N_i(t) exp[r0 + b_i z_i(t) -
 
 The production specifications make fixed constants explicit (normally `r0 = 1`,
 `K = 100`, `alpha_intra = 1`, `alpha_inter = 0.3`, abundance floor `1e-9`, and
-maximum exponent `50`) and record the Figure 4 vector-valued treatments in full.
+maximum exponent `50`) and record the Figure 1 vector-valued treatments in full.
 Environmental innovations have standard deviation
 `sigma_env`; with AR(1) persistence `phi`, stationary standard deviation is
 `sigma_env / sqrt(1 - phi^2)`. The equicorrelation request `rho_env` is clipped

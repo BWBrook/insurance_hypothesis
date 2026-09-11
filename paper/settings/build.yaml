@@ -134,6 +134,7 @@ profiles:
     output_dir: ../../build/oikos_submission_aug_2026
     output_stem: insurance_hypothesis_supplementary_info
 
+    references_new_page: false
     page_numbers: lower_right
     line_spacing: 1.5
     line_numbering: continuous

@@ -81,6 +81,23 @@ uv run --frozen python analysis/run_all.py
 The final command reads the included compact production summaries and writes
 regenerated figures and CSV summaries under `analysis/reports/`.
 
+## Manuscript figure mapping
+
+The manuscript presents the matched-control evidence first. Generated filenames
+retain their production identifiers; their numeric prefixes are not the current
+manuscript figure numbers.
+
+| Manuscript figure | Generated image in `analysis/reports/` |
+| --- | --- |
+| Figure 1: matched signs and weighted boundary | `fig4_weighted_balance_boundary.png` |
+| Figure 2: realised synchrony | `fig3_imposed_vs_realised_panels.png` |
+| Figure 3: environmental-variance contrast | `fig1_panels.png` |
+| Figure 4: richness assembly sequence | `fig2_richness_scaling_mixed.png` |
+| Figure 5: fixed-innovation persistence gradient | `fig5_phi_sensitivity_sigma0.5_extended.png` |
+
+The four Supporting-information figures keep their S1–S4 numbering. Each image
+also has a PDF version with the same filename stem.
+
 ## Notes
 
 No empirical datasets are used. The included parquet files are simulation

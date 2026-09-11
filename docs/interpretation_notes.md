@@ -3,7 +3,7 @@
 These notes retain the decision-relevant reading of the validated production
 evidence. Exploratory chronology and completed task lists are in Git history.
 
-## Headline contrast: Figure 1
+## Broad environmental-variance contrast: Figure 3
 
 - Across the shared environmental grid, aligned positive responses are markedly
   more variable than mixed responses. Averaged over effective exposure correlation,
@@ -19,7 +19,7 @@ evidence. Exploratory chronology and completed task lists are in Git history.
   the robust result is the response-regime contrast, not a universal monotonic
   correlation law.
 
-## Richness sequence and variance decomposition: Figure 2
+## Richness sequence and variance decomposition: Figure 4
 
 - In the implemented mixed-slope assembly sequence, mean community CV declines
   monotonically from `S = 2` to `S = 8` at every non-zero `sigma_env` after
@@ -36,7 +36,7 @@ evidence. Exploratory chronology and completed task lists are in Git history.
   the aggregate pattern to abundance covariance without treating raw associations
   as mediation.
 
-## Imposed versus realised synchrony: Figure 3
+## Imposed versus realised synchrony: Figure 2
 
 - At `sigma_env = 0.5`, mixed responses produce realised per-capita growth
   correlations far below imposed environmental correlation; aligned responses
@@ -48,7 +48,7 @@ evidence. Exploratory chronology and completed task lists are in Git history.
   sign structure can transform shared forcing into compensatory realised
   dynamics. Imposed exposure correlation is not itself biological synchrony.
 
-## Magnitude-matched sign control: Figure 4A and Figure S3
+## Magnitude-matched sign control: Figure 1A and Figure S3
 
 - `positive_matched = abs(mixed)` preserves the mixed regime's slope magnitudes
   while aligning all response directions.
@@ -73,7 +73,7 @@ evidence. Exploratory chronology and completed task lists are in Git history.
 - Floor occupancy is negligible through `phi <= 0.7`, low at 0.9, and locally
   non-negligible at 0.95. High persistence is a stress test.
 
-## Weighted response boundary: Figure 4B,C
+## Weighted response boundary: Figure 1B,C
 
 - The first-order alignment index
   `A = (sum(N_i* b_i))^2 / (S sum((N_i* b_i)^2))` predicts that stronger
@@ -82,10 +82,17 @@ evidence. Exploratory chronology and completed task lists are in Git history.
 - Along the fixed-norm response rotation, the nonlinear high-correlation to
   independent-exposure ratio of mean squared CV rises from 0.320 at `A = 0` to
   2.992 at `A = 0.8`. It crosses one between `A = 0.117` and `A = 0.247`, close
-  to the first-order boundary `A = 0.25`.
-- Changing carrying capacities while holding the mixed response vector and
-  deterministic total abundance fixed crosses the same boundary: the ratio is
-  0.964 at `A = 0.230` and 1.053 at `A = 0.257`.
+  to the first-order boundary `A = 0.25`. At `A = 0.247`, however, the nonlinear
+  ratio is 1.043 (95% Monte Carlo interval 1.028–1.059), while forcing predicts
+  0.988. This resolved departure rules out an exact nonlinear CV boundary.
+- Changing density-dependence scales `K_i` while holding the mixed response
+  vector and deterministic total abundance fixed also gives a nearby crossing:
+  the ratio is 0.964 at `A = 0.230` and 1.053 at `A = 0.257`. This path changes
+  both equilibrium weights and population feedback; it does not isolate weights.
+- For equal `K_i`, the scalar linearised total-abundance mode multiplies forcing
+  variance by a factor independent of exposure correlation. The forcing ratio
+  is therefore exact for stationary linear variance under stable dynamics, while
+  the nonlinear CV comparison remains a simulation result.
 - The balanced/aligned sign reversal persists at every tested `r0` from 0.25 to
   1.5. The mechanism is therefore not created by the zero common-mode
   eigenvalue at `r0 = 1`.

@@ -227,6 +227,35 @@ references:
   URL: http://doi.wiley.com/10.1890/1540-9295(2003)001[0488:RDECAR]2.0.CO;2
   volume: '1'
 
+- id: fowler2013ColonizationCovarianceColour
+  accessed:
+    - year: 2026
+      month: 9
+      day: 11
+  author:
+    - family: Fowler
+      given: Mike S.
+    - family: Ruokolainen
+      given: Lasse
+  citation-key: fowler2013ColonizationCovarianceColour
+  container-title: Journal of Theoretical Biology
+  container-title-short: J. Theor. Biol.
+  DOI: 10.1016/j.jtbi.2013.01.016
+  ISSN: 0022-5193, 1095-8541
+  issued:
+    - year: 2013
+      month: 5
+      day: 7
+  language: en
+  page: 32–41
+  source: DOI.org (Crossref)
+  title: >-
+    Colonization, covariance and colour: Environmental and ecological drivers of
+    diversity–stability relationships
+  type: article-journal
+  URL: https://www.sciencedirect.com/science/article/pii/S0022519313000416
+  volume: '324'
+
 - id: gonzalez2009CausesConsequencesCompensatory
   abstract: >-
     Ecological communities are constantly responding to environmental change.

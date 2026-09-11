@@ -1,4 +1,4 @@
-# Abundance-weighted response balance determines when environmental correlation stabilises communities
+# Abundance-weighted responses shape community buffering under correlated environments
 
 <div id="authors"></div>
 

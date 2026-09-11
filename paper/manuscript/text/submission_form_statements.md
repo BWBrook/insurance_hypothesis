@@ -4,7 +4,7 @@ These statements are prepared for the Oikos/NSO submission system and related up
 
 ## Significance Statement
 
-This manuscript identifies when positive correlation among commonly oriented environmental exposures stabilises rather than destabilises aggregate community abundance. A first-order covariance criterion shows that the outcome depends on abundance-weighted response balance, and nonlinear simulations test the boundary using magnitude-matched signs, continuous response alignment, unequal equilibrium abundances, and alternative intrinsic growth rates. The result turns response diversity into a measurable prediction: exposure covariance, response slopes, and species contributions must be considered together. This mechanism is directly relevant to *Oikos* readers working on biodiversity, synchrony, community dynamics, and ecosystem stability.
+This manuscript translates established covariance and population-feedback theory into an explicit equicorrelated-forcing benchmark based on abundance-weighted response slopes. The benchmark is exact for aggregate forcing variance; stochastic multispecies Ricker simulations test how closely it predicts the nonlinear temporal coefficient of variation of total abundance. A magnitude-matched comparison changes only response signs, while continuous response-balance and unequal-abundance tests show a local transition near the benchmark, including a small resolved departure at the closest tested point. The sign contrast persists across the examined intrinsic growth rates. The result yields a measurable prediction for *Oikos* readers: exposure covariance, response slopes, and species contributions must be assessed together.
 
 ## Data and Code Availability
 

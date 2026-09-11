@@ -2,9 +2,9 @@
 
 Dear Editor,
 
-I am pleased to submit the manuscript **"Abundance-weighted response balance determines when environmental correlation stabilises communities"** for consideration as a research paper in *Oikos*.
+I am pleased to submit the manuscript **"Abundance-weighted responses shape community buffering under correlated environments"** for consideration as a research paper in *Oikos*.
 
-The manuscript asks when positive correlation among environmental exposures stabilises rather than destabilises aggregate community abundance. A first-order covariance analysis identifies the boundary in terms of abundance-weighted response balance. A stochastic multispecies Ricker model then tests that criterion beyond the linear approximation. The central comparison preserves every slope magnitude and changes only response signs; continuous response-balance, unequal-abundance, and intrinsic-growth-rate sensitivities locate the conditions under which the reversal persists.
+The manuscript asks when positive correlation among environmental exposures stabilises rather than destabilises aggregate community abundance. Building on established covariance and population-feedback theory, it expresses an equicorrelated-forcing result as an explicit benchmark in abundance-weighted response slopes. That benchmark is exact for aggregate forcing variance; a stochastic multispecies Ricker model tests how well it predicts the nonlinear temporal coefficient of variation of total abundance. The central comparison preserves every slope magnitude and changes only response signs. Continuous response-balance and unequal-abundance tests locate the transition near the benchmark, including a small resolved departure at the closest tested point, while an intrinsic-growth-rate sensitivity shows that the sign contrast persists across the examined feedback strengths.
 
 The paper addresses a priority in the response-diversity research agenda recently published by *Oikos*: connecting environmental responses to explicit dimensions of ecological stability. It also yields a concrete empirical prediction. Exposure covariance, response slopes, and species contributions must be measured together; the presence of positive and negative responders alone is not enough.
 

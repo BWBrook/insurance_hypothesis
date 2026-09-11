@@ -13,6 +13,30 @@ responses under the examined design. Richness, persistence, and synchrony
 patterns are supporting structure, not independent causal effects isolated by a
 factorial experiment.
 
+## Current tranche: bounded submission revision, 11 September 2026
+
+The PI approved the conceptual and editorial revision proposed in
+`docs/oikos_astra_review_2026-09-10.md`. Implementation narrows the headline,
+connects the argument to prior covariance and population-feedback theory,
+distinguishes the exact forcing criterion from approximate nonlinear abundance
+prediction, and retains the resolved near-boundary departure. The central
+matched-control display is now Figure 1, followed by realised synchrony,
+environmental variance, richness, and persistence. Production filenames and all
+numerical/rendered outputs remain protected. Historical Stage 3/4 descriptions
+below retain their original figure numbers.
+
+The revision and follow-up checks are complete. An independent scientific audit
+approved the revised argument. All six sequential manuscript profiles, the
+submission golden contract, PDF layout and identity checks, DOCX sanitization,
+39 repository tests, and Pyright passed. All 51 protected file hashes remain
+unchanged. The 28-page main PDF has a 215-word abstract and its Introduction on
+page 2; Supporting information is 10 pages. The rebuilt anonymous archive passes
+35 tests and Pyright in a clean extraction; all 29 regenerated figure/table files
+match the source byte-for-byte. No production simulations or numerical guards
+were rerun because the scientific computation is unchanged. Current artifact
+locations and residual author confirmations are recorded in
+`docs/oikos_submission_checklist.md`.
+
 ## Locked evidence base
 
 Seven validated production grids contain 1,196,000 replicate summaries in

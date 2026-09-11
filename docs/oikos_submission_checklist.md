@@ -1,6 +1,6 @@
 # Oikos Submission Readiness Checklist
 
-Current against the Oikos and NSO author guidance checked on 2026-08-10:
+Current against the Oikos and NSO author guidance rechecked on 2026-09-11:
 
 - <https://nso-journals.org/oikos-for-authors>
 - <https://nso-journals.org/author-guidelines>
@@ -21,6 +21,10 @@ Canonical generated files are in
 - `ih_package.zip`: anonymous code and simulated-data package, uploaded as
   **Additional file for review but NOT for publication**, not as Supporting
   information.
+
+The current code/data archive is
+`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11/ih_package.zip`.
+The dated archive preserves the previous release package.
 
 ## Current NSO requirements checked
 
@@ -45,45 +49,58 @@ Canonical generated files are in
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
-## Last full submission verification: 2026-08-10
+## Bounded revision verification: 2026-09-11
 
-- The main manuscript is anonymous and contains a specific AI-use statement
-  before the References.
-- The 230-word abstract states the principal numerical contrast. The
-  Introduction begins on page 2 of the 28-page A4 submission PDF.
-- The main PDF is double-spaced, single-column, continuously line-numbered, and
-  contains all five cited main figures and Table 1.
-- Main-text references to supplementary material use the generic term
-  “Supporting information”.
-- Main and Supporting-information PDF text and metadata contain no configured
-  author, institution, ORCID, email, or local-path identity strings.
-- Main and Supporting-information DOCX metadata were sanitized and rechecked.
-- The duplicated italic title note was removed from the unblinded title page.
-- All six makedoc profiles passed config validation, manuscript lint, reference
-  audit, author-injection checks, and the current makedoc test suite.
-- The submission golden contract passed against the actual PDF and DOCX: one
-  table, five drawings, 28 PDF pages, and all 12 required text markers.
-- The manuscript reference audit found 25 cited keys, zero unknown keys, and
-  five unused non-fatal bibliography entries.
-- All seven production summaries validate: 1,196,000 replicate rows across
-  1,196 scenarios. The source repository has 39 passing tests and a clean
-  Pyright result; the numerical guards pass with the high-variance and
-  high-persistence edges retained as labelled stress regimes.
-- Consecutive figure regenerations have identical PDF hashes. All 18 PNG and
-  rasterized-PDF comparisons against the approved Stage 3 display suite pass.
-- Every page of the main and Supporting-information PDF and Word renderings was
-  visually inspected; no clipped table, equation, caption, line number, or
-  display was found.
-- The final de-identified review package was rebuilt with seven specs and seven
-  compact summaries. From inside the package, 35 tests, Pyright, and the full
-  nine-figure/11-summary workflow pass. The clean archive passes integrity,
-  path, and identity scans (`SHA-256 c4184aa5528fd36258ae36b691abea193310e8bf36adcc49c4ffc76dd543a35a`).
+- The title is “Abundance-weighted responses shape community buffering under
+  correlated environments”. The 215-word abstract leads with the biological
+  comparison and states the numerical contrasts without unexplained notation.
+- The central matched-control/boundary display is Figure 1. Existing rendered
+  panels and numerical outputs are unchanged; all paper and package mappings
+  follow the new order.
+- An independent scientific audit approved the forcing-versus-abundance
+  distinction, equal-`K` linear argument, unequal-`K` feedback qualification,
+  resolved nonlinear departure, and removal of the unsupported mean-shift claim.
+- All six sequential makedoc profiles passed their build checks, including
+  manuscript lint, reference audit, and author-injection checks. The main
+  reference audit found 27 cited keys, zero unknown keys, and four unused
+  non-fatal bibliography entries.
+- The main PDF is 28 pages, with its Introduction on page 2, continuous line
+  numbers, five main figures, and one table. Its PDF/DOCX golden contract passes
+  all 12 text markers, the table count, and the drawing count.
+- Supporting information is 10 pages, including the added linear derivation
+  and its reference. Every main and Supporting-information PDF page was visually
+  checked, with full-size checks of the central equations and display. No
+  clipping was found. Existing makedoc pagination includes a heading-only
+  supplementary divider page; the main Table 1 and figure captions continue
+  across page boundaries.
+- Main and Supporting-information PDF text and metadata pass the configured
+  identity scan and `qpdf --check`. Both DOCX files were sanitized and rechecked,
+  and their build manifests refreshed. DOCX rendering was not repeated in this
+  tranche; the PDF remains the initial-submission candidate.
+- The repository passes 39 tests and Pyright. Regeneration left all 51 protected
+  SHA-256 hashes identical, including model source, specs, seven production
+  summaries, and canonical numerical/rendered reports.
+- The rebuilt anonymous archive passes integrity, path, and identity checks.
+  In a clean extraction, 35 tests, Pyright, and the nine-figure/11-table-summary
+  workflow pass. All seven Parquet files match source hashes and contain
+  1,196,000 rows; all 29 regenerated PNG/PDF/CSV files match byte-for-byte.
+- Archive SHA-256:
+  `405c1373cec236757ef825be776b7ef14300dc5e7826389314c28159a3f67f17`.
+  Archive size: 75,469,545 bytes.
+- Verification logs, protected hashes, renders, and the independent archive
+  report are in `build/revision_checks_2026-09-11/`.
+
+Full production validation and numerical guards last passed in the 2026-08-10
+release gate. Those simulations/diagnostics were not rerun for this editorial
+tranche; protected source, input, and output hashes establish the unchanged
+computational evidence base.
 
 ## Important format choice
 
-LibreOffice renders the generated DOCX main file with the Introduction on page
-3, whereas the direct makedoc PDF begins it on page 2 and otherwise satisfies
-the current initial-submission layout. Because NSO explicitly accepts PDF at
+The 2026-08-10 LibreOffice rendering put the DOCX Introduction on page 3.
+The revised DOCX has not been repaginated or visually rechecked in Word. The
+current direct makedoc PDF begins the Introduction on page 2 and satisfies the
+initial-submission layout. Because NSO explicitly accepts PDF at
 initial submission, use the PDF main file unless the DOCX pagination is
 deliberately reformatted first. The DOCX remains useful as an editable fallback
 and will be required in clean and tracked forms at revision.
@@ -125,5 +142,7 @@ make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 
 uv run --frozen pytest -q
 uv run --frozen pyright
-uv run --frozen python scripts/build_deidentified_review_package.py --zip
+uv run --frozen python scripts/build_deidentified_review_package.py \
+  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11/ih_package \
+  --zip
 ```

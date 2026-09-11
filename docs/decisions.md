@@ -125,13 +125,32 @@ implementation detail is recoverable through Git history.
 ### Evidence and display hierarchy
 
 - **Decision:** Production-backed results are the paper's evidence base. Replace
-  the descriptive CV-synchrony association in Figure 4 with the matched-sign,
+  the descriptive CV-synchrony association in Figure 1 with the matched-sign,
   weighted-balance, and `r0` boundary test. Retain the fuller three-regime
   positive-matched diagnostic in the Supporting information.
 - **Reason:** Display changes should follow scientific decisions, not code
   tidying.
 - **Status:** approved by the PI at the Stage 3 boundary; the revised display and
   calibrated claims are current.
+
+### Bounded conceptual and editorial revision
+
+- **Decision:** On 2026-09-11 the PI approved the fresh review's bounded revision.
+  State the abundance-weighted criterion as exact for forcing variance and for
+  correlation ratios in the stable linearised equal-`K` model, while describing
+  nonlinear abundance-CV transitions as approximate. Report the resolved
+  departure at `A=0.247` and acknowledge that unequal `K` changes feedback as well
+  as equilibrium weights. Remove the unsupported mean-shift explanation.
+- **Reason:** These qualifications match the existing evidence and prior
+  covariance/population-feedback theory without changing the model or results.
+- **Display decision:** Promote the accepted matched-sign/weighted-boundary
+  display to Figure 1; realised synchrony is Figure 2, environmental variance
+  Figure 3, richness Figure 4, and persistence Figure 5. Retain rendered panels,
+  production IDs, and generated filenames. Paper and package mappings identify
+  their manuscript roles explicitly.
+- **Status:** implemented and independently reviewed; manuscript builds, identity
+  checks, protected-output comparisons, and clean-package verification passed
+  on 2026-09-11.
 
 ### Oikos build composition
 
@@ -154,7 +173,7 @@ implementation detail is recoverable through Git history.
   repository-only submission tests.
 - **Reason:** Reviewers need complete reproducibility evidence without author
   identity or internal project context.
-- **Status:** active. The 2026-08-10 package contains all seven production specs
+- **Status:** active. The 2026-09-11 package contains all seven production specs
   and summaries and passes its reviewer-facing test, type, and display workflow
   from inside the package.
 

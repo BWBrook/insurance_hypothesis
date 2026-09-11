@@ -2,8 +2,8 @@ expect_tables: 1
 expect_drawings: 5
 min_pdf_pages: 1
 required_text:
-  - Abundance-weighted response balance determines
-  - correlation stabilises communities
+  - Abundance-weighted responses shape community buffering
+  - correlated environments
   - Introduction
   - Methods
   - Results
