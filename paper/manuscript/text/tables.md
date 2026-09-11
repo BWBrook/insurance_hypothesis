@@ -4,32 +4,32 @@ Core model parameters and simulation grids. Every scenario uses 1000 replicate t
 | Component | Setting | Values / role |
 | --- | --- | --- |
 | Community model | Discrete-time Ricker competition model | Symmetric density dependence with species-specific environmental term $b_i z_i(t)$; full update equation in Methods |
-| Intrinsic growth | $r_0$ | 1.0 except Fig. 1 sensitivity: 0.25, 0.5, 1.0 and 1.5 |
-| Density-dependence scale | $K_i$ | 100 except Fig. 1 abundance-weight path: constant-sum vectors from $(100,100,100,100)$ to $(67,89,111,133)$ |
+| Intrinsic growth | $r_0$ | 1.0 except Fig. 1C sensitivity: 0.25, 0.5, 1.0 and 1.5 |
+| Density-dependence scale | $K_i$ | 100 except Fig. 1B abundance-weight path: constant-sum vectors from $(100,100,100,100)$ to $(67,89,111,133)$ |
 | Competition | $\alpha_{\mathrm{intra}}$, $\alpha_{\mathrm{inter}}$ | 1.0 and 0.3 throughout |
-| Response slopes | Mixed | $b_i$ evenly spaced in $[-0.5,0.5]$ |
-| Response slopes | Aligned positive | $b_i$ evenly spaced in $[0.1,1.0]$ |
-| Response slopes | Magnitude-matched aligned | $\lvert b_i^{\mathrm{mixed}}\rvert$; Fig. 1 also rotates continuously between the balanced and aligned vectors at constant norm |
+| Response treatment | Mixed | $b_i$ evenly spaced in $[-0.5,0.5]$; slopes sum to zero |
+| Response treatment | Matched aligned | $\lvert b_i^{\mathrm{mixed}}\rvert$: same magnitudes as mixed, all nonnegative; Fig. 1B also rotates continuously from the mixed to the matched aligned vector at constant norm |
+| Response treatment | Steep aligned | $b_i$ evenly spaced in $[0.1,1.0]$; changes magnitude as well as direction |
 | Environmental process | AR(1) exposure | $z_t=\phi z_{t-1}+\epsilon_t$ with innovation SD $\sigma_{\mathrm{env}}$ |
-| Exposure correlation | Requested $\rho_{\mathrm{env}}$ and effective $\rho_{\mathrm{eff}}$ | Equicorrelated innovations; feasibility limits are given in Methods |
+| Exposure correlation | Requested $\rho_{\mathrm{env}}$ and effective $\rho_{\mathrm{eff}}$ | Equicorrelated innovations; requested values outside the feasible interval are clipped at either boundary; bounds and affected treatments are given in Methods |
 | Numerical safeguards | Abundance floor and exponent clipping | $N_{\min}=10^{-9}$; Ricker exponent clipped to $[-50,50]$ before exponentiation |
-| Figure 1 | Weighted-balance boundary | Panel A: mixed versus magnitude-matched aligned slopes at $S=4,8$ and requested $\rho_{\mathrm{env}}=0$ to 1; panels B,C: $S=4$, $\sigma_{\mathrm{env}}=0.5$, $\phi=0.4$, and requested $\rho_{\mathrm{env}}\in\{0,1\}$ |
-| Figure 2 | Imposed-versus-realised synchrony | Mixed and aligned slopes; $S\in\{2,4,8\}$; $\sigma_{\mathrm{env}}=0.5$; $\phi=0.4$; requested $\rho_{\mathrm{env}}=0$ to 1 by 0.1 |
-| Figure 3 | Environmental-variance contrast | $S=4$; mixed and aligned slopes; $\phi=0.4$; requested $\rho_{\mathrm{env}}=-0.3$ to 1; core $\sigma_{\mathrm{env}}=0$ to 2 plus extension to 4 ($\ge3$ highest stress) |
-| Figure 4 | Deterministic assembly sequence | Mixed slopes; $S=2,\ldots,8$; $\phi=0.4$; $\sigma_{\mathrm{env}}\in\{0,0.2,0.5,1,1.5,2\}$; requested $\rho_{\mathrm{env}}\in\{0,0.25,0.5,0.75,1\}$ |
-| Figure 5 | Fixed-innovation stress gradient | Mixed slopes; $S\in\{2,4\}$; $\sigma_{\mathrm{env}}=0.5$; $\phi\in\{0,0.7,0.9,0.95\}$; requested $\rho_{\mathrm{env}}=-0.5$ to 1 (eight values) |
+| Figure 1 | Sign contrast and weighted-balance boundary | Panel A: mixed versus matched aligned at $S=4,8$ and requested $\rho_{\mathrm{env}}=0$ to 1; panels B,C: $S=4$, $\sigma_{\mathrm{env}}=0.5$, $\phi=0.4$, and requested $\rho_{\mathrm{env}}\in\{0,1\}$ |
+| Figure 2 | Imposed-versus-realised synchrony | Mixed and steep aligned; $S\in\{2,4,8\}$; $\sigma_{\mathrm{env}}=0.5$; $\phi=0.4$; requested $\rho_{\mathrm{env}}=0$ to 1 by 0.1 |
+| Figure 3 | Environmental-variance contrast | $S=4$; mixed and steep aligned; $\phi=0.4$; requested $\rho_{\mathrm{env}}=-0.3$ to 1; core $\sigma_{\mathrm{env}}=0$ to 2 plus extension to 4 ($\ge3$ highest stress) |
+| Figure 4 | Deterministic assembly sequence | Mixed; $S=2,\ldots,8$; $\phi=0.4$; $\sigma_{\mathrm{env}}\in\{0,0.2,0.5,1,1.5,2\}$; requested $\rho_{\mathrm{env}}\in\{0,0.25,0.5,0.75,1\}$ |
+| Figure 5 | Fixed-innovation stress gradient | Mixed; $S\in\{2,4\}$; $\sigma_{\mathrm{env}}=0.5$; $\phi\in\{0,0.7,0.9,0.95\}$; requested $\rho_{\mathrm{env}}=-0.5$ to 1 (eight values) |
 
 ### Table S1
 Production run inventory for main and production-backed supplementary figures. Rows are replicate-level scenario summaries from validated, specification-defined runs. Short labels are used here and in Table S2; exact production IDs are listed below the table.
 
 | Run | Design / figures | Grid | Effort |
 | --- | --- | --- | --- |
-| R1 | Fig. 3 core; mixed and positive slopes; $S=4$ | $\sigma_{\mathrm{env}}$: 0 to 2 (19 values); requested $\rho_{\mathrm{env}}$: -0.3 to 1 (15 values); $\phi$: 0.4 | 570 scenarios; 570000 rows |
-| R2 | Fig. 3 stress extension; mixed and positive slopes; $S=4$ | $\sigma_{\mathrm{env}}$: 2.25, 2.5, 2.75, 3, 3.5 and 4; requested $\rho_{\mathrm{env}}$: -0.3 to 1 (15 values); $\phi$: 0.4 | 180 scenarios; 180000 rows |
-| R3 | Figs. 4, S1 and S2; mixed slopes; $S=2$ to 8 | $\sigma_{\mathrm{env}}$: 0, 0.2, 0.5, 1, 1.5 and 2; requested $\rho_{\mathrm{env}}$: 0, 0.25, 0.5, 0.75 and 1; $\phi$: 0.4 | 210 scenarios; 210000 rows |
-| R4 | Figs. 2 and S4; mixed and positive slopes; $S=2,4,8$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: 0 to 1 (11 values); $\phi$: 0.4 | 66 scenarios; 66000 rows |
-| R5 | Figs. 1A and S3; mixed, positive-matched and positive slopes; $S=4,8$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: 0 to 1 (11 values); $\phi$: 0.4 | 66 scenarios; 66000 rows |
-| R6 | Fig. 5; mixed slopes; $S=2,4$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: -0.5 to 1 (eight values); $\phi$: 0, 0.7, 0.9 and 0.95 | 64 scenarios; 64000 rows |
+| R1 | Fig. 3 core; mixed and steep aligned responses; $S=4$ | $\sigma_{\mathrm{env}}$: 0 to 2 (19 values); requested $\rho_{\mathrm{env}}$: -0.3 to 1 (15 values); $\phi$: 0.4 | 570 scenarios; 570000 rows |
+| R2 | Fig. 3 stress extension; mixed and steep aligned responses; $S=4$ | $\sigma_{\mathrm{env}}$: 2.25, 2.5, 2.75, 3, 3.5 and 4; requested $\rho_{\mathrm{env}}$: -0.3 to 1 (15 values); $\phi$: 0.4 | 180 scenarios; 180000 rows |
+| R3 | Figs. 4, S1 and S2; mixed responses; $S=2$ to 8 | $\sigma_{\mathrm{env}}$: 0, 0.2, 0.5, 1, 1.5 and 2; requested $\rho_{\mathrm{env}}$: 0, 0.25, 0.5, 0.75 and 1; $\phi$: 0.4 | 210 scenarios; 210000 rows |
+| R4 | Figs. 2 and S4; mixed and steep aligned responses; $S=2,4,8$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: 0 to 1 (11 values); $\phi$: 0.4 | 66 scenarios; 66000 rows |
+| R5 | Figs. 1A and S3; mixed, matched aligned and steep aligned responses; $S=4,8$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: 0 to 1 (11 values); $\phi$: 0.4 | 66 scenarios; 66000 rows |
+| R6 | Fig. 5; mixed responses; $S=2,4$ | $\sigma_{\mathrm{env}}$: 0.5; requested $\rho_{\mathrm{env}}$: -0.5 to 1 (eight values); $\phi$: 0, 0.7, 0.9 and 0.95 | 64 scenarios; 64000 rows |
 | R7 | Fig. 1B,C; weighted balance and $r_0$ boundary | $S=4$; $\sigma_{\mathrm{env}}=0.5$; requested $\rho_{\mathrm{env}}\in\{0,1\}$; 20 response, abundance-weight, or $r_0$ treatments | 40 scenarios; 40000 rows |
 
 Exact production run IDs:
@@ -47,16 +47,16 @@ Production floor-occupancy summary. Values are post-burn-in frequencies of abund
 
 | Production source | Maximum scenario-mean floor frequency | Maximum replicate floor frequency | Location of maximum scenario mean | Interpretation |
 | --- | ---: | ---: | --- | --- |
-| Figure 3 core (R1) | 0.0189 | 0.0683 | positive slopes, $S=4$, $\sigma_{\mathrm{env}}=2.0$, $\rho_{\mathrm{eff}}=-0.3$, $\phi=0.4$ | Upper edge of the core Figure 3 range; monitor as a stress edge |
-| Figure 3 high-$\sigma_{\mathrm{env}}$ extension (R2) | 0.1159 | 0.1942 | positive slopes, $S=4$, $\sigma_{\mathrm{env}}=4.0$, $\rho_{\mathrm{eff}}=-0.3$, $\phi=0.4$ | Explicit high-variance stress extension |
-| Figure 4 richness grid (R3) | 0.0014 | 0.0238 | mixed slopes, $S=8$, $\sigma_{\mathrm{env}}=2.0$, $\rho_{\mathrm{eff}}\approx1$, $\phi=0.4$ | The assembly-sequence pattern is not driven by floor occupancy |
-| Figure 2 synchrony grid (R4) | 0.0000 | 0.0000 | all scenarios | Mechanism display is floor-free |
-| Figure 1A/S3 positive-matched control (R5) | 0.0000 | 0.0000 | all scenarios | Magnitude-matched sign control is floor-free |
-| Figure 5 persistence grid (R6) | 0.0492 | 0.3350 | mixed slopes, $S=2$, $\sigma_{\mathrm{env}}=0.5$, $\rho_{\mathrm{eff}}\approx1$, $\phi=0.95$ | Highest-persistence treatment is a stress case |
-| Figure 1 weighted-balance grid (R7) | 0.000016 | 0.0092 | abundance-weight path, $A=0.257$, $\rho_{\mathrm{eff}}\approx1$ | Negligible floor contact at the most uneven positive equilibrium; all other scenarios are floor-free |
+| Fig. 3 core (R1) | 0.0189 | 0.0683 | steep aligned, $S=4$, $\sigma_{\mathrm{env}}=2.0$, $\rho_{\mathrm{eff}}=-0.3$, $\phi=0.4$ | Upper edge of the core Fig. 3 range; monitor as a stress edge |
+| Fig. 3 high-$\sigma_{\mathrm{env}}$ extension (R2) | 0.1159 | 0.1942 | steep aligned, $S=4$, $\sigma_{\mathrm{env}}=4.0$, $\rho_{\mathrm{eff}}=-0.3$, $\phi=0.4$ | Explicit high-variance stress extension |
+| Fig. 4 richness grid (R3) | 0.0014 | 0.0238 | mixed, $S=8$, $\sigma_{\mathrm{env}}=2.0$, $\rho_{\mathrm{eff}}\approx1$, $\phi=0.4$ | The assembly-sequence pattern is not driven by floor occupancy |
+| Fig. 2 synchrony grid (R4) | 0.0000 | 0.0000 | all scenarios | Mechanism display is floor-free |
+| Figure 1A/S3 matched aligned control (R5) | 0.0000 | 0.0000 | all scenarios | Magnitude-matched sign control is floor-free |
+| Fig. 5 persistence grid (R6) | 0.0492 | 0.3350 | mixed, $S=2$, $\sigma_{\mathrm{env}}=0.5$, $\rho_{\mathrm{eff}}\approx1$, $\phi=0.95$ | Highest-persistence treatment is a stress case |
+| Fig. 1 weighted-balance grid (R7) | 0.000016 | 0.0092 | abundance-weight path, $A=0.257$, $\rho_{\mathrm{eff}}\approx1$ | Negligible floor contact at the most uneven positive equilibrium; all other scenarios are floor-free |
 
 ### Table S3
-Variance decomposition for selected mixed-slope production scenarios from the Figure 4 assembly grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `analysis/reports/variance_decomposition_fig2_mixed_summary.csv`.
+Variance decomposition for selected mixed-response production scenarios from the Fig. 4 assembly grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `analysis/reports/variance_decomposition_fig2_mixed_summary.csv`.
 
 | $S$ | $\rho_{\mathrm{eff}}$ | Mean total abundance | Total variance | Summed species variances | Aggregate covariance term | $\mathrm{CV}_{\mathrm{tot}}$ |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |

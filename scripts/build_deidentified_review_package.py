@@ -8,6 +8,7 @@ summaries needed to regenerate analysis outputs.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import shutil
 from pathlib import Path
@@ -41,19 +42,47 @@ ANALYSIS_FILES = (
     "run_all.py",
 )
 
+GUARD_REPORT_FILES = (
+    "numerical_guard_rates.csv",
+    "numerical_guard_rates_summary.csv",
+    "numerical_guard_rates_summary.md",
+)
+
+EXPECTED_REPORT_FILES = tuple(
+    f"{stem}{suffix}"
+    for stem in (
+        "fig1_panels",
+        "fig2_richness_scaling_mixed",
+        "fig3_imposed_vs_realised_panels",
+        "fig4_weighted_balance_boundary",
+        "fig5_phi_sensitivity_sigma0.5_extended",
+        "figS1_production_mixed_cv_total",
+        "figS2_production_mixed_phi_ldm",
+        "figS3_positive_matched_control",
+        "figS4_production_species_cv_vs_rho",
+    )
+    for suffix in (".png", ".pdf", "_summary.csv")
+) + (
+    "variance_decomposition_fig2_mixed_summary.csv",
+    "variance_decomposition_fig2_mixed_selected_summary.csv",
+    *GUARD_REPORT_FILES,
+)
+
 
 README_TEXT = """# Insurance Hypothesis Simulation Review Package
 
 This is an anonymous code and data package for peer review of a simulation study
 on biodiversity insurance under environmental variability.
 
-The package contains the minimum reproducibility materials needed to run the
-Python simulation checks and regenerate analysis-facing figure/table outputs:
+The package contains the minimum reproducibility materials needed to inspect
+the reported simulation evidence, run the Python checks, and regenerate the
+analysis-facing figure and table outputs:
 
 - `src/python/insurance_sim/`: simulator, metrics, diagnostics, and plotting helpers.
 - `analysis/`: orchestration and plotting scripts.
 - `analysis/production_specs/`: versioned production-grid specifications.
 - `data/sim/production/*/summaries.parquet`: compact production summaries.
+- `analysis/reports/numerical_guard*`: the retained numerical-guard diagnostic.
 - `tests/python/`: non-interactive tests.
 - `pyproject.toml` and `uv.lock`: Python 3.12 environment specification.
 - `.python-version`: uv/Python version hint for Python 3.12.
@@ -61,6 +90,9 @@ Python simulation checks and regenerate analysis-facing figure/table outputs:
 It intentionally excludes manuscript source files, title-page metadata,
 references, documentation logs, Git metadata, remote-compute scratch files, and
 other material not required for code review.
+
+No empirical datasets are used. The parquet files are replicate-level
+summaries of simulated trajectories, not field or observational data.
 
 ## Requirements
 
@@ -72,14 +104,121 @@ other material not required for code review.
 From this package directory:
 
 ```bash
+sha256sum -c SHA256SUMS.txt
 uv sync --python 3.12 --frozen --dev
 uv run --frozen pytest -q
 uv run --frozen pyright
 uv run --frozen python analysis/run_all.py
+uv run --frozen python analysis/check_numerical_guards.py
+sha256sum -c EXPECTED_OUTPUT_SHA256SUMS.txt
 ```
 
-The final command reads the included compact production summaries and writes
-regenerated figures and CSV summaries under `analysis/reports/`.
+Run the first checksum command before generating outputs; it verifies the
+contents supplied for review. `run_all.py` reads the included compact summaries
+and writes nine PNGs, nine PDFs, nine figure-summary CSVs, and two variance-
+decomposition CSVs under `analysis/reports/`. It does not rerun the production
+simulations.
+
+`check_numerical_guards.py` is a separate deterministic stress diagnostic. It
+runs 30 replicates for each of three scenarios (90 trajectories in total) with
+seed 12345 and overwrites the three included `numerical_guard*` files. These
+full-trajectory checks are distinct from the post-burn-in floor frequencies in
+the production summaries.
+
+`EXPECTED_OUTPUT_SHA256SUMS.txt` records the reference hashes for all 32 outputs.
+Byte-identical output is expected with the locked environment used to prepare
+the package. On another operating system or numerical/graphics stack, compare
+the numerical content and rendered figures if a byte hash differs.
+
+## Validate the supplied production summaries
+
+Each JSON specification defines its complete scenario grid, fixed model
+constants, replicate count, shard size, and base seed. The following validation
+creates manifests from those specs and checks every supplied row and scenario
+without rerunning simulations:
+
+```bash
+mkdir -p validation
+for spec in analysis/production_specs/*.json; do
+  name=$(basename "$spec" .json)
+  mkdir -p "validation/$name"
+  uv run --frozen python analysis/production_grid.py create \\
+    --spec "$spec" --output "validation/$name/manifest.json"
+  uv run --frozen python analysis/production_grid.py validate \\
+    --manifest "validation/$name/manifest.json" \\
+    --combined "data/sim/production/$name/summaries.parquet"
+done
+```
+
+The expected total is 1,196 scenarios and 1,196,000 replicate summaries across
+the seven grids.
+
+## Reconstruct the production inventory and floor summary
+
+The following read-only aggregation reconstructs the row and scenario counts in
+Table S1 and the maxima in Table S2. `mean_extinction_freq` is the recorded
+post-burn-in numerical-floor frequency for each replicate.
+
+```bash
+uv run --frozen python - <<'PY'
+from pathlib import Path
+import pandas as pd
+
+total_rows = 0
+total_scenarios = 0
+for path in sorted(Path("data/sim/production").glob("*/summaries.parquet")):
+    data = pd.read_parquet(path)
+    by_scenario = data.groupby("scenario_id", sort=False)["mean_extinction_freq"].mean()
+    maximum_id = by_scenario.idxmax()
+    location = data.loc[data["scenario_id"].eq(maximum_id)].iloc[0]
+    rows = len(data)
+    scenarios = data["scenario_id"].nunique()
+    total_rows += rows
+    total_scenarios += scenarios
+    fields = {
+        key: location[key]
+        for key in ("slope_mode", "n_species", "sigma_env", "rho_eff", "phi")
+    }
+    print(
+        path.parent.name,
+        f"scenarios={scenarios}",
+        f"rows={rows}",
+        f"max_scenario_mean_floor={by_scenario.max():.9g}",
+        f"max_replicate_floor={data['mean_extinction_freq'].max():.9g}",
+        f"location={fields}",
+    )
+print(f"TOTAL scenarios={total_scenarios} rows={total_rows}")
+PY
+```
+
+Table S3 is reconstructed directly by `analysis/run_all.py` as
+`variance_decomposition_fig2_mixed_selected_summary.csv`; the full supporting
+aggregation is written beside it.
+
+## Full production regeneration
+
+The compact summaries are supplied so that reviewing the evidence does not
+require a large simulation run. A full regeneration is nevertheless available
+from every spec. It is compute intensive and should be run on suitable compute:
+
+```bash
+mkdir -p full-runs
+for spec in analysis/production_specs/*.json; do
+  name=$(basename "$spec" .json)
+  work="full-runs/$name"
+  mkdir -p "$work"
+  uv run --frozen python analysis/production_grid.py create \\
+    --spec "$spec" --output "$work/manifest.json"
+  uv run --frozen python analysis/production_grid.py run-pending \\
+    --manifest "$work/manifest.json" --jobs 1
+  uv run --frozen python analysis/production_grid.py combine \\
+    --manifest "$work/manifest.json" \\
+    --output "$work/summaries.parquet" \\
+    --validation-output "$work/validation.json"
+  uv run --frozen python analysis/production_grid.py validate \\
+    --manifest "$work/manifest.json" --combined "$work/summaries.parquet"
+done
+```
 
 ## Manuscript figure mapping
 
@@ -98,10 +237,10 @@ manuscript figure numbers.
 The four Supporting-information figures keep their S1–S4 numbering. Each image
 also has a PDF version with the same filename stem.
 
-## Notes
-
-No empirical datasets are used. The included parquet files are simulation
-summaries, not field or observational data.
+The deterministic per-replicate seeds make results independent of shard order.
+Exact parquet bytes can still depend on the Python and PyArrow environment;
+validate row content and regenerated scientific outputs when comparing across
+platforms.
 """
 
 
@@ -184,6 +323,15 @@ def copy_production_summaries(target: Path) -> None:
         copy_file(summary, target / rel)
 
 
+def copy_guard_reports(target: Path) -> None:
+    """Copy the small retained evidence from the separate guard diagnostic."""
+    for name in GUARD_REPORT_FILES:
+        copy_file(
+            REPO_ROOT / "analysis/reports" / name,
+            target / "analysis/reports" / name,
+        )
+
+
 def write_review_files(target: Path) -> None:
     (target / "README.md").write_text(README_TEXT, encoding="utf-8")
     (target / ".python-version").write_text("3.12\n", encoding="utf-8")
@@ -228,6 +376,39 @@ def write_manifest(target: Path) -> None:
     (target / "REVIEW_PACKAGE_MANIFEST.txt").write_text("\n".join(files) + "\n", encoding="utf-8")
 
 
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_package_checksums(target: Path) -> None:
+    """Write checksums for supplied files, excluding the checksum file itself."""
+    checksum_path = target / "SHA256SUMS.txt"
+    files = sorted(
+        path
+        for path in target.rglob("*")
+        if path.is_file() and path != checksum_path and ".venv" not in path.parts
+    )
+    lines = [f"{sha256(path)}  {path.relative_to(target)}" for path in files]
+    checksum_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def write_expected_output_checksums(target: Path) -> None:
+    """Record reference hashes without copying the generated display suite."""
+    lines = []
+    for name in EXPECTED_REPORT_FILES:
+        source = REPO_ROOT / "analysis/reports" / name
+        if not source.is_file():
+            raise FileNotFoundError(f"Missing canonical analysis output: {source}")
+        lines.append(f"{sha256(source)}  analysis/reports/{name}")
+    (target / "EXPECTED_OUTPUT_SHA256SUMS.txt").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
 def make_zip(target: Path) -> Path:
     archive = target.with_suffix(".zip")
     if archive.exists():
@@ -257,8 +438,11 @@ def main() -> None:
     copy_tree(REPO_ROOT / "analysis/production_specs", target / "analysis/production_specs")
     copy_production_summaries(target)
     (target / "analysis/reports").mkdir(parents=True, exist_ok=True)
+    copy_guard_reports(target)
 
+    write_expected_output_checksums(target)
     write_manifest(target)
+    write_package_checksums(target)
     hits = scan_text_identity(target)
     if hits:
         joined = "\n".join(hits)

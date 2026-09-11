@@ -185,3 +185,33 @@ implementation detail is recoverable through Git history.
 - **Reason:** The review found no fatal defect; expanding every defensible
   sensitivity would diffuse a tight paper without proportionate inferential gain.
 - **Status:** active.
+
+### Final author-read synthesis and scientific release boundary
+
+- **Decision:** The PI approved Astra's check of Fable's editorial pass on
+  2026-09-11. Keep the readability gains and balanced-endpoint emphasis while
+  retaining the direction-reversal counterexample, qualifying nonlinear
+  attribution, and matching all Methods descriptions to the implemented code.
+- **Evidence:** The local second-order derivation passes an independent
+  methodological check; existing production summaries establish the measured
+  departures. No new numerical approximation is adopted as manuscript evidence.
+- **Release boundary:** The working repository is the research record. Review
+  and eventual public artifacts are generated from the minimal code/data path,
+  with complete recipes, integrity references, and no workbook Git history.
+  The public release will have its own versioned repository and Zenodo archive.
+  The PI's full read and any subsequent corrections precede that release.
+- **Diagnostic provenance:** Report the retained 30-replicate-per-scenario
+  numerical-guard diagnostic rather than the historical 200-replicate sigma=4
+  claim whose recipe is absent from the active package. Preserve all saved
+  production and diagnostic evidence.
+
+### Preprint and anonymous-review workflow
+
+- **Decision:** The PI prefers a preprint before journal submission and approved
+  retaining anonymous manuscript and code/data review files for Oikos. A public
+  preprint URL will be disclosed separately to the editor when available.
+- **Basis:** Oikos uses double-anonymous review and its publishing policy permits
+  preprints before or during review. This arrangement preserves anonymous review
+  files while accepting that author identity is discoverable from the preprint.
+- **Boundary:** No preprint, public repository, or Zenodo deposit has been made
+  in this tranche. The PI's full read and final metadata still precede release.

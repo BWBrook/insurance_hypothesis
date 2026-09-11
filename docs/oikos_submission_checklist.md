@@ -4,6 +4,7 @@ Current against the Oikos and NSO author guidance rechecked on 2026-09-11:
 
 - <https://nso-journals.org/oikos-for-authors>
 - <https://nso-journals.org/author-guidelines>
+- <https://www.oikosoffice.org/NSO-Publishing-Policies>
 
 ## Files and classification
 
@@ -23,13 +24,14 @@ Canonical generated files are in
   information.
 
 The current code/data archive is
-`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11/ih_package.zip`.
+`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11_final/ih_package.zip`.
 The dated archive preserves the previous release package.
 
 ## Current NSO requirements checked
 
 - The main text must be anonymous, single-column, double-spaced, and have
-  continuous page and line numbers.
+  continuous page and line numbers. Avoid right-margin justification and
+  automatic hyphenation.
 - Page 1 contains the title and abstract; the Introduction begins on page 2.
 - Initial main-text formats may be PDF, DOC, DOCX, RTF, or ODT.
 - The abstract is no more than 300 words and contains no references.
@@ -49,51 +51,68 @@ The dated archive preserves the previous release package.
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
-## Bounded revision verification: 2026-09-11
+## Final author-read verification: 2026-09-11
 
-- The title is “Abundance-weighted responses shape community buffering under
-  correlated environments”. The 215-word abstract leads with the biological
-  comparison and states the numerical contrasts without unexplained notation.
-- The central matched-control/boundary display is Figure 1. Existing rendered
-  panels and numerical outputs are unchanged; all paper and package mappings
-  follow the new order.
-- An independent scientific audit approved the forcing-versus-abundance
-  distinction, equal-`K` linear argument, unequal-`K` feedback qualification,
-  resolved nonlinear departure, and removal of the unsupported mean-shift claim.
-- All six sequential makedoc profiles passed their build checks, including
-  manuscript lint, reference audit, and author-injection checks. The main
-  reference audit found 27 cited keys, zero unknown keys, and four unused
-  non-fatal bibliography entries.
-- The main PDF is 28 pages, with its Introduction on page 2, continuous line
+- The title is “Abundance-weighted responses and nonlinear limits to community
+  buffering under correlated environments”. The abstract is 240 words.
+- The final synthesis retains Fable's readability improvements and reports both
+  the substantial balanced-endpoint residual and the near-threshold direction
+  reversal. An independent methodological audit approved the checked local
+  second-order derivation and its limited interpretation. Growth-rate offsets,
+  correlation clipping, and diagnostic provenance match the active code.
+- All six sequential makedoc profiles passed their checks, including manuscript
+  lint, reference audit, and author-injection checks. The cover letter is one
+  page and uses the same calibrated claims as the manuscript.
+- The main PDF is 29 pages, with the Introduction on page 2, continuous line
   numbers, five main figures, and one table. Its PDF/DOCX golden contract passes
-  all 12 text markers, the table count, and the drawing count.
-- Supporting information is 10 pages, including the added linear derivation
-  and its reference. Every main and Supporting-information PDF page was visually
-  checked, with full-size checks of the central equations and display. No
-  clipping was found. Existing makedoc pagination includes a heading-only
-  supplementary divider page; the main Table 1 and figure captions continue
-  across page boundaries.
+  all 12 text markers, the table count, and the drawing count. The PDF uses
+  ragged-right text without automatic hyphenation, as requested by NSO.
+- Supporting information is 11 pages, including the linear and local
+  second-order derivations. Every main and Supporting-information PDF page and
+  the cover letter were visually checked. No clipping was found. Existing
+  pagination includes a heading-only supplementary divider page; the main
+  Table 1 and figure captions continue across page boundaries.
 - Main and Supporting-information PDF text and metadata pass the configured
   identity scan and `qpdf --check`. Both DOCX files were sanitized and rechecked,
   and their build manifests refreshed. DOCX rendering was not repeated in this
   tranche; the PDF remains the initial-submission candidate.
-- The repository passes 39 tests and Pyright. Regeneration left all 51 protected
-  SHA-256 hashes identical, including model source, specs, seven production
-  summaries, and canonical numerical/rendered reports.
-- The rebuilt anonymous archive passes integrity, path, and identity checks.
-  In a clean extraction, 35 tests, Pyright, and the nine-figure/11-table-summary
-  workflow pass. All seven Parquet files match source hashes and contain
-  1,196,000 rows; all 29 regenerated PNG/PDF/CSV files match byte-for-byte.
+- The repository passes 39 tests and Pyright. All 51 protected SHA-256 hashes
+  remain identical, including model source, specs, seven production summaries,
+  and canonical numerical/rendered reports.
+- The rebuilt anonymous archive passes integrity, path, and identity checks,
+  including Parquet metadata and string columns. A clean extraction passes
+  35 tests and Pyright. All seven Parquet files validate against fresh manifests
+  generated from their specs: 1,196 scenarios and 1,196,000 rows.
+- All 29 regenerated figure/table outputs match byte-for-byte. The separate
+  90-trajectory guard diagnostic reproduces all three retained outputs exactly.
+  The README reconstruction of Tables S1 and S2 agrees with the manuscript;
+  Table S3's generated output also matches. All supplied-file checksums pass.
 - Archive SHA-256:
-  `405c1373cec236757ef825be776b7ef14300dc5e7826389314c28159a3f67f17`.
-  Archive size: 75,469,545 bytes.
-- Verification logs, protected hashes, renders, and the independent archive
-  report are in `build/revision_checks_2026-09-11/`.
+  `818d45b668a170fcf8790722c2f6cb6f0d0ecc84835ef091c212a01f36b9114f`.
+  Archive size: 75,477,053 bytes; 39 files, without workbook history or editorial
+  material. Confirm the portal's limit for this review-only upload at submission.
+- Verification logs, renders, and the independent archive report are in
+  `build/final_read_2026-09-11/`. The protected hash baseline is in
+  `build/revision_checks_2026-09-11/protected_baseline.json`.
 
-Full production validation and numerical guards last passed in the 2026-08-10
-release gate. Those simulations/diagnostics were not rerun for this editorial
-tranche; protected source, input, and output hashes establish the unchanged
-computational evidence base.
+The full production simulations were not rerun for this tranche. Their saved
+summaries and current spec-derived validation establish the production evidence
+base; the small numerical-guard diagnostic was rerun independently as above.
+
+## Preprint and public-release workflow
+
+Oikos uses double-anonymous review and permits preprints before or during review.
+The PI prefers a preprint before submission. Supply the anonymous main PDF and
+code/data ZIP to Oikos and disclose the preprint URL separately to the editor
+once available. The preprint makes author identity discoverable; anonymous
+review files do not guarantee that reviewers cannot identify the author.
+
+After the PI's full read and any final corrections, prepare the clean versioned
+public repository and DOI-linked Zenodo package from the verified computational
+core. Add the approved licence, author/citation metadata, version, repository
+URL, and DOI. Journal acceptance is not a prerequisite. No preprint, public
+repository, Zenodo deposit, or journal submission has been made in this tranche.
+See `docs/reproducibility_release.md` for the precise archive boundary.
 
 ## Important format choice
 
@@ -113,8 +132,8 @@ and will be required in clean and tracked forms at revision.
 - Confirm the current conflict-of-interest wording.
 - Confirm that the AI-use statement accurately describes the tools and purposes
   used in the project.
-- Name the intended permanent data/code repository in the Data Availability
-  statement.
+- Finalize the clean public repository URL, Zenodo metadata, licence, and
+  release timing after the full manuscript read.
 - Read the cover letter once in the author’s own voice.
 
 ## WSL build and verification commands
@@ -143,6 +162,6 @@ make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 uv run --frozen pytest -q
 uv run --frozen pyright
 uv run --frozen python scripts/build_deidentified_review_package.py \
-  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11/ih_package \
+  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11_final/ih_package \
   --zip
 ```

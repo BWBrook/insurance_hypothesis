@@ -1,4 +1,4 @@
-# Abundance-weighted responses shape community buffering under correlated environments
+# Abundance-weighted responses and nonlinear limits to community buffering under correlated environments
 
 <div id="authors"></div>
 
@@ -14,7 +14,7 @@ Weighted response balance and insurance.
 
 ### Data and Code Availability
 
-A de-identified reproducibility package will be supplied as an additional file for review but not for publication. If the manuscript is accepted, the final code and simulated-data package will be deposited in a public repository and cited with a DOI.
+A de-identified reproducibility package will be supplied as an additional file for review but not for publication. The final code and simulated-data package will be released in a clean, versioned public repository and archived in Zenodo with a DOI.
 
 ### Funding
 

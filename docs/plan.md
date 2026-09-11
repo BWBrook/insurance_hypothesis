@@ -13,29 +13,37 @@ responses under the examined design. Richness, persistence, and synchrony
 patterns are supporting structure, not independent causal effects isolated by a
 factorial experiment.
 
-## Current tranche: bounded submission revision, 11 September 2026
+## Current tranche: final author-read revision, 11 September 2026
 
-The PI approved the conceptual and editorial revision proposed in
-`docs/oikos_astra_review_2026-09-10.md`. Implementation narrows the headline,
-connects the argument to prior covariance and population-feedback theory,
-distinguishes the exact forcing criterion from approximate nonlinear abundance
-prediction, and retains the resolved near-boundary departure. The central
-matched-control display is now Figure 1, followed by realised synchrony,
-environmental variance, richness, and persistence. Production filenames and all
-numerical/rendered outputs remain protected. Historical Stage 3/4 descriptions
-below retain their original figure numbers.
+The PI approved the corrections in
+`docs/oikos_astra_response_to_fable_2026-09-11.md` and requested commit and push
+before a full author read. Fable's clearer treatment names and exposition are
+retained. The final synthesis reports both the substantial balanced-endpoint
+departure and the near-threshold direction reversal, limits the second-order
+argument to its checked local scope, and repairs the growth metric and
+correlation-clipping descriptions. No production science or accepted display
+has changed. Historical Stage 3/4 descriptions below retain their original
+figure numbers.
 
-The revision and follow-up checks are complete. An independent scientific audit
-approved the revised argument. All six sequential manuscript profiles, the
-submission golden contract, PDF layout and identity checks, DOCX sanitization,
-39 repository tests, and Pyright passed. All 51 protected file hashes remain
-unchanged. The 28-page main PDF has a 215-word abstract and its Introduction on
-page 2; Supporting information is 10 pages. The rebuilt anonymous archive passes
-35 tests and Pyright in a clean extraction; all 29 regenerated figure/table files
-match the source byte-for-byte. No production simulations or numerical guards
-were rerun because the scientific computation is unchanged. Current artifact
-locations and residual author confirmations are recorded in
-`docs/oikos_submission_checklist.md`.
+The cover letter and submission statements follow the same claims. The release
+audit also replaces an obsolete, unreproducible-in-the-current-package
+200-replicate diagnostic citation with the retained three-scenario diagnostic.
+This is a correction to evidence provenance, not a new simulation result.
+
+Completed acceptance gate: all six manuscript profiles, PDF visual checks,
+anonymous DOCX sanitization and manifests, 39 repository tests and Pyright,
+51 unchanged protected hashes, and clean extraction of the minimal code/data
+package (35 tests; all 32 regenerated output hashes matched). The package must
+separate regeneration from saved summaries, full production reruns, and
+numerical diagnostics. It remains anonymous for review; public release metadata,
+licensing, and the Zenodo DOI belong after the author's final read and release
+decision. See `docs/oikos_submission_checklist.md` for the completed gate and
+artifact locations. The PI prefers a preprint before submission; Oikos permits
+this while requiring anonymous review files.
+
+The next human step is a full manuscript and cover-letter read. Any resulting
+edits will receive a bounded consistency check before the final pre-submission
+commit. No journal submission or public archival deposit is authorized now.
 
 ## Locked evidence base
 
