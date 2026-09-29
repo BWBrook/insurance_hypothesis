@@ -24,7 +24,7 @@ Canonical generated files are in
   information.
 
 The current code/data archive is
-`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11_final/ih_package.zip`.
+`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-19/ih_package.zip`.
 The dated archive preserves the previous release package.
 
 ## Current NSO requirements checked
@@ -51,53 +51,68 @@ The dated archive preserves the previous release package.
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
-## Final author-read verification: 2026-09-11
+## External-review corrections verified: 2026-09-19
 
 - The title is “Abundance-weighted responses and nonlinear limits to community
-  buffering under correlated environments”. The abstract is 240 words.
-- The final synthesis retains Fable's readability improvements and reports both
-  the substantial balanced-endpoint residual and the near-threshold direction
-  reversal. An independent methodological audit approved the checked local
-  second-order derivation and its limited interpretation. Growth-rate offsets,
-  correlation clipping, and diagnostic provenance match the active code.
-- All six sequential makedoc profiles passed their checks, including manuscript
-  lint, reference audit, and author-injection checks. The cover letter is one
-  page and uses the same calibrated claims as the manuscript.
-- The main PDF is 29 pages, with the Introduction on page 2, continuous line
-  numbers, five main figures, and one table. Its PDF/DOCX golden contract passes
-  all 12 text markers, the table count, and the drawing count. The PDF uses
-  ragged-right text without automatic hyphenation, as requested by NSO.
-- Supporting information is 11 pages, including the linear and local
-  second-order derivations. Every main and Supporting-information PDF page and
-  the cover letter were visually checked. No clipping was found. Existing
-  pagination includes a heading-only supplementary divider page; the main
-  Table 1 and figure captions continue across page boundaries.
+  buffering under correlated environments”. The abstract remains 240 words.
+- The Introduction explicitly acknowledges Ross et al. (2023) on abundance
+  weighting and locates the contribution in the integrated covariance benchmark
+  and its nonlinear tests. The existing numerical claims and derivations remain.
+- Figures 1 and 2 now use vertically stacked panels, with the smallest labels
+  approximately 8 pt at their final PDF size. Figure 1B includes a magnified
+  near-threshold inset using the same data and uncertainty intervals.
+- Figure S2 masks 15 zero-forcing synchrony cells in pale grey. Their display
+  means and SDs are missing in the CSV; all 75 nonzero-forcing cells and every
+  other numerical summary are exactly unchanged. The caption and package README
+  explain the undefined values. Saved replicate rows are preserved.
+- All six sequential makedoc profiles passed their checks. The main PDF has
+  29 pages, with the Introduction on page 2, continuous line numbers, five
+  figures and one table. The PDF/DOCX golden contract passes all 12 text markers,
+  the table count and the drawing count. The cover letter remains one page.
+- Supporting information has 10 pages. The heading-only supplementary divider
+  is removed; captions remain separate from the four correctly labelled figures.
+  Every main and Supporting-information PDF page and the cover letter were
+  visually checked. No clipping was found. Existing table and caption
+  continuations across page boundaries remain.
 - Main and Supporting-information PDF text and metadata pass the configured
   identity scan and `qpdf --check`. Both DOCX files were sanitized and rechecked,
-  and their build manifests refreshed. DOCX rendering was not repeated in this
-  tranche; the PDF remains the initial-submission candidate.
-- The repository passes 39 tests and Pyright. All 51 protected SHA-256 hashes
-  remain identical, including model source, specs, seven production summaries,
-  and canonical numerical/rendered reports.
-- The rebuilt anonymous archive passes integrity, path, and identity checks,
-  including Parquet metadata and string columns. A clean extraction passes
-  35 tests and Pyright. All seven Parquet files validate against fresh manifests
-  generated from their specs: 1,196 scenarios and 1,196,000 rows.
-- All 29 regenerated figure/table outputs match byte-for-byte. The separate
-  90-trajectory guard diagnostic reproduces all three retained outputs exactly.
-  The README reconstruction of Tables S1 and S2 agrees with the manuscript;
-  Table S3's generated output also matches. All supplied-file checksums pass.
+  and their build manifests refreshed. Word/LibreOffice DOCX rendering was not
+  repeated; the PDF remains the initial-submission candidate.
+- The repository passes 40 tests and Pyright. All seven production Parquets,
+  seven specifications and model/production/diagnostic modules retain their
+  baseline hashes. Only the approved figure renderer and seven report files
+  changed within the protected comparison. Pyright excludes generated `build/`
+  scratch material and `.venv/`.
+- The rebuilt anonymous archive passes integrity, path, text and metadata
+  identity checks, and all 38 supplied-file checksums. A clean frozen extraction
+  passes 36 tests and Pyright. All seven Parquets byte-match the canonical and
+  previously verified anonymous data; their exhaustive metadata/string-column
+  identity scan was reused on that basis.
+- All 29 regenerated figure/table outputs match the current canonical files
+  byte-for-byte; the three retained numerical-guard outputs also match, making
+  32 expected-output hashes. Production and guard simulations were not rerun.
 - Archive SHA-256:
-  `818d45b668a170fcf8790722c2f6cb6f0d0ecc84835ef091c212a01f36b9114f`.
-  Archive size: 75,477,053 bytes; 39 files, without workbook history or editorial
+  `7fd3b50e30c576ff4d7f02849c8b859a38ea1a3a70576a198b45fc836b9576f7`.
+  Archive size: 75,477,793 bytes; 39 files, without workbook history or editorial
   material. Confirm the portal's limit for this review-only upload at submission.
-- Verification logs, renders, and the independent archive report are in
-  `build/final_read_2026-09-11/`. The protected hash baseline is in
-  `build/revision_checks_2026-09-11/protected_baseline.json`.
+- Verification logs, final renders, baseline comparison and independent package
+  report are in `build/review_corrections_2026-09-19/`; final page images are in
+  its `rendered_final/` directory. The independent Astra review remains in
+  `docs/oikos_astra_external_review_2026-09-18.md`.
 
-The full production simulations were not rerun for this tranche. Their saved
-summaries and current spec-derived validation establish the production evidence
-base; the small numerical-guard diagnostic was rerun independently as above.
+### Manuscript build dependency
+
+The SI layout fix also changes the local makedoc checkout at
+`/home/bwbrook/work/makedoc` (base commit `b613e71`):
+`scripts/prepare_markdown_sources.py` emits the supplementary divider only when
+both main and supplementary figures occur in the document. Standalone SI
+profiles retain their original caption-page layout without that divider.
+The two placement modes and mixed-document behavior have regression coverage;
+`test-author-injection`, `test-figure-modes`, `check` (38 tests), and
+`check-fixture` passed. The implementation, test, README and agent primer changes
+are uncommitted in that separate repository. Rebuilding this exact SI layout
+elsewhere requires that patch. No makedoc change is needed to run the anonymous
+scientific archive.
 
 ## Preprint and public-release workflow
 
@@ -162,6 +177,6 @@ make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 uv run --frozen pytest -q
 uv run --frozen pyright
 uv run --frozen python scripts/build_deidentified_review_package.py \
-  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-11_final/ih_package \
+  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-19/ih_package \
   --zip
 ```

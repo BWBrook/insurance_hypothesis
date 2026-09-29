@@ -178,6 +178,9 @@ def summarize_mixed_heatmap_supplement(
     )
     out = pd.DataFrame(summary)
     out["metric"] = metric
+    if metric == "phi_ldm":
+        zero_noise = np.asarray(out["sigma_env"], dtype=float) == 0.0
+        out.loc[zero_noise, ["metric_mean", "metric_sd"]] = np.nan
     order = np.lexsort(
         (
             np.asarray(out["rho_eff"], dtype=float),
@@ -217,6 +220,8 @@ def make_mixed_heatmap_supplement(
 
     vmin = float(np.nanmin([np.nanmin(table.values) for table in tables.values()]))
     vmax = float(np.nanmax([np.nanmax(table.values) for table in tables.values()]))
+    cmap = plt.get_cmap("viridis").copy()
+    cmap.set_bad("#d9d9d9")
 
     fig, axes = plt.subplots(
         1,
@@ -233,7 +238,7 @@ def make_mixed_heatmap_supplement(
             table.values,
             origin="lower",
             aspect="auto",
-            cmap="viridis",
+            cmap=cmap,
             vmin=vmin,
             vmax=vmax,
         )
@@ -719,7 +724,7 @@ def make_production_fig3_synchrony(
     labels = {"mixed": "mixed responses", "positive": "aligned responses"}
     markers = {2: "o", 4: "s", 8: "^"}
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.5), constrained_layout=True)
+    fig, axes = plt.subplots(3, 1, figsize=(6.4, 9.0), constrained_layout=True)
 
     for ax, slope_mode, panel_label in zip(axes[:2], ["mixed", "positive"], ["A", "B"]):
         mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
@@ -745,7 +750,8 @@ def make_production_fig3_synchrony(
             xlim=(-0.02, 1.02),
             ylim=(-1.02, 1.02),
         )
-        ax.legend(fontsize=8, frameon=False)
+        ax.tick_params(labelsize=8.5)
+        ax.legend(fontsize=8.5, frameon=False)
         _add_panel_label(ax, panel_label)
 
     ax = axes[2]
@@ -786,7 +792,8 @@ def make_production_fig3_synchrony(
         ylabel=r"$\Delta$ log-growth correlation",
         xlim=(-0.02, 1.02),
     )
-    ax.legend(fontsize=8, frameon=False)
+    ax.tick_params(labelsize=8.5)
+    ax.legend(fontsize=8.5, frameon=False)
     _add_panel_label(ax, "C")
 
     fig.savefig(out_png, dpi=300)
@@ -1090,7 +1097,7 @@ def make_production_fig4_weighted_boundary(
 
     colors = {"mixed": "#1f77b4", "positive_matched": "#d95f02"}
     labels = {"mixed": "balanced mixed", "positive_matched": "aligned, matched magnitude"}
-    fig, axes = plt.subplots(1, 3, figsize=(13.6, 4.55), constrained_layout=True)
+    fig, axes = plt.subplots(3, 1, figsize=(6.4, 9.0), constrained_layout=True)
 
     matched = pd.DataFrame(
         matched_summary[matched_summary["slope_mode"].isin(colors)].copy()
@@ -1115,7 +1122,8 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
         xlim=(-0.02, 1.02),
     )
-    axes[0].legend(fontsize=7.0, frameon=False, loc="upper left")
+    axes[0].tick_params(labelsize=8.5)
+    axes[0].legend(fontsize=8.5, frameon=False, loc="upper left")
 
     response_path = pd.DataFrame(
         boundary_summary[boundary_summary["treatment_path"].eq("alignment")].copy()
@@ -1159,7 +1167,47 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
         xlim=(-0.02, 0.84),
     )
-    axes[1].legend(fontsize=7.1, frameon=False, loc="upper left")
+    axes[1].tick_params(labelsize=8.5)
+    axes[1].legend(fontsize=8.5, frameon=False, loc="upper left")
+
+    inset = axes[1].inset_axes([0.53, 0.08, 0.44, 0.43])
+    inset.plot(analytic_x, 4.0 * analytic_x, color="0.3", ls=":", lw=1.1)
+    for path, color, marker in [
+        (response_path, "#6a3d9a", "o"),
+        (dominance_path, "#1b9e77", "s"),
+    ]:
+        y = np.asarray(path["cv2_ratio"], dtype=float)
+        yerr = np.vstack(
+            [
+                y - np.asarray(path["cv2_ratio_ci_low"], dtype=float),
+                np.asarray(path["cv2_ratio_ci_high"], dtype=float) - y,
+            ]
+        )
+        inset.errorbar(
+            path["alignment_index"],
+            y,
+            yerr=yerr,
+            color=color,
+            marker=marker,
+            lw=1.0,
+            ms=3.5,
+            capsize=1.5,
+        )
+    inset.axhline(1.0, color="0.45", lw=0.7, ls="--")
+    inset.axvline(0.25, color="0.45", lw=0.7, ls="--")
+    inset.set(
+        xlim=(0.20, 0.28),
+        ylim=(0.90, 1.15),
+        xticks=[0.20, 0.24, 0.28],
+        yticks=[0.9, 1.0, 1.1],
+    )
+    inset.tick_params(labelsize=8.5, pad=1)
+    inset.text(
+        0.03, 0.96, "Near-boundary reversal", transform=inset.transAxes,
+        fontsize=8.5, ha="left", va="top",
+    )
+    inset.set_facecolor("white")
+    axes[1].indicate_inset_zoom(inset, edgecolor="0.25", linewidth=0.8)
 
     r0_rows = pd.DataFrame(
         boundary_summary[
@@ -1196,7 +1244,8 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
         xticks=[0.25, 0.5, 1.0, 1.5],
     )
-    axes[2].legend(fontsize=7.4, frameon=False, loc="upper right")
+    axes[2].tick_params(labelsize=8.5)
+    axes[2].legend(fontsize=8.5, frameon=False, loc="center right")
 
     for label, ax in zip(["A", "B", "C"], axes):
         _add_panel_label(ax, label)

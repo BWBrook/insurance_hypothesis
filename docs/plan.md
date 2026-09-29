@@ -13,37 +13,43 @@ responses under the examined design. Richness, persistence, and synchrony
 patterns are supporting structure, not independent causal effects isolated by a
 factorial experiment.
 
-## Current tranche: final author-read revision, 11 September 2026
+## Current tranche: external-review corrections, 19 September 2026
 
-The PI approved the corrections in
-`docs/oikos_astra_response_to_fable_2026-09-11.md` and requested commit and push
-before a full author read. Fable's clearer treatment names and exposition are
-retained. The final synthesis reports both the substantial balanced-endpoint
-departure and the near-threshold direction reversal, limits the second-order
-argument to its checked local scope, and repairs the growth metric and
-correlation-clipping descriptions. No production science or accepted display
-has changed. Historical Stage 3/4 descriptions below retain their original
-figure numbers.
+The PI approved the four bounded recommendations from the fresh Astra review
+in `docs/oikos_astra_external_review_2026-09-18.md`:
 
-The cover letter and submission statements follow the same claims. The release
-audit also replaces an obsolete, unreproducible-in-the-current-package
-200-replicate diagnostic citation with the retained three-scenario diagnostic.
-This is a correction to evidence provenance, not a new simulation result.
+1. mask undefined zero-forcing synchrony in the Figure S2 display summary;
+2. make Figures 1 and 2 readable at their final physical size;
+3. acknowledge existing abundance-weighting work and specify the integrated
+   benchmark and nonlinear test as the contribution; and
+4. remove the heading-only Supporting-information page.
 
-Completed acceptance gate: all six manuscript profiles, PDF visual checks,
-anonymous DOCX sanitization and manifests, 39 repository tests and Pyright,
-51 unchanged protected hashes, and clean extraction of the minimal code/data
-package (35 tests; all 32 regenerated output hashes matched). The package must
-separate regeneration from saved summaries, full production reruns, and
-numerical diagnostics. It remains anonymous for review; public release metadata,
-licensing, and the Zenodo DOI belong after the author's final read and release
-decision. See `docs/oikos_submission_checklist.md` for the completed gate and
-artifact locations. The PI prefers a preprint before submission; Oikos permits
-this while requiring anonymous review files.
+The permitted display changes preserve all seven production datasets, seeds,
+model dynamics, numerical estimands and nonzero-forcing summaries. The only
+numerical display correction is missing values for undefined Figure S2 cells.
+No production rerun is warranted. The external review's longer-window check is
+retained as review evidence, without adding a new manuscript result or changing
+the minimal scientific archive. Validator strengthening remains optional
+maintenance outside this tranche.
 
-The next human step is a full manuscript and cover-letter read. Any resulting
-edits will receive a bounded consistency check before the final pre-submission
-commit. No journal submission or public archival deposit is authorized now.
+All four corrections are complete. The repository passes 40 tests and Pyright;
+canonical regeneration preserves all seven datasets/specs and every numerical
+summary except the 15 undefined Figure S2 mean/SD cells. Figures 1 and 2 have
+approximately 8 pt minimum text at submitted size. All six manuscript profiles,
+PDF identity/structure checks, DOCX sanitization and refreshed manifests passed.
+The final main PDF has 29 pages and Supporting information has 10, with every
+page visually checked.
+
+The rebuilt anonymous ZIP passes an independent clean extraction: 36 tests,
+Pyright and all 32 expected-output hashes. Evidence is in
+`build/review_corrections_2026-09-19/`; artifact locations and the exact archive
+hash are in `docs/oikos_submission_checklist.md`.
+
+Removing the SI divider required a small separate makedoc fix, with regression
+checks for standalone and mixed figure documents. That patch remains uncommitted
+in `/home/bwbrook/work/makedoc`, as do this repository's review corrections. The
+next human step is the PI's full manuscript read. Public release and submission
+await that read and the outstanding author declarations.
 
 ## Locked evidence base
 

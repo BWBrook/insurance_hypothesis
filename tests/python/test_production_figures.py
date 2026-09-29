@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -253,6 +254,44 @@ def test_summarize_mixed_heatmap_supplement_filters_species_and_rho() -> None:
     ].iloc[0]
     assert row["metric_mean"] == pytest.approx(3.05)
     assert row["replicate_rows"] == 2
+
+
+def test_summarize_mixed_heatmap_masks_zero_noise_synchrony_only() -> None:
+    rows: list[dict[str, float | int | str]] = []
+    for sigma_env in [0.0, 0.5]:
+        for rho_eff in [0.0, 0.5]:
+            for replicate in [0, 1]:
+                rows.append(
+                    {
+                        "slope_mode": "mixed",
+                        "n_species": 4,
+                        "sigma_env": sigma_env,
+                        "rho_eff": rho_eff,
+                        "replicate": replicate,
+                        "phi_ldm": 0.1 + sigma_env + rho_eff + replicate * 0.1,
+                        "cv_total": 0.4 + sigma_env + rho_eff + replicate * 0.1,
+                        "mean_extinction_freq": 0.0,
+                    }
+                )
+    source = pd.DataFrame.from_records(rows)
+    source_before = source.copy(deep=True)
+
+    synchrony = summarize_mixed_heatmap_supplement(source, metric="phi_ldm", species_values=(4,))
+    zero_noise = synchrony[synchrony["sigma_env"].eq(0.0)]
+    assert bool(np.isnan(np.asarray(zero_noise["metric_mean"], dtype=float)).all())
+    assert bool(np.isnan(np.asarray(zero_noise["metric_sd"], dtype=float)).all())
+
+    nonzero = synchrony[
+        synchrony["sigma_env"].eq(0.5) & synchrony["rho_eff"].eq(0.5)
+    ].iloc[0]
+    assert nonzero["metric_mean"] == pytest.approx(1.15)
+    assert nonzero["metric_sd"] == pytest.approx(0.1 / 2**0.5)
+
+    cv = summarize_mixed_heatmap_supplement(source, metric="cv_total", species_values=(4,))
+    cv_zero_noise = cv[cv["sigma_env"].eq(0.0)]
+    assert bool(np.isfinite(np.asarray(cv_zero_noise["metric_mean"], dtype=float)).all())
+    assert bool(np.isfinite(np.asarray(cv_zero_noise["metric_sd"], dtype=float)).all())
+    pd.testing.assert_frame_equal(source, source_before)
 
 
 def test_summarize_species_cv_supplement_derives_cv_sp() -> None:

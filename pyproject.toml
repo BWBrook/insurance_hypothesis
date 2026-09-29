@@ -23,6 +23,9 @@ packages = ["insurance_sim"]
 [tool.uv]
 index-url = "https://pypi.org/simple"
 
+[tool.pyright]
+exclude = ["build", ".venv"]
+
 [dependency-groups]
 dev = [
     "pyright>=1.1.408",

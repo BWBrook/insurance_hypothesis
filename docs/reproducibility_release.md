@@ -13,7 +13,7 @@ versioned specifications.
 ## Current anonymous review package
 
 The allowlisted package is sufficient for double-anonymous computational review.
-It contains the model and analysis code, locked Python environment, 35 runnable
+It contains the model and analysis code, locked Python environment, 36 runnable
 tests, seven complete specs, and seven compact production summaries. Fresh
 manifests generated from the specs validate all 1,196 scenarios and 1,196,000
 replicate rows. The saved summaries drive all nine paper figures, nine figure-

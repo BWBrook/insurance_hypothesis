@@ -215,3 +215,26 @@ implementation detail is recoverable through Git history.
   files while accepting that author identity is discoverable from the preprint.
 - **Boundary:** No preprint, public repository, or Zenodo deposit has been made
   in this tranche. The PI's full read and final metadata still precede release.
+
+### Approved external-review display corrections, 19 September 2026
+
+- **Decision:** Apply the four bounded corrections from the independent Astra
+  review: undefined-synchrony masking, readable principal figures, precise
+  novelty positioning and removal of the SI divider page.
+- **Scientific boundary:** Zero-forcing Figure S2 synchrony is undefined for
+  constant trajectories. Correct the display summary and mask those cells,
+  preserving saved replicate rows. Other numerical summaries, all production
+  specifications, seeds and model dynamics remain fixed. Changes to Figure 1
+  and Figure 2 concern physical layout and type size only.
+- **Verification boundary:** Compare regenerated summaries against the prior
+  release; permit only the Figure S2 zero-forcing mean/SD missing-value change.
+  Recheck affected figures at their submitted size and rebuild the anonymous
+  package with updated expected-output hashes.
+- **Deferred:** The review's longer-window calculations remain review evidence.
+  No new production run, manuscript sensitivity result, seed migration or
+  validator extension is part of this correction.
+- **Build dependency:** Remove the SI divider in makedoc only for documents
+  containing supplementary figures without main figures. Preserve the existing
+  divider for combined documents and keep caption-page layout. This required a
+  separately tested local patch to `/home/bwbrook/work/makedoc` at base `b613e71`;
+  both repositories remain uncommitted pending the PI's read.

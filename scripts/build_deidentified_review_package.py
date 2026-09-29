@@ -117,7 +117,9 @@ Run the first checksum command before generating outputs; it verifies the
 contents supplied for review. `run_all.py` reads the included compact summaries
 and writes nine PNGs, nine PDFs, nine figure-summary CSVs, and two variance-
 decomposition CSVs under `analysis/reports/`. It does not rerun the production
-simulations.
+simulations. Figure S2 masks zero-forcing synchrony as undefined because the
+post-burn-in abundances are constant; those means and standard deviations are
+missing in its display-summary CSV. The supplied replicate rows are preserved.
 
 `check_numerical_guards.py` is a separate deterministic stress diagnostic. It
 runs 30 replicates for each of three scenarios (90 trajectories in total) with
