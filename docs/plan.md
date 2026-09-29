@@ -13,7 +13,7 @@ responses under the examined design. Richness, persistence, and synchrony
 patterns are supporting structure, not independent causal effects isolated by a
 factorial experiment.
 
-## Current tranche: external-review corrections, 19 September 2026
+## Current tranche: external-review corrections and prose pass, September 2026
 
 The PI approved the four bounded recommendations from the fresh Astra review
 in `docs/oikos_astra_external_review_2026-09-18.md`:
@@ -46,10 +46,19 @@ Pyright and all 32 expected-output hashes. Evidence is in
 hash are in `docs/oikos_submission_checklist.md`.
 
 Removing the SI divider required a small separate makedoc fix, with regression
-checks for standalone and mixed figure documents. That patch remains uncommitted
-in `/home/bwbrook/work/makedoc`, as do this repository's review corrections. The
-next human step is the PI's full manuscript read. Public release and submission
-await that read and the outstanding author declarations.
+checks for standalone and mixed figure documents. It is committed on branch
+`claude/standalone-si-divider` of the makedoc repository (`4cd4809`).
+
+A prose pass followed on 28 September at the PI's request. It revised the
+main-text prose and figure captions for readability and for readers outside the
+subfield, without changing equations, citations, claims or displays, and
+corrected two roundings: the Fig. 1A value near perfect correlation and the
+Monte Carlo SD example. All six profiles and the golden contract pass. The main
+PDF has 31 pages with the Introduction on page 2, and the abstract has 277
+words. Pre-pass copies and word diffs are in `build/prose_pass_2026-09-28/`.
+Both tranches are committed on branch `claude/oikos-editorial-checkpoint`. The
+next human step is the PI's editorial pass. Public release and submission await
+that pass and the outstanding author declarations.
 
 ## Locked evidence base
 

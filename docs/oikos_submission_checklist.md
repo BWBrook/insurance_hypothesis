@@ -110,9 +110,29 @@ profiles retain their original caption-page layout without that divider.
 The two placement modes and mixed-document behavior have regression coverage;
 `test-author-injection`, `test-figure-modes`, `check` (38 tests), and
 `check-fixture` passed. The implementation, test, README and agent primer changes
-are uncommitted in that separate repository. Rebuilding this exact SI layout
-elsewhere requires that patch. No makedoc change is needed to run the anonymous
+are committed on branch `claude/standalone-si-divider` of that repository
+(`4cd4809`). Rebuilding this exact SI layout elsewhere requires that commit. No makedoc change is needed to run the anonymous
 scientific archive.
+
+## Prose pass verified: 2026-09-28
+
+- The main-text prose and figure captions were revised for readability and for
+  readers outside the subfield. All 24 display equations and every citation are
+  unchanged, and no display, estimand or claim changed. Two roundings were
+  corrected: the Fig. 1A mixed value near perfect correlation now reads 0.059,
+  and the Monte Carlo SD example (0.0048; SE 0.00015) now comes from the same
+  grid as its means.
+- The abstract has 277 words and fits on page 1 with the keywords; the
+  Introduction begins on page 2. The main PDF has 31 pages and Supporting
+  information has 10.
+- All six sequential makedoc profiles passed, and the PDF/DOCX golden contract
+  passes all 12 text markers, the table count and the drawing count. Both
+  anonymous DOCX files were sanitized and their manifests refreshed. Both
+  anonymous PDFs pass `qpdf --check` and a text and metadata identity scan. The
+  repository passes 40 tests and Pyright.
+- The anonymous archive contains no manuscript text and was not rebuilt; the
+  archive hash above still applies.
+- Pre-pass copies and word diffs are in `build/prose_pass_2026-09-28/`.
 
 ## Preprint and public-release workflow
 
