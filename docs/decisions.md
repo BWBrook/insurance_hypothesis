@@ -11,27 +11,27 @@ implementation detail is recoverable through Git history.
   intraspecific competition `1`, and interspecific competition `0.3`.
 - **Reason:** It is the smallest density-regulated community model that exposes
   environmental response covariance while retaining interpretable dynamics.
-- **Status:** active; sensitivity at other `r0` values is part of the bounded
-  final revision, not a replacement of the core design.
+- **Status:** active baseline. Growth-rate sensitivity and the October mechanism
+  grids (`alpha_inter = 0.1, 0.3, 0.6`) extend it without changing the recurrence.
 
 ### AR(1) forcing and correlation
 
 - **Decision:** `sigma_env` is the innovation SD of a multivariate AR(1) process;
   `phi` controls persistence, so stationary SD is
   `sigma_env / sqrt(1 - phi^2)`. Innovations use an equicorrelation request
-  `rho_env`; infeasible negative requests are clipped to a positive-definite
+  `rho_env`; infeasible requests at either boundary are clipped to a positive-definite
   value recorded as `rho_eff`.
 - **Reason:** This separates the implemented inputs from realised growth
   synchrony and makes feasibility transparent.
-- **Status:** active. Figure 5 is a fixed-innovation compound persistence–variance
+- **Status:** active. Figure S8 is a fixed-innovation compound persistence–variance
   sensitivity, not an isolated autocorrelation effect.
 
 ### Response regimes
 
 - **Decision:** Compare `mixed` slopes in `[-0.5, 0.5]`, `positive` slopes in
   `[0.1, 1]`, and `positive_matched = abs(mixed)`.
-- **Reason:** Mixed versus positive tests the headline contrast; positive-matched
-  isolates response sign structure from slope magnitude.
+- **Reason:** Positive-matched isolates response sign structure from slope
+  magnitude; the steep-positive comparison is a supplementary stress contrast.
 - **Status:** active. The positive-matched control is the primary sign-structure
   comparison in the revised evidential hierarchy.
 
@@ -42,8 +42,28 @@ implementation detail is recoverable through Git history.
   the exact abundance variance decomposition as mechanistic diagnostics.
 - **Reason:** These quantities distinguish aggregate stability from species-level
   variability and imposed environmental correlation.
-- **Status:** active. The manuscript states the analytical mechanism as an
-  abundance-weighted covariance criterion and limits it to its first-order scope.
+- **Status:** active. The first-order covariance criterion and local second-order
+  departure are distinguished from the full nonlinear simulation result.
+
+### Shared-exposure reversal and local prediction, October 2026
+
+- **Decision:** Make the conditional destabilising effect of shared exposure the
+  central result. Retain the mixed-versus-aligned sign control as a separate
+  estimand. Predict only the small-fluctuation onset with the derived coefficient.
+- **Evidence:** All 23 eligible prospective settings meet both recorded criteria;
+  all five identified reversals survive familywise adjustment and the specified
+  longer-window check. Four longer-run settings remain floor-free, and one has
+  rare retained floor contact. The separate guard runs find no activation.
+- **Limits:** Neither negative covariance nor balanced slopes guarantees that
+  increasing exposure correlation adds stability. The coefficient does not
+  quantitatively explain the finite-noise reversal. Composition crossings are
+  interpolated summaries, not precisely estimated thresholds. Compound richness,
+  competition and persistence changes do not isolate a single causal driver.
+- **Display decision:** Keep Figure 1; add amplitude/boundary Figure 2 and
+  prediction/reversal Figure 3. Move former Figures 2–5 to S5–S8 and add S9 for
+  the complete boundary paths. Keep every original generated filename and value.
+- **Status:** integrated after independent derivation and raw-summary audits;
+  correspondence discussion 89 preserves the prespecifications and disagreements.
 
 ### Bounded weighted-balance sensitivity
 
@@ -83,9 +103,9 @@ implementation detail is recoverable through Git history.
 ### Production specifications and seeds
 
 - **Decision:** Versioned JSON specs are the only production-creation interface.
-  All fixed model constants are explicit. Production uses 1000 replicates per
-  scenario and deterministic seeds derived from the base seed, scenario index,
-  and replicate index.
+  All fixed model constants are explicit. Main production grids use 1000
+  replicates per scenario and longer-window checks use 500. Deterministic seeds
+  derive from the base seed, scenario index and replicate index.
 - **Reason:** A spec is a compact auditable design record; deterministic
   per-replicate seeds make sharding and reruns order-independent.
 - **Status:** active.
@@ -143,7 +163,7 @@ implementation detail is recoverable through Git history.
   as equilibrium weights. Remove the unsupported mean-shift explanation.
 - **Reason:** These qualifications match the existing evidence and prior
   covariance/population-feedback theory without changing the model or results.
-- **Display decision:** Promote the accepted matched-sign/weighted-boundary
+- **September display decision (superseded by the October hierarchy above):** Promote the accepted matched-sign/weighted-boundary
   display to Figure 1; realised synchrony is Figure 2, environmental variance
   Figure 3, richness Figure 4, and persistence Figure 5. Retain rendered panels,
   production IDs, and generated filenames. Paper and package mappings identify

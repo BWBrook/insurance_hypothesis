@@ -1,6 +1,6 @@
 # Supplementary Information
 
-## Abundance-weighted responses and nonlinear limits to community buffering under correlated environments
+## Shared environments can destabilise communities with balanced opposing responses
 
 This supplementary information file contains the linearised covariance derivation, implementation checks, production run inventory, numerical stress summaries, a selected variance decomposition, and supplementary figures. It is anonymised for double-blind review.
 
@@ -52,14 +52,30 @@ The identity becomes quantitative for a perfectly balanced community under share
 \[
 X^{(2)}_{t+1}=\tfrac12 n\textstyle\sum_i b_i^2\,(y_{t+1}^2-y_t^2).
 \]
-For Gaussian $y$ with variance $v$ and lag-one autocorrelation $\rho_1$, $\operatorname{Var}(y_{t+1}^2-y_t^2)=4v^2(1-\rho_1^2)$. Dividing by the first-order variance of total abundance under independent exposures, $n^2\sum_i b_i^2\,\sigma_z^2$, gives the leading term of the shared-to-independent ratio of mean squared CV:
+For Gaussian $y$ with variance $v$ and lag-one autocorrelation $\rho_1$, $\operatorname{Var}(y_{t+1}^2-y_t^2)=4v^2(1-\rho_1^2)$. Dividing by the first-order variance of total abundance under independent exposures, $n^2\sum_i b_i^2\,\sigma_z^2$, gives the leading term of the shared-to-independent population-variance ratio, equivalently the ratio of population squared CVs at this order:
 \[
 R\approx c\,\sigma_{\mathrm{env}}^2,\qquad
 c=\frac{\sum_i b_i^2}{(1-\lambda_d^2)(1-\lambda_d\phi)^2}.
 \]
 The ratio grows with the variance of per-capita environmental shocks, $\sigma_z^2\sum_i b_i^2$. It also grows as $\lambda_d$ approaches one, which happens with more species or stronger interspecific relative to intraspecific competition, and with environmental autocorrelation. For the focal community ($S=4$, $\alpha_{\mathrm{inter}}=0.3$, $\phi=0.4$), $c=1.65$. Applying the same calculation to the 300-step finite-window estimand changes $c$ by 0.8%.
 
-The coefficient is a small-fluctuation result. It predicts the onset of the residual, not its magnitude once $R$ is no longer small: at $\sigma_{\mathrm{env}}=0.5$ it gives 0.41 against a simulated 0.32 in the focal community. For other values of $r_0$, the common mode has its own memory, and the same calculation over-predicts the Fig. 1C ratios at $\sigma_{\mathrm{env}}=0.5$ by 28–85%; at $r_0=0.25$ it even predicts amplification where the simulation shows buffering, so the dependence of those ratios on $r_0$ is not attributed to any single feature of the dynamics. The calculation says nothing about aligned or partially balanced compositions, where first-order terms do not vanish.
+The coefficient is a small-fluctuation result. It predicts the onset of the residual, not its magnitude once $R$ is no longer small: at $\sigma_{\mathrm{env}}=0.5$ it gives 0.41 against a simulated 0.32 in the focal community. For other values of $r_0$, the common mode has its own memory and the closed-form coefficient above no longer applies. Figure 1C reports those simulated sign contrasts without attributing their dependence on $r_0$ to any single dynamical feature. The calculation says nothing about aligned or partially balanced compositions, where first-order terms do not vanish.
+
+### Finite observation window
+
+For a stationary series with autocorrelation $q_h$, the expected sample variance over $L$ observations, with divisor $L-1$, is its population variance multiplied by
+\[
+B_L(q)=1-\frac{2}{L(L-1)}\sum_{h=1}^{L-1}(L-h)q_h.
+\]
+At $r_0=1$, the first-order independent-exposure total has autocorrelation $\phi^h$. Write $\eta_h$ for the autocorrelation of $y_t$. It satisfies $\eta_0=1$, $\eta_1=(\lambda_d+\phi)/(1+\lambda_d\phi)$ and
+\[
+\eta_h=(\lambda_d+\phi)\eta_{h-1}-\lambda_d\phi \eta_{h-2}\quad(h\ge2).
+\]
+Gaussian fourth moments give the autocorrelation of $\Delta y_t^2=y_{t+1}^2-y_t^2$ as
+\[
+q_h^{\Delta}=\frac{2\eta_h^2-\eta_{h-1}^2-\eta_{h+1}^2}{2(1-\eta_1^2)},\qquad \eta_{-h}=\eta_h.
+\]
+The leading coefficient for the ratio of mean sampled squared CVs is therefore $c_L=c\,B_L(q^{\Delta})/B_L(\phi^h)$. At the focal settings and $L=300$, the two factors are 1.003310 and 0.995565, giving $c_{300}=1.667519$. Random sample means affect higher-order terms. This calculation assumes stationarity, inactive guards and exactly shared exposure; the implemented correlation cap leaves a first-order ratio of $10^{-6}$.
 
 ## Prespecified test of the small-fluctuation prediction
 
@@ -67,15 +83,18 @@ Before simulating, the coefficient $c$ was computed for 27 perfectly balanced co
 
 ## Boundary across fluctuation sizes
 
-The Fig. 1B rotation and unequal-$K_i$ paths were repeated at seven values of $\sigma_{\mathrm{env}}$ with independent seeds (Fig. S9). At $\sigma_{\mathrm{env}}=0.1$, the simulated ratios follow the first-order benchmark along the whole rotation path, generally within about 1%. As fluctuations grow, the curves flatten towards a ratio of one, and compositions near the first-order boundary change side. The rotation composition with $A=0.247$, just below the boundary, gives a ratio of 0.986 (95% Monte Carlo interval 0.978–0.995) at $\sigma_{\mathrm{env}}=0.1$ and 1.056 (1.034–1.078) at 0.7, with no retained floor contact at either. Interpolated crossings (Fig. S9C) summarise the same shift but are not estimated thresholds: the tested compositions are coarsely spaced, the unequal-$K_i$ path has floor contact in its most uneven treatments from $\sigma_{\mathrm{env}}=0.5$, and at $\sigma_{\mathrm{env}}=1.3$ the bracketing rotation-path points include an interval spanning one. The balanced and matched aligned endpoints are floor-free at every $\sigma_{\mathrm{env}}$. Their independent-exposure variability is indistinguishable (matched/balanced ratio 0.984–1.003), so the shared-exposure comparison is computed directly, from the matched and balanced endpoints' own mean squared CVs.
+The Fig. 1B rotation and unequal-$K_i$ paths were repeated at seven values of $\sigma_{\mathrm{env}}$ with independent seeds (Fig. S9). At $\sigma_{\mathrm{env}}=0.1$, the simulated ratios follow the first-order benchmark along the whole rotation path, generally within about 1%. As fluctuations grow, the curves flatten towards a ratio of one, and compositions near the first-order boundary change side. The rotation composition with $A=0.247$, just below the boundary, gives a ratio of 0.986 (95% Monte Carlo interval 0.978–0.995) at $\sigma_{\mathrm{env}}=0.1$ and 1.056 (1.034–1.077) at 0.7, with no retained floor contact at either. Interpolated crossings (Fig. S9C) summarise the same shift but are not estimated thresholds: the tested compositions are coarsely spaced, the unequal-$K_i$ path has floor contact in its most uneven treatments from $\sigma_{\mathrm{env}}=0.5$, and at $\sigma_{\mathrm{env}}=1.3$ the bracketing rotation-path points include an interval spanning one. The balanced and matched aligned endpoints are floor-free at every $\sigma_{\mathrm{env}}$. Under independent exposures the two treatments have the same forcing distribution; their simulated matched/balanced ratios range from 0.984 to 1.003. The shared-exposure comparison is computed directly from the matched and balanced endpoints' own mean squared CVs, without assuming identical simulated baselines.
 
 ## Balanced-community reversals and their robustness
 
 In five of the 108 setting-by-$\sigma_{\mathrm{env}}$ cells of the Fig. 3 grids, the ratio exceeded one with its 95% Monte Carlo interval and without production floor contact (Table S5). In each of these, shared exposure made a community whose first-order environmental forcing cancels exactly more variable than independent exposure. All five involve eight species; they include the focal $\sigma_{\mathrm{env}}=0.5$ (with $\alpha_{\mathrm{inter}}=0.6$, $\phi=0.4$) and one setting at $\sigma_{\mathrm{env}}=0.2$, which lies outside the small-fluctuation regime.
 
+An additional audit used Bonferroni-adjusted 95% familywise intervals across all 108 setting-by-amplitude comparisons. Replacing the pointwise normal critical value by $\Phi^{-1}[1-0.05/(2\times108)]=3.501318$ in the same log-ratio delta method gives lower bounds of 1.153, 1.501, 1.583, 1.407 and 1.403 in the order of Table S5. All five reversals therefore survive this multiplicity check.
+
 Three checks address alternative explanations.
-- **Trajectory length.** A long-window repeat (500 replicates of 6000 steps with 3000 discarded, independent seeds) reproduced every ratio, at 1.19–1.65 with all lower 95% bounds above 1.17. One replicate in one setting touched the floor once.
-- **Numerical guards.** A separate diagnostic of 200 full 600-step and 100 full 6000-step trajectories per exposure condition in each setting recorded no exponent clipping and no floor contact. It describes guard activity in these parameter settings, not in every production replicate.
+
+- **Trajectory length.** A long-window repeat (500 replicates of 6000 steps with 3000 discarded, independent seeds) reproduced every ratio, at 1.19–1.65 with all lower 95% bounds above 1.17. One replicate in one setting had mean floor occupancy of 0.00033, equivalent to eight species-time observations at the floor across the retained window.
+- **Numerical guards.** A separate diagnostic of 200 full 600-step and 100 full 6000-step trajectories per exposure condition in each setting recorded no exponent clipping and no floor contact. The diagnostic seed stream is separate from production, but is reused across diagnostic conditions; the 600-step runs are prefixes of the corresponding 6000-step runs for their shared replicate indices. The check describes guard activity in these parameter settings, not in every production replicate.
 - **Compensation itself.** Covariance accounting shows that compensation does not disappear. In the $\sigma_{\mathrm{env}}=0.5$ reversal, the aggregate covariance term remained strongly negative under shared exposure (−716, against summed species variances of 925), and mean $\phi_{\mathrm{LdM}}$ was 0.035. It was nevertheless less negative than under independent exposure (−879), whereas total variance rose from 144 to 210. In the focal four-species community, shared exposure did the opposite, strengthening the covariance term from −548 to −1053.
 
 Compensating fluctuations therefore persist in the reversals, but sharing the environment makes them less effective than independent exposure.

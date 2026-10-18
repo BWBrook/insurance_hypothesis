@@ -7,13 +7,88 @@ species respond asynchronously. The implemented stochastic Ricker model compares
 mixed response directions with aligned responses under correlated AR(1)
 environmental forcing.
 
-The submission claim is relative and conditional: mixed response directions can
-reduce temporal variability of total community abundance relative to aligned
-responses under the examined design. Richness, persistence, and synchrony
-patterns are supporting structure, not independent causal effects isolated by a
-factorial experiment.
+The paper separates two relative comparisons: mixed versus matched aligned
+responses, and shared versus independent exposure within a fixed community.
+Opposing responses can retain their sign-only advantage while shared exposure
+becomes destabilising. Richness, persistence and synchrony patterns support
+this analysis without identifying isolated causal effects of those quantities.
 
-## Current tranche: external-review corrections and prose pass, September 2026
+## Current tranche: editor-facing manuscript reworking, 18 October 2026
+
+The PI requested substantial asynchronous reworking by Codex and Claude for both
+a broad ecology editor and a specialist reader. Discussion 89 records the
+request, competing drafts, independent checks and implementation handoffs.
+The October work builds on `dde231a`; Claude's analysis and display/SI commits
+are `7d0446d` and `c141a20` on `claude/oikos-editorial-checkpoint`.
+
+The canonical main text is now rewritten around **shared environments can
+destabilise communities with balanced opposing responses**. It separates the
+sign-only advantage of mixed responses from the effect of shared exposure
+within a community. The latter is the ratio of mean replicate squared CV under
+near-perfect versus independent exposure. Compensation can persist while that
+ratio exceeds one.
+
+The evidence now includes 16 production grids, 1,618 scenarios and 1,613,000
+replicate summaries. The original seven grids, their specifications and all
+original displays retain their protected hashes. The Ricker recurrence,
+production seeding and post-burn-in metrics are unchanged.
+
+- The local second-order prediction passes both recorded acceptance definitions
+  in all 23 eligible settings: one calibration repeat and 22 additional
+  combinations. Predictions and their provenance are retained under
+  `analysis/prespecified/`. The prediction explains the initial departure from
+  cancellation, not the finite-noise reversal or its threshold.
+- Five balanced-response settings have a shared-to-independent ratio above one
+  with no retained floor contact in the main 600-step experiments. All five
+  remain above one after Bonferroni adjustment across 108 comparisons and in
+  independently seeded 6000-step runs with 3000 burn-in and 500 replicates.
+  The longer-run ratios are 1.187–1.654. Four settings remain floor-free; one
+  replicate in the fifth has mean floor occupancy 0.00033.
+- The separate guard diagnostic covers all five settings at both durations and
+  records no clipping or floor events. Its seed stream is independent of
+  production but reused across diagnostic conditions; it does not certify
+  every production trajectory.
+- Composition-boundary plots show measured points and intervals. Interpolated
+  crossings remain descriptive, with coarse spacing and floor contact stated.
+  A floor-free fixed-composition contrast at `A=0.246927` changes from buffering
+  at innovation SD 0.1 to amplification at 0.7.
+
+The integrated display suite has three main figures and nine SI figures.
+Figure 1 is unchanged; Figures 2 and 3 show amplitude dependence and the
+prediction/reversal tests. Former main Figures 2–5 are S5–S8, and S9 shows the
+full boundary paths. The main design table now explains the six experiments;
+complete parameter and grid inventories remain in Methods and the SI.
+
+The independent scientific audit checks derivation, estimand mapping, selected
+raw-data reconstructions and headline wording. Its corrections are integrated:
+explicit finite-window calculation, reproducible multiplicity adjustment,
+accurate floor/guard wording, and removal of a peripheral general-growth-rate
+extrapolation that was not supported in the review archive. Model identifiers
+and AI research roles are explicit in the manuscript disclosure.
+
+Verification and rendered review are complete in
+`build/editorial_integration_2026-10-18/`. The repository passes 45 tests and
+Pyright; `analysis/run_all.py` preserves all 46 protected-file hashes. The
+anonymous package at `de_identified_repos/insurance_hypothesis_2026-10-18/`
+contains 47 expected outputs; the existing archive hash and integrity match
+Claude's independently replayed package. Manuscript-only edits do not alter its
+computational contents.
+
+All six sequential document profiles pass. The main PDF and Supporting
+information each have 21 pages, checked visually in full; the cover letter and
+author title page also pass. The abstract has 236 words. The golden contract,
+PDF integrity and identity checks pass, and both anonymous DOCX files are
+sanitized with refreshed manifests. The final scientific audit is retained in
+`docs/oikos_october_scientific_review_2026-10-18.md`; it finds no major unresolved
+concern and independently replays 26 stored seeds exactly. Future input changes
+should strengthen the mechanism-summary grouping checks, but that risk does
+not affect the audited inputs.
+
+The integrated sources are ready for the PI's full reading. Funding and
+acknowledgements still contain author placeholders. Public release and
+submission follow that review; reversible revisions need no further permission.
+
+## Completed checkpoint: external-review corrections and prose pass, September 2026
 
 The PI approved the four bounded recommendations from the fresh Astra review
 in `docs/oikos_astra_external_review_2026-09-18.md`:

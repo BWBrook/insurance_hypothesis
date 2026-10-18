@@ -1,6 +1,6 @@
 # Oikos Submission Readiness Checklist
 
-Current against the Oikos and NSO author guidance rechecked on 2026-09-11:
+Current against the Oikos and NSO author guidance rechecked on 2026-10-18:
 
 - <https://nso-journals.org/oikos-for-authors>
 - <https://nso-journals.org/author-guidelines>
@@ -24,8 +24,8 @@ Canonical generated files are in
   information.
 
 The current code/data archive is
-`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-19/ih_package.zip`.
-The dated archive preserves the previous release package.
+`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-18/ih_package.zip`.
+The September archive remains available as the previous checkpoint.
 
 ## Current NSO requirements checked
 
@@ -51,7 +51,51 @@ The dated archive preserves the previous release package.
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
-## External-review corrections verified: 2026-09-19
+## October scientific and editorial revision: 2026-10-18
+
+- The title is “Shared environments can destabilise communities with balanced
+  opposing responses”. The abstract has 236 words. The main PDF has 21 pages,
+  with the Introduction on page 2, three figures and one design table.
+- The paper now distinguishes the benefit of opposing response signs from the
+  effect of sharing environmental exposure. Five balanced-response settings
+  show amplification; all survive the 108-comparison multiplicity correction
+  and independently seeded longer runs. The local second-order prediction
+  passes both recorded acceptance definitions in all 23 eligible settings.
+- An independent scientific audit reconstructs the headline results, checks the
+  finite-window calculation, and exactly replays 26 stored seeds across eight
+  production sources. No major scientific concern remains. The audit and its
+  limits are retained in `docs/oikos_october_scientific_review_2026-10-18.md`.
+- The source checkout passes 45 tests and Pyright. Canonical display regeneration
+  passes and preserves all 46 protected hashes: the original seven production
+  summaries, seven specifications and 32 outputs. The model recurrence and
+  production execution are unchanged.
+- All six sequential document profiles pass. The main PDF/DOCX golden contract
+  passes its 10 text markers, one table and three drawings. Both anonymous DOCX
+  files are sanitized and their manifests refreshed. PDF remains the submission
+  candidate; Word/LibreOffice pagination was not rechecked.
+- Every page of the 21-page main PDF and 21-page Supporting information was
+  visually checked, along with the cover letter and title page. Crowded SI
+  headers, a long identifier and a list-parsing defect were corrected and the
+  affected pages rechecked. Both anonymous PDFs pass `qpdf --check` and text/
+  metadata identity scans.
+- The bibliography prints all authors as required by the current NSO guidance.
+  The disclosure names the verified AI model identifiers and describes their
+  scientific, computational, review and writing roles explicitly.
+- The anonymous archive contains 16 production summaries and specifications,
+  1,618 scenarios and 1,613,000 replicate rows. Claude's clean-extraction replay
+  passes 41 tests, Pyright, manifest validation and all 47 expected-output hashes.
+  The integration audit independently checked supplied-file checksums, ZIP
+  integrity and the new production inputs. Manuscript-only changes do not alter
+  this computational package.
+- Current archive SHA-256:
+  `48fee560383f8c8a732a64a2441419995375e9362a0c9f25cd85ec6279e0e209`.
+  Size: 104,808,799 bytes; 91 ZIP entries. Confirm the portal's limit for this
+  review-only code/data upload at submission.
+- Build logs, source comparisons, independent calculations and page renders are
+  in `build/editorial_integration_2026-10-18/`. The checks below dated September
+  describe earlier checkpoints and do not supersede this October inventory.
+
+## Earlier checkpoint: external-review corrections, 2026-09-19
 
 - The title is “Abundance-weighted responses and nonlinear limits to community
   buffering under correlated environments”. The abstract remains 240 words.
@@ -114,7 +158,7 @@ are committed on branch `claude/standalone-si-divider` of that repository
 (`4cd4809`). Rebuilding this exact SI layout elsewhere requires that commit. No makedoc change is needed to run the anonymous
 scientific archive.
 
-## Prose pass verified: 2026-09-28
+## Earlier checkpoint: prose pass, 2026-09-28
 
 - The main-text prose and figure captions were revised for readability and for
   readers outside the subfield. All 24 display equations and every citation are
@@ -197,6 +241,6 @@ make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 uv run --frozen pytest -q
 uv run --frozen pyright
 uv run --frozen python scripts/build_deidentified_review_package.py \
-  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-09-19/ih_package \
+  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-18/ih_package \
   --zip
 ```

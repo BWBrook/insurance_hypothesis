@@ -24,7 +24,9 @@ Exact production run IDs:
 - R6: `fig5-persistence-mixed-v1`
 - R7: `fig4-weighted-balance-r0-v1`
 - R8: `boundary-by-sigma-v1`
-- R9–R11: `sigma-mechanism-alpha010-v1`, `sigma-mechanism-alpha030-v1`, `sigma-mechanism-alpha060-v1`
+- R9: `sigma-mechanism-alpha010-v1`
+- R10: `sigma-mechanism-alpha030-v1`
+- R11: `sigma-mechanism-alpha060-v1`
 - R12: `longwindow-reversal-a060-phi040-sig050-v1`
 - R13: `longwindow-reversal-a030-phi000-sig100-v1`
 - R14: `longwindow-reversal-a030-phi040-sig100-v1`
@@ -32,7 +34,7 @@ Exact production run IDs:
 - R16: `longwindow-reversal-a060-phi080-sig020-v1`
 
 ### Table S2
-Production floor-occupancy summary. Values are post-burn-in frequencies of abundance at the numerical floor, with scenario means averaged over 1000 replicates. They are stress diagnostics rather than probabilities of irreversible biological extinction. Stress-region rows are retained for transparency but interpreted separately from the low-stress core inference regime.
+Production floor-occupancy summary. Values are post-burn-in frequencies of abundance at the numerical floor, with scenario means averaged over 1000 replicates for R1–R11 and 500 for R12–R16. They are stress diagnostics rather than probabilities of irreversible biological extinction. Stress-region rows are retained for transparency but interpreted separately from the low-stress core inference regime.
 
 | Production source | Maximum scenario-mean floor frequency | Maximum replicate floor frequency | Location of maximum scenario mean | Interpretation |
 | --- | ---: | ---: | --- | --- |
@@ -50,10 +52,10 @@ Production floor-occupancy summary. Values are post-burn-in frequencies of abund
 | Fig. 3 long-window checks (R12–R16) | <0.00001 | 0.0003 | $S=8$, $\alpha_{\mathrm{inter}}=0.6$, $\phi=0.8$, $\sigma_{\mathrm{env}}=0.2$, $\rho_{\mathrm{eff}}\approx1$ | Four of five settings floor-free; one replicate touched the floor in the fifth |
 
 ### Table S3
-Variance decomposition for selected mixed-response production scenarios from the Fig. S7 assembly grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `analysis/reports/variance_decomposition_fig2_mixed_summary.csv`.
+Variance decomposition for selected mixed-response production scenarios from the Fig. S7 assembly grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `variance_decomposition_fig2_mixed_summary.csv` in `analysis/reports/`.
 
 | $S$ | $\rho_{\mathrm{eff}}$ | Mean total abundance | Total variance | Summed species variances | Aggregate covariance term | $\mathrm{CV}_{\mathrm{tot}}$ |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| --: | ----: | --------: | --------: | --------: | ---------: | -----: |
 | 2 | 0.00 | 153.86 | 945.68 | 1272.36 | -326.68 | 0.200 |
 | 2 | 0.50 | 153.92 | 549.71 | 1447.90 | -898.19 | 0.152 |
 | 2 | 1.00 | 153.85 | 186.61 | 1603.31 | -1416.70 | 0.088 |
@@ -65,10 +67,10 @@ Variance decomposition for selected mixed-response production scenarios from the
 | 8 | 1.00 | 258.07 | 240.83 | 1126.80 | -885.97 | 0.060 |
 
 ### Table S4
-Prespecified test of the second-order small-fluctuation prediction for perfectly balanced communities (mixed slopes, equal $K$, $r_0=1$). The coefficient $c=\sum_i b_i^2/[(1-\lambda_d^2)(1-\lambda_d\phi)^2]$ predicts the ratio of mean $\mathrm{CV}_{\mathrm{tot}}^2$ under near-perfect versus independent exposure as $c\,\sigma_{\mathrm{env}}^2$. Predictions were written before the simulations ran. The small-fluctuation regime contains settings with predicted ratio below 0.1 at $\sigma_{\mathrm{env}}=0.1$. Both recorded acceptance definitions (observed ratio within 20% of prediction; ratio of $R(0.2)$ to $R(0.1)$ between 3 and 5, applied to all 23 regime settings or only where the predicted $R(0.2)<0.2$) are met by all 23. The marked setting repeats the calibration case with independent seeds.
+Prespecified test of the second-order small-fluctuation prediction for perfectly balanced communities (mixed slopes, equal $K$, $r_0=1$). The coefficient $c=\sum_i b_i^2/[(1-\lambda_d^2)(1-\lambda_d\phi)^2]$ predicts the ratio of mean $\mathrm{CV}_{\mathrm{tot}}^2$ under near-perfect versus independent exposure as $c\,\sigma_{\mathrm{env}}^2$. Predictions were written before the simulations ran. The small-fluctuation regime contains settings with predicted ratio below 0.1 at $\sigma_{\mathrm{env}}=0.1$. Both recorded acceptance definitions (observed ratio within 20% of prediction; ratio of $R(0.2)$ to $R(0.1)$ between 3 and 5, applied to all 23 regime settings or only where the predicted $R(0.2)<0.2$) are met by all 23. In the table, $P$ and $O$ are predicted and observed $R(0.1)$, $D=R(0.2)/R(0.1)$, and E denotes eligibility for the small-fluctuation regime. The asterisk marks the calibration case repeated with independent seeds.
 
-| $\alpha_{\mathrm{inter}}$ | $S$ | $\phi$ | $\lambda_d$ | $c$ | Predicted $R(0.1)$ | Simulated $R(0.1)$ | Simulated/predicted | $R(0.2)/R(0.1)$ | Small-fluctuation regime |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| $\alpha_{\mathrm{inter}}$ | $S$ | $\phi$ | $\lambda_d$ | $c$ | $P$ | $O$ | $O/P$ | $D$ | E |
+| ----: | --: | ---: | -----: | ------: | ------: | ------: | -----: | ----: | :--- |
 | 0.1 | 2 | 0 | 0.182 | 0.517 | 0.0052 | 0.0051 | 0.988 | 3.92 | yes |
 | 0.1 | 2 | 0.4 | 0.182 | 0.601 | 0.0060 | 0.0060 | 1.005 | 3.86 | yes |
 | 0.1 | 2 | 0.8 | 0.182 | 0.708 | 0.0071 | 0.0072 | 1.015 | 3.86 | yes |
@@ -82,7 +84,7 @@ Prespecified test of the second-order small-fluctuation prediction for perfectly
 | 0.3 | 2 | 0.4 | 0.462 | 0.956 | 0.0096 | 0.0094 | 0.982 | 3.98 | yes |
 | 0.3 | 2 | 0.8 | 0.462 | 1.597 | 0.0160 | 0.0162 | 1.011 | 3.89 | yes |
 | 0.3 | 4 | 0 | 0.632 | 0.924 | 0.0092 | 0.0092 | 0.996 | 3.93 | yes |
-| 0.3 | 4 | 0.4 | 0.632 | 1.655 | 0.0165 | 0.0165 | 1.000 | 3.82 | yes (calibration repeat) |
+| 0.3 | 4 | 0.4 | 0.632 | 1.655 | 0.0165 | 0.0165 | 1.000 | 3.82 | yes* |
 | 0.3 | 4 | 0.8 | 0.632 | 3.776 | 0.0378 | 0.0372 | 0.985 | 3.69 | yes |
 | 0.3 | 8 | 0 | 0.774 | 2.140 | 0.0214 | 0.0214 | 1.002 | 3.86 | yes |
 | 0.3 | 8 | 0.4 | 0.774 | 4.490 | 0.0449 | 0.0446 | 0.992 | 3.78 | yes |
@@ -98,7 +100,7 @@ Prespecified test of the second-order small-fluctuation prediction for perfectly
 | 0.6 | 8 | 0.8 | 0.923 | 84.709 | 0.8471 | 0.6710 | 0.792 | 2.18 | no |
 
 ### Table S5
-Balanced-community reversals and their robustness checks. Each row is a setting in which the ratio of mean $\mathrm{CV}_{\mathrm{tot}}^2$ under near-perfect versus independent exposure exceeded one, with its 95% Monte Carlo interval and without production floor contact, in the Fig. 3 grids ($S=8$, mixed slopes, equal $K$, $r_0=1$). The long-window check repeated each setting with independent seeds, 500 replicates of 6000 steps and 3000 discarded. A separate guard diagnostic (200 full 600-step and 100 full 6000-step trajectories per exposure condition, independent seeds) recorded no exponent clipping and no floor contact in any of these settings; it describes guard activity in these parameter settings, not in every production replicate.
+Balanced-community reversals and their robustness checks. Each row is a setting in which the ratio of mean $\mathrm{CV}_{\mathrm{tot}}^2$ under near-perfect versus independent exposure exceeded one, with its 95% Monte Carlo interval and without production floor contact, in the Fig. 3 grids ($S=8$, mixed slopes, equal $K$, $r_0=1$). The long-window check repeated each setting with independent seeds, 500 replicates of 6000 steps and 3000 discarded. A separate guard diagnostic (200 full 600-step and 100 full 6000-step trajectories per exposure condition, seeded separately from production) recorded no exponent clipping and no floor contact in any of these settings; it describes guard activity in these parameter settings, not in every production replicate.
 
 | $\alpha_{\mathrm{inter}}$ | $\phi$ | $\sigma_{\mathrm{env}}$ | $c$ | Ratio, 600 steps (95% interval) | Ratio, 6000 steps (95% interval) | Long-window maximum replicate floor frequency |
 | ---: | ---: | ---: | ---: | --- | --- | ---: |

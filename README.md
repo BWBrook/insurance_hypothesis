@@ -11,7 +11,7 @@ The active workflow is deliberately small:
 
 1. versioned JSON specifications define production grids;
 2. the production runner creates, shards, combines, and validates simulations;
-3. seven compact production summaries regenerate every manuscript figure and
+3. sixteen compact production summaries regenerate every manuscript figure and
    derived table; and
 4. a focused test suite protects the model, production bookkeeping, scientific
    summaries, and complete figure workflow.
@@ -28,7 +28,7 @@ There are no legacy fallbacks or compatibility entry points.
   plotting for the locked display suite.
 - `src/python/insurance_sim/diagnostics.py`: variance decomposition, deterministic
   equilibrium, and abundance-weighted alignment diagnostics.
-- `analysis/production_specs/`: the seven versioned production designs.
+- `analysis/production_specs/`: the sixteen versioned production designs.
 - `analysis/production_grid.py`: the sole full-simulation command-line entry
   point.
 - `analysis/run_all.py`: the sole production-summary-to-display entry point.
@@ -38,6 +38,9 @@ There are no legacy fallbacks or compatibility entry points.
 - `paper/`: manuscript, Supporting Information, editorial materials,
   bibliography, Oikos style, and `makedoc` profiles.
 - `tests/python/`: compact scientific and workflow checks.
+
+The source checkout currently collects 45 routine tests. The narrower anonymous
+review package collects 41 after omitting repository-only submission helpers.
 
 ## Environment and fast reproduction
 
@@ -51,17 +54,33 @@ uv run --frozen pyright
 uv run --frozen python analysis/run_all.py
 ```
 
-The last command reads these seven files:
+The last command reads these sixteen files:
 
-| Production summary | Main use |
-| --- | --- |
-| `data/sim/production/fig1_s4_highres_v1/summaries.parquet` | Figure 3 core grid |
-| `data/sim/production/fig1_s4_highsigma_v1/summaries.parquet` | Figure 3 stress extension |
-| `data/sim/production/fig2_richness_mixed_v1/summaries.parquet` | Figures 4, S1, and S2; variance decomposition |
-| `data/sim/production/fig3_synchrony_v1/summaries.parquet` | Figures 2 and S4 |
-| `data/sim/production/fig5_persistence_mixed_v1/summaries.parquet` | Figure 5 |
-| `data/sim/production/figs3_positive_matched_control_v1/summaries.parquet` | Figures 1A and S3 |
-| `data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet` | Figure 1B,C weighted-balance boundary |
+| Production summary | Scenarios | Rows | Main use |
+| --- | ---: | ---: | --- |
+| `fig1_s4_highres_v1` | 570 | 570,000 | Figure S6 core and the Figure 2 replication layer |
+| `fig1_s4_highsigma_v1` | 180 | 180,000 | Figure S6 high-variance stress extension |
+| `fig2_richness_mixed_v1` | 210 | 210,000 | Figures S7, S1, and S2; variance decomposition |
+| `fig3_synchrony_v1` | 66 | 66,000 | Figures S5 and S4 |
+| `fig5_persistence_mixed_v1` | 64 | 64,000 | Figure S8 |
+| `figs3_positive_matched_control_v1` | 66 | 66,000 | Figure 1 sign contrast and Figure S3 |
+| `fig4_weighted_balance_r0_v1` | 40 | 40,000 | Figure 1 weighted-balance boundary |
+| `boundary_by_sigma_v1` | 196 | 196,000 | Figures 2 and S9 |
+| `sigma_mechanism_alpha010_v1` | 72 | 72,000 | Figure 3 and Table S4, α_inter = 0.1 |
+| `sigma_mechanism_alpha030_v1` | 72 | 72,000 | Figure 3 and Table S4, α_inter = 0.3 |
+| `sigma_mechanism_alpha060_v1` | 72 | 72,000 | Figure 3 and Table S4, α_inter = 0.6 |
+| `longwindow_reversal_a030_phi000_sig100_v1` | 2 | 1,000 | Figure 3 and Table S5 |
+| `longwindow_reversal_a030_phi040_sig100_v1` | 2 | 1,000 | Figure 3 and Table S5 |
+| `longwindow_reversal_a060_phi000_sig100_v1` | 2 | 1,000 | Figure 3 and Table S5 |
+| `longwindow_reversal_a060_phi040_sig050_v1` | 2 | 1,000 | Figure 3 and Table S5 |
+| `longwindow_reversal_a060_phi080_sig020_v1` | 2 | 1,000 | Figure 3 and Table S5 |
+
+Together these grids contain 1,618 scenarios and 1,613,000 replicate-level
+summary rows. The standard scalar-treatment summaries have 24 columns; grids
+with explicit carrying-capacity or response-vector treatments have 31 columns.
+All summaries retain the shared identifiers, replicate seed, simulation
+settings, `cv_total`, floor frequency, synchrony and realised-correlation
+metrics, and effective exposure correlation.
 
 These parquet files contain replicate-level simulation summaries, not empirical
 data. They are omitted from the ordinary Git checkout because of their size and
@@ -72,12 +91,18 @@ Canonical generated outputs are written only to `analysis/reports/`. Paper
 sources reference that directory directly.
 
 The manuscript figure order follows the revised evidential hierarchy; generated
-filenames and production IDs remain stable. Figure 1 uses
-`fig4_weighted_balance_boundary`, Figure 2 uses
-`fig3_imposed_vs_realised_panels`, Figure 3 uses `fig1_panels`, Figure 4 uses
-`fig2_richness_scaling_mixed`, and Figure 5 uses
-`fig5_phi_sensitivity_sigma0.5_extended`. Each stem has PNG and PDF outputs.
-The anonymous package README provides the same mapping.
+filenames and production IDs remain stable. The three main figures are
+`fig4_weighted_balance_boundary` (Figure 1), `fig6_amplitude_boundary`
+(Figure 2), and `fig7_mechanism_reversal` (Figure 3). The former Figures 2--5
+are now Figures S5--S8 and keep their generated stems:
+`fig3_imposed_vs_realised_panels`, `fig1_panels`,
+`fig2_richness_scaling_mixed`, and `fig5_phi_sensitivity_sigma0.5_extended`.
+Figure S9 is `figS9_boundary_by_sigma_paths`. Figures S1--S4 retain their
+existing stems. Each figure stem has PNG and PDF outputs; manuscript blocks
+reference the canonical files in `analysis/reports/` directly.
+`run_all.py` writes 12 PNGs, 12 PDFs, 15 figure-summary CSVs, and two
+variance-decomposition CSVs (41 outputs). The six retained numerical-guard
+reports bring the review package's expected-output checksum set to 47 files.
 
 ## Model and experimental conventions
 
@@ -105,9 +130,13 @@ Response modes used by the paper are:
   isolates response sign structure from slope magnitude.
 
 The principal response is the temporal coefficient of variation of total
-abundance (`cv_total`). Mechanistic summaries include Loreau-de Mazancourt
-synchrony, mean pairwise realised per-capita growth correlation, and an exact
-variance decomposition of total abundance.
+abundance (`cv_total`). For the shared-exposure analysis, the main estimand is
+the ratio of mean squared replicate `cv_total` under shared (near-perfect)
+versus independent exposure; it is not a ratio of mean `cv_total` values. The
+mixed-versus-matched-aligned sign contrast is a separate comparison. Mechanistic
+summaries include Loreau-de Mazancourt synchrony, mean pairwise realised
+per-capita growth correlation, and an exact variance decomposition of total
+abundance.
 
 ## Full production recomputation
 
@@ -135,7 +164,7 @@ The same runner supports `run-shard`, `pending`, and `list-shards`. Production
 runs can be sharded across any suitable multi-core system without a second
 simulation workflow.
 
-After all seven summaries are present, regenerate the display suite with
+After all sixteen summaries are present, regenerate the display suite with
 `analysis/run_all.py`.
 
 ## Release checks
