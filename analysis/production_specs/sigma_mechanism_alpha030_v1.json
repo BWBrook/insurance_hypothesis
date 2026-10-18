@@ -1,0 +1,58 @@
+{
+  "spec_version": 1,
+  "run_id": "sigma-mechanism-alpha030-v1",
+  "title": "Out-of-sample test of the second-order compensation residual, alpha_inter=0.3",
+  "purpose": "Test whether the leading-order residual of perfectly balanced (mixed, equal-K) communities under near-perfect exposure correlation, R ~ kappa sigma_env^2 with kappa = sum(b^2) A_d^2 (1-c^2)/(1-phi^2), predicts simulated variability across richness, competition and environmental autocorrelation.",
+  "rationale": [
+    "Predictions for every cell were computed before running and are stored in build/fable_sigma_check_2026-10-18/prespecified_predictions.json.",
+    "sigma_env 0.1 and 0.2 test the small-noise coefficient and its quadratic scaling; 0.5 and 1.0 test whether buffering erodes with fluctuation size beyond S=4, alpha_inter=0.3, phi=0.4.",
+    "Only independent and near-perfectly correlated exposures are needed for the endpoint ratio.",
+    "The alpha_inter=0.3, S=4, phi=0.4 cells replicate existing fig1_s4_highres_v1 cells with independent seeds."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "r0": 1.0,
+    "K": 100.0,
+    "alpha_intra": 1.0,
+    "floor": 1e-09,
+    "max_exp": 50.0,
+    "alpha_inter": 0.3,
+    "base_seed": 2026101811,
+    "phi_vals": [
+      0.0,
+      0.4,
+      0.8
+    ],
+    "sigma_vals": [
+      0.1,
+      0.2,
+      0.5,
+      1.0
+    ],
+    "rho_vals": [
+      0.0,
+      1.0
+    ],
+    "species_vals": [
+      2,
+      4,
+      8
+    ],
+    "slope_modes": [
+      "mixed"
+    ]
+  },
+  "expected": {
+    "scenario_count": 72,
+    "shard_count": 720,
+    "expected_rows": 72000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the manifest with 1000 replicates per scenario.",
+    "Floor occupancy is reported for every cell; cells with any floor contact are flagged, not dropped.",
+    "Prespecified success, applied to cells in the small-noise regime (predicted R at sigma_env=0.1 below 0.1): the observed balanced ratio at sigma_env=0.1 lies within 20% of the prediction, and R(0.2)/R(0.1) lies between 3 and 5 where the predicted R(0.2) is below 0.2. Cells with larger predicted values test saturation and are reported separately, with the expectation that the leading-order term over-predicts there."
+  ]
+}

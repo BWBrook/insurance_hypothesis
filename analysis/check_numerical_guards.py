@@ -11,6 +11,14 @@ Outputs:
   analysis/reports/numerical_guard_rates.csv
   analysis/reports/numerical_guard_rates_summary.csv
   analysis/reports/numerical_guard_rates_summary.md
+  analysis/reports/numerical_guard_reversal_rates.csv
+  analysis/reports/numerical_guard_reversal_rates_summary.csv
+  analysis/reports/numerical_guard_reversal_rates_summary.md
+
+The reversal block checks the five balanced-community settings in which shared
+exposure raised total-abundance variability without production floor contact.
+It uses independent seeds and its own trajectories, so it quantifies guard
+activity in those parameter settings rather than certifying production rows.
 """
 
 from __future__ import annotations
@@ -27,6 +35,16 @@ from insurance_sim.model import (
     simulate_ricker_with_diagnostics,
     slopes_for_mode,
 )
+
+
+REVERSAL_SETTINGS = (
+    (0.6, 0.4, 0.5),
+    (0.3, 0.0, 1.0),
+    (0.3, 0.4, 1.0),
+    (0.6, 0.0, 1.0),
+    (0.6, 0.8, 0.2),
+)
+REVERSAL_SEED = 2026101850
 
 
 @dataclass(frozen=True)
@@ -91,12 +109,18 @@ def summarize_guard_rates(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(summary).sort_values("scenario").reset_index(drop=True)
 
 
-def write_guard_markdown(summary: pd.DataFrame, out_path: Path) -> None:
+def write_guard_markdown(
+    summary: pd.DataFrame,
+    out_path: Path,
+    *,
+    title: str = "Numerical Guard Diagnostics Summary",
+    source: str = "analysis/reports/numerical_guard_rates.csv",
+) -> None:
     """Write the compact manuscript-facing numerical-guard table."""
     lines = [
-        "# Numerical Guard Diagnostics Summary",
+        f"# {title}",
         "",
-        "Derived from `analysis/reports/numerical_guard_rates.csv`.",
+        f"Derived from `{source}`.",
         "",
         "| scenario | frac_exp_clipped_high_mean | frac_exp_clipped_low_mean | frac_floor_mean | frac_floor_max |",
         "| --- | ---: | ---: | ---: | ---: |",
@@ -186,6 +210,42 @@ def main() -> None:
     summary.to_csv(out_dir / "numerical_guard_rates_summary.csv", index=False)
     write_guard_markdown(summary, out_dir / "numerical_guard_rates_summary.md")
     print(summary.to_string(index=False))
+
+    reversal_rows = []
+    for alpha_inter, phi, sigma_env in REVERSAL_SETTINGS:
+        for rho_env in (0.0, 1.0):
+            for n_steps, n_reps in ((600, 200), (6000, 100)):
+                scenario = GuardScenario(
+                    name=(
+                        f"reversal_a{alpha_inter:g}_phi{phi:g}_sigma{sigma_env:g}"
+                        f"_rho{rho_env:g}_S8_T{n_steps}"
+                    ),
+                    slope_mode="mixed",
+                    config=SimulationConfig(
+                        n_species=8,
+                        n_steps=n_steps,
+                        burn_in=0,
+                        sigma_env=sigma_env,
+                        rho_env=rho_env,
+                        phi=phi,
+                        r0=1.0,
+                        K=100.0,
+                        alpha_intra=1.0,
+                        alpha_inter=alpha_inter,
+                    ),
+                )
+                reversal_rows.append(run_guard_scenario(scenario, n_reps=n_reps, seed=REVERSAL_SEED))
+    reversal_path = out_dir / "numerical_guard_reversal_rates.csv"
+    pd.concat(reversal_rows, ignore_index=True).to_csv(reversal_path, index=False)
+    reversal_summary = summarize_guard_rates(pd.read_csv(reversal_path))
+    reversal_summary.to_csv(out_dir / "numerical_guard_reversal_rates_summary.csv", index=False)
+    write_guard_markdown(
+        reversal_summary,
+        out_dir / "numerical_guard_reversal_rates_summary.md",
+        title="Numerical Guard Diagnostics for Balanced-Community Reversal Settings",
+        source="analysis/reports/numerical_guard_reversal_rates.csv",
+    )
+    print(reversal_summary.to_string(index=False))
     print(f"\nWrote numerical-guard diagnostics to {out_dir}")
 
 

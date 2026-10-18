@@ -1,0 +1,315 @@
+{
+  "spec_version": 1,
+  "run_id": "boundary-by-sigma-v1",
+  "title": "Weighted-balance boundary across environmental fluctuation size",
+  "purpose": "Repeat the Figure 1B response-alignment and unequal-K paths at seven sigma_env values to test whether the range of compositions buffered by shared exposure contracts as fluctuations grow, and to give a sign-only (matched aligned, q=1) comparison across sigma_env.",
+  "rationale": [
+    "Treatments are copied exactly from fig4_weighted_balance_r0_v1 (alignment and dominance paths; r0 treatments omitted).",
+    "sigma_env=0.5 replicates the existing Figure 1B cells with independent seeds.",
+    "sigma_env stops at 1.3, the largest value at which the balanced community had no floor contact in fig1_s4_highres_v1."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "n_species": 4,
+    "alpha_intra": 1.0,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "floor": 1e-09,
+    "max_exp": 50.0,
+    "base_seed": 2026101820,
+    "sigma_vals": [
+      0.1,
+      0.2,
+      0.3,
+      0.5,
+      0.7,
+      1.0,
+      1.3
+    ],
+    "rho_vals": [
+      0.0,
+      1.0
+    ],
+    "treatments": [
+      {
+        "treatment_id": "alignment-q000",
+        "treatment_path": "alignment",
+        "treatment_level": 0.0,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0125",
+        "treatment_path": "alignment",
+        "treatment_level": 0.125,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          -0.392847479194,
+          -0.130949159731,
+          0.19597926707,
+          0.58793780121
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0250",
+        "treatment_path": "alignment",
+        "treatment_level": 0.25,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          -0.270598050073,
+          -0.0901993500244,
+          0.217760494146,
+          0.653281482438
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0375",
+        "treatment_path": "alignment",
+        "treatment_level": 0.375,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          -0.137949689641,
+          -0.0459832298805,
+          0.231173307554,
+          0.693519922661
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0500",
+        "treatment_path": "alignment",
+        "treatment_level": 0.5,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          0.0,
+          0.0,
+          0.235702260396,
+          0.707106781187
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0625",
+        "treatment_path": "alignment",
+        "treatment_level": 0.625,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          0.137949689641,
+          0.0459832298805,
+          0.231173307554,
+          0.693519922661
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0750",
+        "treatment_path": "alignment",
+        "treatment_level": 0.75,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          0.270598050073,
+          0.0901993500244,
+          0.217760494146,
+          0.653281482438
+        ]
+      },
+      {
+        "treatment_id": "alignment-q0875",
+        "treatment_path": "alignment",
+        "treatment_level": 0.875,
+        "slope_mode": "rotated",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          0.392847479194,
+          0.130949159731,
+          0.19597926707,
+          0.58793780121
+        ]
+      },
+      {
+        "treatment_id": "alignment-q1000",
+        "treatment_path": "alignment",
+        "treatment_level": 1.0,
+        "slope_mode": "positive_matched",
+        "r0": 1.0,
+        "K": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "b_slopes": [
+          0.5,
+          0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "dominance-d0250",
+        "treatment_path": "dominance",
+        "treatment_level": 0.25,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          92.5,
+          97.5,
+          102.5,
+          107.5
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "dominance-d0500",
+        "treatment_path": "dominance",
+        "treatment_level": 0.5,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          85.0,
+          95.0,
+          105.0,
+          115.0
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "dominance-d0750",
+        "treatment_path": "dominance",
+        "treatment_level": 0.75,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          77.5,
+          92.5,
+          107.5,
+          122.5
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "dominance-d1000",
+        "treatment_path": "dominance",
+        "treatment_level": 1.0,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          70.0,
+          90.0,
+          110.0,
+          130.0
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      },
+      {
+        "treatment_id": "dominance-d1100",
+        "treatment_path": "dominance",
+        "treatment_level": 1.1,
+        "slope_mode": "mixed",
+        "r0": 1.0,
+        "K": [
+          67.0,
+          89.0,
+          111.0,
+          133.0
+        ],
+        "b_slopes": [
+          -0.5,
+          -0.166666666667,
+          0.166666666667,
+          0.5
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "scenario_count": 196,
+    "shard_count": 1960,
+    "expected_rows": 196000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the manifest.",
+    "Prespecified expectations: at sigma_env=0.1 the rotation-path ratios lie close to the first-order benchmark; the sigma_env at which the q=0 ratio reaches 1 is about 1.4; the crossing in A moves to lower alignment as sigma_env increases.",
+    "Floor occupancy is reported for every cell."
+  ]
+}

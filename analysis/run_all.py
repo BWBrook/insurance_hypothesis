@@ -20,6 +20,9 @@ from insurance_sim.production_figures import (
     write_production_fig3_synchrony,
     write_production_fig4_weighted_boundary,
     write_production_fig5_persistence,
+    write_production_fig6_amplitude_boundary,
+    write_production_fig7_mechanism_reversal,
+    write_production_figS9_boundary_by_sigma,
     write_production_figs3_positive_matched_control,
     write_production_mixed_heatmap_supplement,
     write_production_species_cv_supplement,
@@ -39,6 +42,25 @@ PRODUCTION_INPUTS = {
     "fig4_weighted_boundary": Path(
         "data/sim/production/fig4_weighted_balance_r0_v1/summaries.parquet"
     ),
+    "boundary_by_sigma": Path("data/sim/production/boundary_by_sigma_v1/summaries.parquet"),
+    **{
+        f"sigma_mechanism_{tag}": Path(
+            f"data/sim/production/sigma_mechanism_alpha{tag}_v1/summaries.parquet"
+        )
+        for tag in ("010", "030", "060")
+    },
+    **{
+        f"longwindow_{tag}": Path(
+            f"data/sim/production/longwindow_reversal_{tag}_v1/summaries.parquet"
+        )
+        for tag in (
+            "a030_phi000_sig100",
+            "a030_phi040_sig100",
+            "a060_phi000_sig100",
+            "a060_phi040_sig050",
+            "a060_phi080_sig020",
+        )
+    },
 }
 
 
@@ -130,6 +152,34 @@ def main() -> None:
         out_png=REPORTS / "figS4_production_species_cv_vs_rho.png",
         out_pdf=REPORTS / "figS4_production_species_cv_vs_rho.pdf",
         summary_out=REPORTS / "figS4_production_species_cv_vs_rho_summary.csv",
+    )
+    write_production_fig6_amplitude_boundary(
+        boundary_path=PRODUCTION_INPUTS["boundary_by_sigma"],
+        core_path=PRODUCTION_INPUTS["fig1_core"],
+        highsigma_path=PRODUCTION_INPUTS["fig1_highsigma"],
+        out_png=REPORTS / "fig6_amplitude_boundary.png",
+        out_pdf=REPORTS / "fig6_amplitude_boundary.pdf",
+        summary_out=REPORTS / "fig6_amplitude_boundary_summary.csv",
+        replication_out=REPORTS / "fig6_amplitude_boundary_replication_summary.csv",
+    )
+    write_production_fig7_mechanism_reversal(
+        mechanism_paths=[
+            path for key, path in PRODUCTION_INPUTS.items() if key.startswith("sigma_mechanism_")
+        ],
+        longwindow_paths=[
+            path for key, path in PRODUCTION_INPUTS.items() if key.startswith("longwindow_")
+        ],
+        out_png=REPORTS / "fig7_mechanism_reversal.png",
+        out_pdf=REPORTS / "fig7_mechanism_reversal.pdf",
+        summary_out=REPORTS / "fig7_mechanism_reversal_summary.csv",
+        longwindow_out=REPORTS / "fig7_mechanism_reversal_longwindow_summary.csv",
+    )
+    write_production_figS9_boundary_by_sigma(
+        boundary_path=PRODUCTION_INPUTS["boundary_by_sigma"],
+        out_png=REPORTS / "figS9_boundary_by_sigma_paths.png",
+        out_pdf=REPORTS / "figS9_boundary_by_sigma_paths.pdf",
+        summary_out=REPORTS / "figS9_boundary_by_sigma_paths_summary.csv",
+        crossings_out=REPORTS / "figS9_boundary_by_sigma_crossings_summary.csv",
     )
     write_production_diagnostics(PRODUCTION_INPUTS["fig2_richness"])
     print("Regenerated manuscript figures and summaries in analysis/reports/.")
