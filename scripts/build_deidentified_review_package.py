@@ -46,6 +46,9 @@ GUARD_REPORT_FILES = (
     "numerical_guard_rates.csv",
     "numerical_guard_rates_summary.csv",
     "numerical_guard_rates_summary.md",
+    "numerical_guard_reversal_rates.csv",
+    "numerical_guard_reversal_rates_summary.csv",
+    "numerical_guard_reversal_rates_summary.md",
 )
 
 EXPECTED_REPORT_FILES = tuple(
@@ -60,9 +63,15 @@ EXPECTED_REPORT_FILES = tuple(
         "figS2_production_mixed_phi_ldm",
         "figS3_positive_matched_control",
         "figS4_production_species_cv_vs_rho",
+        "fig6_amplitude_boundary",
+        "fig7_mechanism_reversal",
+        "figS9_boundary_by_sigma_paths",
     )
     for suffix in (".png", ".pdf", "_summary.csv")
 ) + (
+    "fig6_amplitude_boundary_replication_summary.csv",
+    "fig7_mechanism_reversal_longwindow_summary.csv",
+    "figS9_boundary_by_sigma_crossings_summary.csv",
     "variance_decomposition_fig2_mixed_summary.csv",
     "variance_decomposition_fig2_mixed_selected_summary.csv",
     *GUARD_REPORT_FILES,
@@ -81,6 +90,8 @@ analysis-facing figure and table outputs:
 - `src/python/insurance_sim/`: simulator, metrics, diagnostics, and plotting helpers.
 - `analysis/`: orchestration and plotting scripts.
 - `analysis/production_specs/`: versioned production-grid specifications.
+- `analysis/prespecified/`: second-order predictions written before the
+  mechanism grids were simulated, with their hash and timeline.
 - `data/sim/production/*/summaries.parquet`: compact production summaries.
 - `analysis/reports/numerical_guard*`: the retained numerical-guard diagnostic.
 - `tests/python/`: non-interactive tests.
@@ -115,19 +126,22 @@ sha256sum -c EXPECTED_OUTPUT_SHA256SUMS.txt
 
 Run the first checksum command before generating outputs; it verifies the
 contents supplied for review. `run_all.py` reads the included compact summaries
-and writes nine PNGs, nine PDFs, nine figure-summary CSVs, and two variance-
-decomposition CSVs under `analysis/reports/`. It does not rerun the production
+and writes twelve PNGs, twelve PDFs, fifteen figure-summary CSVs, and two
+variance-decomposition CSVs under `analysis/reports/`. It does not rerun the production
 simulations. Figure S2 masks zero-forcing synchrony as undefined because the
 post-burn-in abundances are constant; those means and standard deviations are
 missing in its display-summary CSV. The supplied replicate rows are preserved.
 
-`check_numerical_guards.py` is a separate deterministic stress diagnostic. It
-runs 30 replicates for each of three scenarios (90 trajectories in total) with
-seed 12345 and overwrites the three included `numerical_guard*` files. These
-full-trajectory checks are distinct from the post-burn-in floor frequencies in
-the production summaries.
+`check_numerical_guards.py` is a separate deterministic stress diagnostic. Its
+first block runs 30 replicates for each of three scenarios (90 trajectories in
+total) with seed 12345 and overwrites the three `numerical_guard_rates*` files.
+Its second block covers the five balanced-community reversal settings at both
+exposure endpoints, with 200 full 600-step and 100 full 6000-step trajectories
+per condition and seed 2026101850, and overwrites the three
+`numerical_guard_reversal_rates*` files. These full-trajectory checks are
+distinct from the post-burn-in floor frequencies in the production summaries.
 
-`EXPECTED_OUTPUT_SHA256SUMS.txt` records the reference hashes for all 32 outputs.
+`EXPECTED_OUTPUT_SHA256SUMS.txt` records the reference hashes for all 47 outputs.
 Byte-identical output is expected with the locked environment used to prepare
 the package. On another operating system or numerical/graphics stack, compare
 the numerical content and rendered figures if a byte hash differs.
@@ -152,8 +166,8 @@ for spec in analysis/production_specs/*.json; do
 done
 ```
 
-The expected total is 1,196 scenarios and 1,196,000 replicate summaries across
-the seven grids.
+The expected total is 1,618 scenarios and 1,613,000 replicate summaries across
+the sixteen grids.
 
 ## Reconstruct the production inventory and floor summary
 
@@ -231,13 +245,16 @@ manuscript figure numbers.
 | Manuscript figure | Generated image in `analysis/reports/` |
 | --- | --- |
 | Figure 1: matched signs and weighted boundary | `fig4_weighted_balance_boundary.png` |
-| Figure 2: realised synchrony | `fig3_imposed_vs_realised_panels.png` |
-| Figure 3: environmental-variance contrast | `fig1_panels.png` |
-| Figure 4: richness assembly sequence | `fig2_richness_scaling_mixed.png` |
-| Figure 5: fixed-innovation persistence gradient | `fig5_phi_sensitivity_sigma0.5_extended.png` |
+| Figure 2: shared-exposure benefit across fluctuation size | `fig6_amplitude_boundary.png` |
+| Figure 3: prespecified second-order test and reversals | `fig7_mechanism_reversal.png` |
+| Figure S5: realised synchrony | `fig3_imposed_vs_realised_panels.png` |
+| Figure S6: environmental-variance contrast | `fig1_panels.png` |
+| Figure S7: richness assembly sequence | `fig2_richness_scaling_mixed.png` |
+| Figure S8: fixed-innovation persistence gradient | `fig5_phi_sensitivity_sigma0.5_extended.png` |
+| Figure S9: boundary paths across fluctuation size | `figS9_boundary_by_sigma_paths.png` |
 
-The four Supporting-information figures keep their S1–S4 numbering. Each image
-also has a PDF version with the same filename stem.
+Figures S1–S4 keep their filenames. Each image also has a PDF version with the
+same filename stem.
 
 The deterministic per-replicate seeds make results independent of shard order.
 Exact parquet bytes can still depend on the Python and PyArrow environment;
@@ -438,6 +455,7 @@ def main() -> None:
     for name in ANALYSIS_FILES:
         copy_file(REPO_ROOT / "analysis" / name, target / "analysis" / name)
     copy_tree(REPO_ROOT / "analysis/production_specs", target / "analysis/production_specs")
+    copy_tree(REPO_ROOT / "analysis/prespecified", target / "analysis/prespecified")
     copy_production_summaries(target)
     (target / "analysis/reports").mkdir(parents=True, exist_ok=True)
     copy_guard_reports(target)
