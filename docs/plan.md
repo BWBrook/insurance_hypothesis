@@ -13,80 +13,74 @@ Opposing responses can retain their sign-only advantage while shared exposure
 becomes destabilising. Richness, persistence and synchrony patterns support
 this analysis without identifying isolated causal effects of those quantities.
 
-## Current tranche: editor-facing manuscript reworking, 18 October 2026
+## Current tranche: mechanism and predictive ordering, 19 October 2026
 
-The PI requested substantial asynchronous reworking by Codex and Claude for both
-a broad ecology editor and a specialist reader. Discussion 89 records the
-request, competing drafts, independent checks and implementation handoffs.
-The October work builds on `dde231a`; Claude's analysis and display/SI commits
-are `7d0446d` and `c141a20` on `claude/oikos-editorial-checkpoint`.
+The PI requested substantial asynchronous reworking by Codex and Claude for a
+broad ecology editor and a specialist reader. Discussion 89 records the
+competing drafts, prespecifications, independent checks and handoffs. The
+integrated 18 October manuscript is `d6adc5c`; Claude's new ordering analysis and
+mechanism-led manuscript are `d5947b3` and `d4352cf`, respectively, on
+`claude/oikos-editorial-checkpoint`.
 
-The canonical main text is now rewritten around **shared environments can
-destabilise communities with balanced opposing responses**. It separates the
-sign-only advantage of mixed responses from the effect of shared exposure
-within a community. The latter is the ratio of mean replicate squared CV under
-near-perfect versus independent exposure. Compensation can persist while that
-ratio exceeds one.
+The paper centres on **shared environments can destabilise communities with
+balanced opposing responses**. It distinguishes the sign-only advantage of
+mixed responses from the shared-to-independent ratio of mean replicate squared
+CV within a community. Compensation can persist while this ratio exceeds one.
+The mechanism is a second-order contribution from changes in squared species
+departures; it is not an exact identity for the full nonlinear trajectory.
 
-The evidence now includes 16 production grids, 1,618 scenarios and 1,613,000
-replicate summaries. The original seven grids, their specifications and all
-original displays retain their protected hashes. The Ricker recurrence,
-production seeding and post-burn-in metrics are unchanged.
+The active evidence now comprises 18 grids, 1,738 scenarios and 1,733,000
+replicate summaries. The original seven production grids and their specifications
+remain unchanged, as do the model recurrence, production seeding and retained
+metrics. The main display suite has three figures: the original sign/balance
+comparison, amplitude dependence with a visible reversal, and compositional
+trajectories plus predictive ordering. Nine supplementary figures retain the
+supporting gradients and full boundary paths.
 
-- The local second-order prediction passes both recorded acceptance definitions
-  in all 23 eligible settings: one calibration repeat and 22 additional
-  combinations. Predictions and their provenance are retained under
-  `analysis/prespecified/`. The prediction explains the initial departure from
-  cancellation, not the finite-noise reversal or its threshold.
-- Five balanced-response settings have a shared-to-independent ratio above one
-  with no retained floor contact in the main 600-step experiments. All five
-  remain above one after Bonferroni adjustment across 108 comparisons and in
-  independently seeded 6000-step runs with 3000 burn-in and 500 replicates.
-  The longer-run ratios are 1.187–1.654. Four settings remain floor-free; one
-  replicate in the fifth has mean floor occupancy 0.00033.
-- The separate guard diagnostic covers all five settings at both durations and
-  records no clipping or floor events. Its seed stream is independent of
-  production but reused across diagnostic conditions; it does not certify
-  every production trajectory.
-- Composition-boundary plots show measured points and intervals. Interpolated
-  crossings remain descriptive, with coarse spacing and floor contact stated.
-  A floor-free fixed-composition contrast at `A=0.246927` changes from buffering
-  at innovation SD 0.1 to amplification at 0.7.
+- The local second-order formula meets both recorded acceptance definitions in
+  all 23 eligible settings, including one independent-seed calibration repeat.
+- Five original floor-free reversals survive Bonferroni adjustment across 108
+  comparisons and independently seeded 6000-step repeats. Four longer-run
+  settings remain floor-free; one replicate in the fifth has eight species-time
+  floor observations. The separate guard diagnostic covers these five settings,
+  with its reused seed stream and prefix dependence disclosed.
+- Ordering by `x = c * sigma_env^2` was noticed after the mechanism grids ran.
+  Predictions for new competition/autocorrelation values were then recorded
+  before two new grids ran. This tests interpolation calibrated on previous
+  simulations; it does not validate the leading-order formula at large noise.
+  Reported criteria are 35/35 ratios within 10% (maximum error 4.6%), 17/17
+  eight-species buffering/amplification calls correct, and 14/15 twelve-species
+  values above the eight-species reference curve. All 13 floor-free reversals in
+  the new test survive adjustment across 60 comparisons; the largest ratio is
+  2.03. The full longer-window and guard tests were not extended to these new
+  cases. A separate audit-only 200-replicate check of the largest reversal
+  retained a ratio of 2.011 (1.985–2.037) over 3000 post-burn-in steps, without
+  floor contact or clipping; it is not a new production result.
+- Richness patterns describe relative stability in the specified assembly
+  sequence, which also changes slopes, equilibrium abundance and feedback.
+  Composition-boundary crossings remain descriptive interpolations.
 
-The integrated display suite has three main figures and nine SI figures.
-Figure 1 is unchanged; Figures 2 and 3 show amplitude dependence and the
-prediction/reversal tests. Former main Figures 2–5 are S5–S8, and S9 shows the
-full boundary paths. The main design table now explains the six experiments;
-complete parameter and grid inventories remain in Methods and the SI.
+The integration updates the cover letter and significance statement and corrects
+exact versus approximate mechanism wording. Independent numerical and literature
+reviews support the central result with those corrections. Closest prior work is
+now acknowledged, the broad priority claim is removed, and empirical comparisons
+are restricted to what their sources measured. Both new reviews are retained in
+`docs/oikos_ordering_scientific_review_2026-10-19.md` and
+`docs/oikos_ordering_literature_review_2026-10-19.md`; the earlier review remains
+in `docs/oikos_october_scientific_review_2026-10-18.md`.
 
-The independent scientific audit checks derivation, estimand mapping, selected
-raw-data reconstructions and headline wording. Its corrections are integrated:
-explicit finite-window calculation, reproducible multiplicity adjustment,
-accurate floor/guard wording, and removal of a peripheral general-growth-rate
-extrapolation that was not supported in the review archive. Model identifiers
-and AI research roles are explicit in the manuscript disclosure.
+The checkout passes 46 tests and Pyright. All 89 protected computational files
+are unchanged by this manuscript integration, and independent archive integrity,
+checksums and canonical-file comparisons pass. Final document verification is
+recorded in the submission checklist and
+`build/ordering_integration_2026-10-19/`.
 
-Verification and rendered review are complete in
-`build/editorial_integration_2026-10-18/`. The repository passes 45 tests and
-Pyright; `analysis/run_all.py` preserves all 46 protected-file hashes. The
-anonymous package at `de_identified_repos/insurance_hypothesis_2026-10-18/`
-contains 47 expected outputs; the existing archive hash and integrity match
-Claude's independently replayed package. Manuscript-only edits do not alter its
-computational contents.
-
-All six sequential document profiles pass. The main PDF and Supporting
-information each have 21 pages, checked visually in full; the cover letter and
-author title page also pass. The abstract has 236 words. The golden contract,
-PDF integrity and identity checks pass, and both anonymous DOCX files are
-sanitized with refreshed manifests. The final scientific audit is retained in
-`docs/oikos_october_scientific_review_2026-10-18.md`; it finds no major unresolved
-concern and independently replays 26 stored seeds exactly. Future input changes
-should strengthen the mechanism-summary grouping checks, but that risk does
-not affect the audited inputs.
-
-The integrated sources are ready for the PI's full reading. Funding and
-acknowledgements still contain author placeholders. Public release and
-submission follow that review; reversible revisions need no further permission.
+The current anonymous computational package is
+`de_identified_repos/insurance_hypothesis_2026-10-19/ih_package.zip`, with
+51 expected outputs. Its exact hash and replay evidence are recorded in
+`docs/oikos_submission_checklist.md`. Manuscript-only edits do not alter its
+computational contents. Funding and acknowledgements remain author placeholders;
+the PI's full reading precedes first public release and submission.
 
 ## Completed checkpoint: external-review corrections and prose pass, September 2026
 

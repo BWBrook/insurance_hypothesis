@@ -1644,4 +1644,27 @@ references:
   type: article-journal
   URL: https://doi.org/10.1016/S0169-5347(99)01664-X
   volume: '14'
+- id: gouhier2010SynchronyStabilityFood
+  author:
+    - family: Gouhier
+      given: Tarik C.
+    - family: Guichard
+      given: Frédéric
+    - family: Gonzalez
+      given: Andrew
+  citation-key: gouhier2010SynchronyStabilityFood
+  container-title: The American Naturalist
+  container-title-short: Am Nat
+  DOI: 10.1086/649579
+  issue: '2'
+  issued:
+    - year: 2010
+      month: 2
+  language: en
+  page: E16–E34
+  source: Crossref
+  title: Synchrony and stability of food webs in metacommunities
+  type: article-journal
+  URL: https://doi.org/10.1086/649579
+  volume: '175'
 ...

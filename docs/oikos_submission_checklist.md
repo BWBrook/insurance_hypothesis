@@ -24,8 +24,8 @@ Canonical generated files are in
   information.
 
 The current code/data archive is
-`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-18/ih_package.zip`.
-The September archive remains available as the previous checkpoint.
+`/home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-19/ih_package.zip`.
+The September and 18 October archives remain available as earlier checkpoints.
 
 ## Current NSO requirements checked
 
@@ -64,12 +64,13 @@ The September archive remains available as the previous checkpoint.
   competition and autocorrelation; the eight-species curve crosses one. Main
   Fig. 3 is redrawn: A–B mechanism trajectory, C ratio against c·sigma² for all
   168 setting-by-amplitude cells. New Table S6; Tables 1, S1 and S2 extended.
-- The abstract has 280 words. The main PDF has 26 pages with the Introduction
+- The abstract has 249 words. The main PDF has 26 pages with the Introduction
   on page 2; the Supporting information has 24 pages. Five verified references
   were added (Adler et al. 2018, Houlahan et al. 2007, Ruel and Ayres 1999,
   Vasseur and Yodzis 2004, Vasseur et al. 2014), and four existing bibliography
   entries are now cited (Doak et al. 1998, Thibaut and Connolly 2013, Valencia
-  et al. 2020, Kunze et al. 2026).
+  et al. 2020, Kunze et al. 2026). The integration also adds Gouhier et al.
+  (2010) as close prior work and removes the broad priority claim.
 - An independent scientific audit of the new claims (separate agent, raw-row
   recomputation) returned SUPPORTED WITH CORRECTIONS; all corrections were
   applied: the ordering test is described as testing x = c·sigma² as a
@@ -86,13 +87,48 @@ The September archive remains available as the previous checkpoint.
 - Anonymous computational archive:
   `~/papers/de_identified_repos/insurance_hypothesis_2026-10-19/ih_package.zip`,
   SHA-256 `a32b9f511f18a2f67cc92839ac3b6b72223d287aac08e5557a3b7b39c7c74796`,
-  113,402,635 bytes, 99 entries. A clean extraction passes the supplied
+  113,402,635 bytes, 99 entries. Claude's clean-extraction replay passes the supplied
   checksums, 42 tests, Pyright, `run_all.py`, the guard diagnostic, all 51
   expected-output hashes and validation of all 18 grids (1,738 scenarios,
   1,733,000 rows). The archive now exceeds 100 MB; confirm the portal limit or
   host it as an anonymous repository link.
 
-## October scientific and editorial revision: 2026-10-18
+- Codex's independent integration audit reconstructs all 60 test comparisons,
+  the 35/35, 17/17 and 14/15 decisions, both coarse prediction benchmarks,
+  and the familywise intervals. The maximum prediction error is 4.631%; the
+  largest ratio is 2.030 (95% interval 1.993–2.068). The calibrated predictor is
+  distinguished from the uncalibrated formula, the twelve-species directional
+  comparison from the four/eight-species numerical predictions, and the
+  second-order relation from the full nonlinear trajectory. The independent
+  science and literature reviews are retained in
+  `docs/oikos_ordering_scientific_review_2026-10-19.md` and
+  `docs/oikos_ordering_literature_review_2026-10-19.md`.
+- An audit-only independently seeded repeat of the largest new reversal used
+  200 replicates per endpoint and 6000 steps, retaining the last 3000. Its ratio
+  is 2.011 (1.985–2.037), with no floor contact or clipping. This targeted check
+  is not a new production grid, does not alter the manuscript's reported
+  result, and does not extend the full longer-window/guard check to all thirteen
+  new cases.
+- The final integration passes the 46-test/Pyright gate and preserves all 89
+  audited computational files: 18 summaries, 18 specifications, 51 outputs, and
+  the model/production modules. Independent ZIP checks pass CRC and all 67
+  supplied-file checksums; 60 included science/data files match the checkout.
+  The 51-output manifest and the archive hash above are unchanged. The complete
+  clean-extraction replay was not repeated by Codex.
+- The cover letter and significance statement reflect the new result; the AI
+  statement includes the verified Sonnet review-agent identifier. Final build
+  logs, source checks, independent calculations and page renders are in
+  `build/ordering_integration_2026-10-19/`.
+- All 26 main and 24 SI pages, the one-page cover letter and two-page title page
+  were visually inspected. No clipping or missing display labels remain; normal
+  caption continuations are retained in the review layout. The golden contract
+  passes all 10 markers, one table and three drawings; its title markers follow
+  the actual line break so line numbering cannot interrupt a matched phrase.
+  Both anonymous DOCX files are sanitized, their manifests refreshed, and both
+  PDFs pass structure and text/metadata identity checks. Word/LibreOffice DOCX
+  pagination was not rechecked; PDF remains the initial-submission candidate.
+
+## Earlier checkpoint: scientific and editorial revision, 2026-10-18
 
 - The title is “Shared environments can destabilise communities with balanced
   opposing responses”. The abstract has 236 words. The main PDF has 21 pages,
@@ -128,7 +164,7 @@ The September archive remains available as the previous checkpoint.
   The integration audit independently checked supplied-file checksums, ZIP
   integrity and the new production inputs. Manuscript-only changes do not alter
   this computational package.
-- Current archive SHA-256:
+- Checkpoint archive SHA-256:
   `48fee560383f8c8a732a64a2441419995375e9362a0c9f25cd85ec6279e0e209`.
   Size: 104,808,799 bytes; 91 ZIP entries. Confirm the portal's limit for this
   review-only code/data upload at submission.
@@ -282,6 +318,6 @@ make -C "$MAKEDOC" manifest CONFIG="$CONFIG" PROFILE=ih_supplementary_info
 uv run --frozen pytest -q
 uv run --frozen pyright
 uv run --frozen python scripts/build_deidentified_review_package.py \
-  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-18/ih_package \
+  --target /home/bwbrook/papers/de_identified_repos/insurance_hypothesis_2026-10-19/ih_package \
   --zip
 ```

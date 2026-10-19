@@ -65,6 +65,24 @@ implementation detail is recoverable through Git history.
 - **Status:** integrated after independent derivation and raw-summary audits;
   correspondence discussion 89 preserves the prespecifications and disagreements.
 
+### Calibrated nonlinear ordering, 19 October 2026
+
+- **Decision:** Use `x = c * sigma_env^2` as a simulation-calibrated predictor
+  within richness levels, distinct from the analytical leading-order formula
+  `R = x`. Test new competition/autocorrelation combinations against predictions
+  recorded before the two ordering grids ran.
+- **Evidence:** All three prespecified criteria pass: 35/35 ratios within 10%,
+  17/17 eight-species buffering/amplification calls correct, and 14/15
+  twelve-species values above the eight-species reference curve. Thirteen new
+  floor-free reversals survive adjustment across 60 comparisons.
+- **Limits:** The analytical relation is second order and model-specific; full
+  simulated trajectories only approximate it. Predictive interpolation depends
+  on prior simulations of the same richness and avoids extrapolation. The
+  twelve-species test assesses direction relative to the eight-species curve,
+  not an independently calibrated twelve-species crossing threshold. The earlier
+  longer-window and full-trajectory guard checks cover the original five
+  settings, not the thirteen new cases.
+
 ### Bounded weighted-balance sensitivity
 
 - **Decision:** Add one `S = 4` endpoint-correlation grid that combines a
