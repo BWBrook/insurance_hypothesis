@@ -64,7 +64,7 @@ The September and 18 October archives remain available as earlier checkpoints.
   competition and autocorrelation; the eight-species curve crosses one. Main
   Fig. 3 is redrawn: A–B mechanism trajectory, C ratio against c·sigma² for all
   168 setting-by-amplitude cells. New Table S6; Tables 1, S1 and S2 extended.
-- The abstract has 249 words. The main PDF has 26 pages with the Introduction
+- The abstract has 261 words. The main PDF has 26 pages with the Introduction
   on page 2; the Supporting information has 24 pages. Five verified references
   were added (Adler et al. 2018, Houlahan et al. 2007, Ruel and Ayres 1999,
   Vasseur and Yodzis 2004, Vasseur et al. 2014), and four existing bibliography
