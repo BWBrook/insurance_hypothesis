@@ -37,3 +37,33 @@ is below 0.1.
 Both definitions were evaluated. All 23 eligible cells pass under each. Of those
 23, 22 are new parameter combinations. The `alpha_inter` 0.3, `S` 4, `phi` 0.4 cell
 repeats the calibration setting with independent seeds.
+
+# Ordering-test predictions, 19 October 2026
+
+`ordering_predictions_2026-10-19.json` was written by
+`make_ordering_predictions.py` (a copy of the script that wrote it) before any `ordering_test_*`
+simulation ran. It records, for each of the 60 settings of
+`analysis/production_specs/ordering_test_alpha{020,045}_v1.json`, the small-noise
+coefficient `c`, `x = c * sigma_env^2`, and either the interpolated prediction
+`R_pred` (S = 4 and 8) with an eight-species reversal call, or the eight-species
+reference value `R_ref_S8` (S = 12). The three criteria (C1–C3) are stated in the
+file. The reference curve is the floor-free cells of
+`analysis/reports/fig7_mechanism_reversal_summary.csv`.
+
+SHA-256: `0e12545fed0be9e14a4432e987ff06aa2372b8e7f27d61a6a314a99317d74d65`
+
+## Timeline, UTC, 19 October 2026
+
+- 00:27:53: the two `ordering_test_alpha*_v1.json` specs were written.
+- 00:28:17: the predictions file was written (its `written_utc` field).
+- 00:28:43: the predictions, hash and criteria were posted to correspondence
+  discussion 89 (message 2065).
+- 00:28:49: the production manifests were created.
+- 00:28:57: the first simulation shard was written.
+
+All three criteria were met; `analysis/reports/fig7_ordering_test_criteria_summary.csv`
+records the scoring.
+
+Running `make_ordering_predictions.py` again from the repository root regenerates
+the same cells and criteria but overwrites the JSON with a new `written_utc`, and
+so a new hash; restore the archived file from version control afterwards.

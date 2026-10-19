@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -244,26 +245,62 @@ def _write_minimal_production_summaries(root: Path) -> None:
             for rho in rho_vals
             for replicate in [0, 1]
         ]
-    for tag in [
-        "a030_phi000_sig100",
-        "a030_phi040_sig100",
-        "a060_phi000_sig100",
-        "a060_phi040_sig050",
-        "a060_phi080_sig020",
+    for tag, alpha_inter, phi, sigma in [
+        ("a030_phi000_sig100", 0.3, 0.0, 1.0),
+        ("a030_phi040_sig100", 0.3, 0.4, 1.0),
+        ("a060_phi000_sig100", 0.6, 0.0, 1.0),
+        ("a060_phi040_sig050", 0.6, 0.4, 0.5),
+        ("a060_phi080_sig020", 0.6, 0.8, 0.2),
     ]:
         paths[f"longwindow_reversal_{tag}_v1"] = [
-            _production_record(
-                slope_mode="mixed",
-                n_species=8,
-                sigma_env=0.5,
-                rho_eff=rho,
-                phi=0.4,
-                replicate=replicate,
-                alpha_inter=0.6,
-            )
+            {
+                **_production_record(
+                    slope_mode="mixed",
+                    n_species=8,
+                    sigma_env=sigma,
+                    rho_eff=rho,
+                    phi=phi,
+                    replicate=replicate,
+                    alpha_inter=alpha_inter,
+                ),
+                "run_id": f"longwindow-{tag}",
+            }
             for rho in rho_vals
             for replicate in [0, 1]
         ]
+    prediction_cells: list[dict[str, float | int | str]] = []
+    for tag, alpha_inter in [("020", 0.2), ("045", 0.45)]:
+        paths[f"ordering_test_alpha{tag}_v1"] = [
+            _production_record(
+                slope_mode="mixed",
+                n_species=n_species,
+                sigma_env=sigma,
+                rho_eff=rho,
+                phi=0.2,
+                replicate=replicate,
+                alpha_inter=alpha_inter,
+            )
+            for n_species in [4, 8, 12]
+            for sigma in [0.2, 0.5]
+            for rho in rho_vals
+            for replicate in [0, 1]
+        ]
+        for n_species in [4, 8, 12]:
+            for sigma in [0.2, 0.5]:
+                cell: dict[str, float | int | str] = {
+                    "alpha_inter": alpha_inter, "S": n_species, "phi": 0.2, "sigma_env": sigma,
+                    "c": 2.0, "x": 2.0 * sigma**2,
+                }
+                if n_species == 12:
+                    cell["R_ref_S8"] = 1.0
+                else:
+                    cell["R_pred"] = 1.0
+                if n_species == 8:
+                    cell["reversal_call"] = "no_reversal"
+                prediction_cells.append(cell)
+    predictions = root / "analysis/prespecified/ordering_predictions_2026-10-19.json"
+    predictions.parent.mkdir(parents=True, exist_ok=True)
+    predictions.write_text(json.dumps({"cells": prediction_cells}))
     for run_name, rows in paths.items():
         _write_parquet(root / f"data/sim/production/{run_name}/summaries.parquet", rows)
 
@@ -273,7 +310,7 @@ def test_run_all_lists_every_missing_production_input(tmp_path: Path) -> None:
     combined = f"{result.stdout}\n{result.stderr}"
     assert result.returncode != 0
     assert "Missing production summaries required to regenerate the paper" in combined
-    assert combined.count("summaries.parquet") == 16
+    assert combined.count("summaries.parquet") == 18
 
 
 def test_run_all_regenerates_complete_paper_output(tmp_path: Path) -> None:
@@ -303,7 +340,11 @@ def test_run_all_regenerates_complete_paper_output(tmp_path: Path) -> None:
 
     for extra in [
         "fig6_amplitude_boundary_replication_summary.csv",
+        "fig6_amplitude_boundary_richness_summary.csv",
         "fig7_mechanism_reversal_longwindow_summary.csv",
+        "fig7_ordering_test_summary.csv",
+        "fig7_ordering_test_criteria_summary.csv",
+        "fig7_mechanism_trajectory_summary.csv",
         "figS9_boundary_by_sigma_crossings_summary.csv",
     ]:
         assert (reports / extra).is_file()

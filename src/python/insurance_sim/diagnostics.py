@@ -113,6 +113,22 @@ def balanced_small_noise_coefficient(
     return float(slopes @ slopes / ((1.0 - lambda_d**2) * (1.0 - lambda_d * phi) ** 2))
 
 
+def second_order_total_driver(
+    trajectory: np.ndarray, equilibrium: float
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return total departures X(t+1) and the driver (||x(t+1)||^2 - ||x(t)||^2) / 2n.
+
+    For an equal-K community at r0 = 1 the second-order identity makes the driver the
+    leading total-abundance departure whenever first-order inputs cancel in the total.
+    """
+    departures = np.asarray(trajectory, dtype=float) - float(equilibrium)
+    if departures.ndim != 2 or departures.shape[0] < 2:
+        raise ValueError("trajectory must be a (time, species) array with at least two steps.")
+    totals = departures.sum(axis=1)
+    squared = (departures**2).sum(axis=1)
+    return totals[1:], (squared[1:] - squared[:-1]) / (2.0 * float(equilibrium))
+
+
 def summarize_variance_decomposition(
     df: pd.DataFrame,
     *,

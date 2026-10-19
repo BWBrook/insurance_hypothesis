@@ -19,9 +19,10 @@ from .diagnostics import (
     contrast_mode_eigenvalue,
     deterministic_equilibrium,
     equicorrelated_forcing_ratio,
+    second_order_total_driver,
     weighted_alignment_index,
 )
-from .model import slopes_for_mode
+from .model import generate_environment, simulate_ricker, slopes_for_mode
 
 
 def load_fig1_production_runs(core_path: Path, highsigma_path: Path) -> pd.DataFrame:
@@ -1445,6 +1446,33 @@ def _correlation_endpoints(block: pd.DataFrame, label: str) -> tuple[pd.DataFram
     return low, high
 
 
+def _require_single_mechanism_setting(
+    group: pd.DataFrame, low: pd.DataFrame, high: pd.DataFrame, slopes: np.ndarray, label: str
+) -> None:
+    """Reject pooled inputs that the r0 = 1, equal-K, balanced-slope coefficient cannot describe."""
+    for column in ("run_id", "r0", "n_steps", "burn_in", "alpha_intra", "K_json", "b_slopes_json"):
+        if column in group.columns and group[column].nunique(dropna=False) > 1:
+            raise ValueError(f"{label} pools rows with different {column} values.")
+    if high["rho_eff"].nunique() > 1:
+        raise ValueError(f"{label} has more than one near-perfect correlation endpoint.")
+    if len(low) != len(high):
+        raise ValueError(f"{label} has unequal endpoint replicate counts.")
+    if "replicate" in group.columns and (
+        low["replicate"].duplicated().any() or high["replicate"].duplicated().any()
+    ):
+        raise ValueError(f"{label} repeats replicate indices within an endpoint.")
+    if "r0" in group.columns and not np.allclose(group["r0"].to_numpy(dtype=float), 1.0):
+        raise ValueError(f"{label} needs r0 = 1 for the small-noise coefficient.")
+    if "K_json" in group.columns:
+        K = np.atleast_1d(np.asarray(json.loads(str(group["K_json"].iloc[0])), dtype=float))
+        if not np.allclose(K, K[0]):
+            raise ValueError(f"{label} needs equal carrying capacities.")
+    if "b_slopes_json" in group.columns:
+        stored = np.asarray(json.loads(str(group["b_slopes_json"].iloc[0])), dtype=float)
+        if stored.shape != slopes.shape or not np.allclose(stored, slopes):
+            raise ValueError(f"{label} slopes differ from the balanced mixed slopes.")
+
+
 def summarize_endpoint_ratio_by_sigma(df: pd.DataFrame, *, slope_mode: str) -> pd.DataFrame:
     """Shared-to-independent ratio of mean squared CV for one slope mode at each sigma_env."""
     block = pd.DataFrame(df[df["slope_mode"].eq(slope_mode) & (df["sigma_env"] > 0)])
@@ -1540,9 +1568,11 @@ def summarize_mechanism_grids(df: pd.DataFrame, *, alpha_intra: float = 1.0) -> 
     keys = ["alpha_inter", "n_species", "phi", "sigma_env"]
     records: list[dict[str, float | int | bool]] = []
     for (alpha_inter, n_species, phi, sigma_env), group in _iter_groups(df, keys):
-        low, high = _correlation_endpoints(group, f"setting {alpha_inter}, {n_species}, {phi}")
-        ratio, ci_low, ci_high = _endpoint_ratio(high["cv_total"].to_numpy(), low["cv_total"].to_numpy())
+        label = f"setting alpha={alpha_inter}, S={n_species:g}, phi={phi}, sigma={sigma_env}"
+        low, high = _correlation_endpoints(group, label)
         slopes = slopes_for_mode("mixed", int(n_species))
+        _require_single_mechanism_setting(group, low, high, slopes, label)
+        ratio, ci_low, ci_high = _endpoint_ratio(high["cv_total"].to_numpy(), low["cv_total"].to_numpy())
         coefficient = balanced_small_noise_coefficient(
             response_slopes=slopes, alpha_intra=alpha_intra, alpha_inter=float(alpha_inter), phi=float(phi)
         )
@@ -1616,12 +1646,14 @@ def make_production_fig6_amplitude_boundary(
     sign_summary: pd.DataFrame,
     boundary_by_sigma: pd.DataFrame,
     replication: pd.DataFrame,
+    richness: pd.DataFrame,
     out_png: Path,
     *,
     onset_coefficient: float,
     out_pdf: Path | None = None,
     summary_out: Path | None = None,
     replication_out: Path | None = None,
+    richness_out: Path | None = None,
 ) -> None:
     """Write main Figure 2: shared-exposure benefit across fluctuation size."""
     out_png.parent.mkdir(parents=True, exist_ok=True)
@@ -1629,15 +1661,24 @@ def make_production_fig6_amplitude_boundary(
         sign_summary.to_csv(summary_out, index=False)
     if replication_out is not None:
         replication.to_csv(replication_out, index=False)
+    if richness_out is not None:
+        richness.to_csv(richness_out, index=False)
 
     fig, axes = plt.subplots(2, 1, figsize=(6.4, 7.2), constrained_layout=True)
     ax = axes[0]
     rep = replication[replication["sigma_env"] <= boundary_by_sigma["sigma_env"].max() + 1e-9]
     ax.plot(rep["sigma_env"], rep["cv2_ratio"], "o", mfc="none", mec="0.6", ms=4.5, lw=0,
-            label="balanced mixed, independent grid")
+            label="balanced, S = 4, independent grid")
+    for n_species, rows in richness.groupby("n_species"):
+        color = RICHNESS_COLORS[int(cast(int, n_species))]
+        rows = rows.sort_values("sigma_env")
+        y = rows["cv2_ratio"]
+        yerr = np.vstack([y - rows["cv2_ratio_ci_low"], rows["cv2_ratio_ci_high"] - y])
+        ax.errorbar(rows["sigma_env"], y, yerr=yerr, color=color, marker="o", lw=1.8, ms=5.0, capsize=2.0,
+                    label=f"balanced, S = {int(cast(int, n_species))}")
     series = [
-        ("balanced", "#1f77b4", "o", "balanced mixed"),
-        ("matched", "#d95f02", "s", "aligned, matched magnitude"),
+        ("balanced", RICHNESS_COLORS[4], "o", "balanced, S = 4"),
+        ("matched", "0.25", "s", "aligned, S = 4, matched magnitude"),
     ]
     for key, color, marker, label in series:
         y = sign_summary[f"{key}_shared_over_independent"]
@@ -1645,18 +1686,21 @@ def make_production_fig6_amplitude_boundary(
         ax.errorbar(sign_summary["sigma_env"], y, yerr=yerr, color=color, marker=marker, lw=1.8,
                     ms=5.0, capsize=2.0, label=label)
     limits = boundary_by_sigma[boundary_by_sigma["sigma_env"].eq(boundary_by_sigma["sigma_env"].min())]
-    for treatment_id, color in [(BALANCED_TREATMENT_ID, "#1f77b4"), (MATCHED_ALIGNED_TREATMENT_ID, "#d95f02")]:
+    for treatment_id, color in [(BALANCED_TREATMENT_ID, RICHNESS_COLORS[4]), (MATCHED_ALIGNED_TREATMENT_ID, "0.25")]:
         limit_rows = pd.DataFrame(limits[limits["treatment_id"] == treatment_id])
         limit = float(limit_rows["predicted_forcing_ratio"].iloc[0])
         ax.plot([0.0], [limit], marker=">", color=color, ms=8, clip_on=False, lw=0)
     sigma_grid = np.linspace(0.0, 0.6, 100)
-    ax.plot(sigma_grid, onset_coefficient * sigma_grid**2, color="#1f77b4", ls="--", lw=1.1,
-            label=rf"second-order onset, ${onset_coefficient:.2f}\,\sigma_{{\mathrm{{env}}}}^2$")
+    ax.plot(sigma_grid, onset_coefficient * sigma_grid**2, color=RICHNESS_COLORS[4], ls="--", lw=1.1,
+            label=rf"S = 4 second-order onset, ${onset_coefficient:.2f}\,\sigma_{{\mathrm{{env}}}}^2$")
     ax.axhline(1.0, color="0.45", lw=0.9, ls=":")
     ax.set(xlabel=r"Environmental innovation SD, $\sigma_{\mathrm{env}}$",
            ylabel=r"Shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio", xlim=(0.0, 1.35), ylim=(0.0, 3.4))
     ax.tick_params(labelsize=8.5)
-    ax.legend(fontsize=8, frameon=False, loc="center right")
+    handles, labels = ax.get_legend_handles_labels()
+    order = sorted(range(len(labels)), key=lambda i: (labels[i].startswith(("aligned", "S = 4 second")), labels[i]))
+    ax.legend([handles[i] for i in order], [labels[i] for i in order], fontsize=7.5, frameon=False,
+              loc="lower left", bbox_to_anchor=(0.01, 0.38))
 
     ax = axes[1]
     rotation = pd.DataFrame(boundary_by_sigma[boundary_by_sigma["treatment_path"] == "alignment"])
@@ -1696,14 +1740,21 @@ def write_production_fig6_amplitude_boundary(
     boundary_path: Path,
     core_path: Path,
     highsigma_path: Path,
+    mechanism_path: Path,
     out_png: Path,
     out_pdf: Path | None = None,
     summary_out: Path | None = None,
     replication_out: Path | None = None,
+    richness_out: Path | None = None,
 ) -> None:
-    """Load the boundary-by-sigma grid and the R1/R2 replication grids and write Figure 2."""
+    """Load the boundary-by-sigma, R1/R2 replication and alpha 0.3 mechanism grids and write Figure 2."""
     boundary = _load_required_parquet(boundary_path, label="boundary-by-sigma")
     replication_frame = load_fig1_production_runs(core_path, highsigma_path)
+    mechanism = summarize_mechanism_grids(_load_required_parquet(mechanism_path, label="sigma mechanism"))
+    richness = pd.DataFrame(mechanism[
+        np.isclose(mechanism["alpha_inter"], 0.3) & np.isclose(mechanism["phi"], 0.4)
+        & mechanism["n_species"].isin([2, 8])
+    ]).drop(columns=["calibration_repeat"]).reset_index(drop=True)
     onset = balanced_small_noise_coefficient(
         response_slopes=slopes_for_mode("mixed", 4), alpha_intra=1.0, alpha_inter=0.3, phi=0.4
     )
@@ -1711,78 +1762,190 @@ def write_production_fig6_amplitude_boundary(
         summarize_sign_contrast_by_sigma(boundary),
         summarize_boundary_by_sigma(boundary),
         summarize_endpoint_ratio_by_sigma(replication_frame, slope_mode="mixed"),
+        richness,
         out_png,
         onset_coefficient=onset,
         out_pdf=out_pdf,
         summary_out=summary_out,
         replication_out=replication_out,
+        richness_out=richness_out,
     )
+
+
+TRAJECTORY_SEED = 2026101920
+TRAJECTORY_STEPS = 3300
+TRAJECTORY_BURN_IN = 300
+TRAJECTORY_ENSEMBLE = 20
+TRAJECTORY_EXAMPLE = (8, 0.6, 0.4, 0.5)
+TRAJECTORY_SETTINGS = ((4, 0.3, 0.4, 0.1), (4, 0.3, 0.4, 0.5), (8, 0.6, 0.4, 0.1), (8, 0.6, 0.4, 0.5))
+RICHNESS_COLORS = {2: "#66a61e", 4: "#7570b3", 8: "#d95f02", 12: "#e7298a"}
+
+
+def simulate_balanced_trajectory(
+    *, n_species: int, alpha_inter: float, phi: float, sigma_env: float, rho: float, seed: int
+) -> tuple[np.ndarray, float, np.ndarray]:
+    """Retained trajectory of an equal-K balanced community at r0 = 1, its equilibrium and slopes."""
+    slopes = slopes_for_mode("mixed", n_species)
+    env = generate_environment(
+        n_steps=TRAJECTORY_STEPS, n_species=n_species, phi=phi, sigma_env=sigma_env, rho=rho,
+        rng=np.random.default_rng(seed),
+    )
+    equilibrium = float(
+        deterministic_equilibrium(r0=1.0, K=[100.0] * n_species, alpha_intra=1.0, alpha_inter=alpha_inter)[0]
+    )
+    trajectory = simulate_ricker(
+        env, r0=1.0, K=100.0, b_slopes=slopes, alpha_intra=1.0, alpha_inter=alpha_inter
+    )
+    return trajectory[TRAJECTORY_BURN_IN:], equilibrium, slopes
+
+
+def summarize_mechanism_trajectories(n_trajectories: int = TRAJECTORY_ENSEMBLE) -> pd.DataFrame:
+    """How closely total departures follow the second-order driver, across replicate long trajectories."""
+    records: list[dict[str, float | int | str]] = []
+    for index, (n_species, alpha_inter, phi, sigma_env) in enumerate(TRAJECTORY_SETTINGS):
+        stats: dict[str, dict[str, np.ndarray]] = {}
+        for exposure, rho in (("shared", 1.0), ("independent", 0.0)):
+            corr, slope, sd_driver = [], [], []
+            for replicate in range(n_trajectories):
+                trajectory, equilibrium, _ = simulate_balanced_trajectory(
+                    n_species=n_species, alpha_inter=alpha_inter, phi=phi, sigma_env=sigma_env, rho=rho,
+                    seed=TRAJECTORY_SEED + 1000 * (index + 1) + replicate,
+                )
+                totals, driver = second_order_total_driver(trajectory, equilibrium)
+                corr.append(float(np.corrcoef(totals, driver)[0, 1]))
+                slope.append(float(np.polyfit(driver, totals, 1)[0]))
+                sd_driver.append(float(driver.std()))
+            stats[exposure] = {"corr": np.array(corr), "slope": np.array(slope), "sd": np.array(sd_driver)}
+        sd_ratio = stats["shared"]["sd"] / stats["independent"]["sd"]
+        for exposure, values in stats.items():
+            record: dict[str, float | int | str] = {
+                "n_species": n_species,
+                "alpha_inter": alpha_inter,
+                "phi": phi,
+                "sigma_env": sigma_env,
+                "exposure": exposure,
+                "trajectories": n_trajectories,
+                "retained_steps": TRAJECTORY_STEPS - TRAJECTORY_BURN_IN,
+                "corr_total_driver_mean": float(values["corr"].mean()),
+                "corr_total_driver_min": float(values["corr"].min()),
+                "corr_total_driver_max": float(values["corr"].max()),
+                "slope_total_on_driver_mean": float(values["slope"].mean()),
+                "sd_driver_mean": float(values["sd"].mean()),
+            }
+            if exposure == "shared":
+                record["driver_sd_shared_over_independent_mean"] = float(sd_ratio.mean())
+                record["driver_sd_shared_over_independent_min"] = float(sd_ratio.min())
+                record["driver_sd_shared_over_independent_max"] = float(sd_ratio.max())
+            records.append(record)
+    return pd.DataFrame.from_records(records)
+
+
+def summarize_ordering_test(ordering: pd.DataFrame, predictions: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Score the prespecified ordering predictions against the simulated test cells."""
+    keys = ["alpha_inter", "n_species", "phi", "sigma_env"]
+    cells = pd.DataFrame.from_records(predictions["cells"]).rename(columns={"S": "n_species"})
+    for frame in (cells, ordering):
+        frame["_key"] = list(zip(*(frame[key].astype(float).round(6) for key in keys)))
+    columns = ["_key", "x", "R_pred", "reversal_call", "R_ref_S8"]
+    merged = ordering.merge(cells[[c for c in columns if c in cells.columns]], on="_key", how="left",
+                            validate="one_to_one")
+    if len(merged) != len(cells) or bool(merged["x"].isna().any()):
+        raise ValueError("Ordering-test cells do not match the prespecified prediction cells.")
+    merged = pd.DataFrame(merged.drop(columns="_key"))
+    clean = merged["floor_replicate_max"].eq(0.0)
+    richness = pd.Series(merged["n_species"].astype(int), index=merged.index)
+    merged["relative_error"] = merged["cv2_ratio"] / merged["R_pred"] - 1.0
+    merged["within_10pct"] = merged["relative_error"].abs().le(0.10).where(merged["R_pred"].notna())
+    observed_side = np.where(merged["cv2_ratio"] > 1.0, "reversal", "no_reversal")
+    scored_call = merged["reversal_call"].isin(["reversal", "no_reversal"])
+    merged["call_correct"] = pd.Series(observed_side == merged["reversal_call"], index=merged.index).where(scored_call)
+    merged["above_S8_curve"] = (merged["cv2_ratio"] > merged["R_ref_S8"]).where(merged["R_ref_S8"].notna())
+
+    def score(name: str, flag: str, mask: pd.Series, threshold: float, rule: str) -> dict[str, float | int | str | bool]:
+        values = merged.loc[mask & clean & merged[flag].notna(), flag].astype(bool)
+        fraction = float(values.mean()) if len(values) else float("nan")
+        return {"criterion": name, "rule": rule, "evaluable_cells": int(len(values)),
+                "passing_cells": int(values.sum()), "fraction": fraction, "threshold": threshold,
+                "passed": bool(len(values) > 0 and fraction >= threshold)}
+
+    criteria = pd.DataFrame.from_records([
+        score("C1_accuracy", "within_10pct", richness.isin([4, 8]), 0.9,
+              "floor-free S = 4 and 8 cells within 10% of the interpolated prediction"),
+        score("C2_reversal_call", "call_correct", richness.eq(8), 1.0,
+              "floor-free S = 8 cells on the predicted side of one"),
+        score("C3_richness_direction", "above_S8_curve", richness.eq(12), 0.8,
+              "floor-free S = 12 cells above the eight-species curve at the same x"),
+    ])
+    return merged.sort_values(keys).reset_index(drop=True), criteria
 
 
 def make_production_fig7_mechanism_reversal(
     mechanism: pd.DataFrame,
+    ordering: pd.DataFrame,
     out_png: Path,
     *,
     out_pdf: Path | None = None,
-    summary_out: Path | None = None,
 ) -> None:
-    """Write main Figure 3: prespecified small-noise prediction and balanced reversals."""
+    """Write main Figure 3: the second-order mechanism in a trajectory, and R against c*sigma^2."""
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    if summary_out is not None:
-        mechanism.to_csv(summary_out, index=False)
-    fig, axes = plt.subplots(2, 1, figsize=(6.4, 8.0), constrained_layout=True)
-    alpha_colors = {0.1: "#1b9e77", 0.3: "#7570b3", 0.6: "#d95f02"}
+    fig = plt.figure(figsize=(6.4, 8.8), constrained_layout=True)
+    grid = fig.add_gridspec(3, 1, height_ratios=[1.0, 1.0, 2.5])
+    ax_species = fig.add_subplot(grid[0])
+    ax_total = fig.add_subplot(grid[1], sharex=ax_species)
+    ax_order = fig.add_subplot(grid[2])
 
-    ax = axes[0]
-    low_noise = mechanism[mechanism["sigma_env"] <= 0.2 + 1e-9]
-    for (alpha, sigma_env), rows in _iter_groups(pd.DataFrame(low_noise), ["alpha_inter", "sigma_env"]):
-        color = alpha_colors[round(alpha, 1)]
-        marker = "o" if np.isclose(sigma_env, 0.1) else "s"
-        eligible = rows["small_noise_eligible"].astype(bool)
-        ax.loglog(rows["predicted_ratio"][eligible], rows["cv2_ratio"][eligible], marker, color=color,
-                  ms=5, lw=0)
-        ax.loglog(rows["predicted_ratio"][~eligible], rows["cv2_ratio"][~eligible], marker, mfc="white",
-                  mec=color, ms=5, lw=0)
-    calibration = low_noise[low_noise["calibration_repeat"].astype(bool)]
-    ax.loglog(calibration["predicted_ratio"], calibration["cv2_ratio"], "o", mfc="none", mec="black",
-              ms=10, lw=0, label="calibration setting (independent seeds)")
-    for alpha, color in alpha_colors.items():
-        ax.plot([], [], "o", color=color, label=rf"$\alpha_{{\mathrm{{inter}}}}={alpha:g}$")
-    ax.plot([], [], "o", color="0.4", label=r"$\sigma_{\mathrm{env}}=0.1$")
-    ax.plot([], [], "s", color="0.4", label=r"$\sigma_{\mathrm{env}}=0.2$")
-    ax.plot([], [], "o", mfc="white", mec="0.4", label="outside small-noise regime")
-    lims = np.array([3e-3, 4.0])
-    ax.loglog(lims, lims, ":", color="0.3", lw=1.0)
-    ax.set(xlim=tuple(lims), ylim=tuple(lims), xlabel="Ratio predicted before simulation",
-           ylabel=r"Simulated shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio")
-    ax.tick_params(labelsize=8.5)
-    ax.legend(fontsize=7.5, frameon=False, loc="upper left", ncol=2)
+    n_species, alpha_inter, phi, sigma_env = TRAJECTORY_EXAMPLE
+    trajectory, equilibrium, slopes = simulate_balanced_trajectory(
+        n_species=n_species, alpha_inter=alpha_inter, phi=phi, sigma_env=sigma_env, rho=1.0,
+        seed=TRAJECTORY_SEED + TRAJECTORY_SETTINGS.index(TRAJECTORY_EXAMPLE),
+    )
+    window = slice(0, 81)
+    steps = np.arange(trajectory.shape[0])[window]
+    slope_norm = Normalize(vmin=-0.5, vmax=0.5)
+    slope_cmap = plt.get_cmap("coolwarm")
+    for i, slope in enumerate(slopes):
+        ax_species.plot(steps, (trajectory[window, i] - equilibrium) / equilibrium, color=slope_cmap(slope_norm(slope)),
+                        lw=1.0)
+    ax_species.axhline(0.0, color="0.45", lw=0.8)
+    ax_species.set_ylabel("Species departure,\n" + r"$(N_i-N^\ast)/N^\ast$", fontsize=9)
+    ax_species.tick_params(labelsize=8.5, labelbottom=False)
+    ax_species.plot([], [], color=slope_cmap(slope_norm(0.5)), label="favoured by high exposure")
+    ax_species.plot([], [], color=slope_cmap(slope_norm(-0.5)), label="favoured by low exposure")
+    ax_species.legend(fontsize=7.5, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 0.98), ncol=2)
 
-    ax = axes[1]
-    coefficients = mechanism["small_noise_coefficient"].to_numpy(dtype=float)
-    norm = Normalize(vmin=float(np.log10(coefficients.min())), vmax=float(np.log10(coefficients.max())))
-    cmap = plt.get_cmap("viridis")
-    for _, rows in _iter_groups(mechanism, ["alpha_inter", "n_species", "phi"]):
-        rows = rows.sort_values("sigma_env")
-        color = cmap(norm(np.log10(float(rows["small_noise_coefficient"].iloc[0]))))
-        ax.plot(rows["sigma_env"], rows["cv2_ratio"], color=color, lw=1.0, alpha=0.85)
-        clean = rows["floor_replicate_max"].eq(0.0)
-        ax.plot(rows["sigma_env"][clean], rows["cv2_ratio"][clean], "o", color=color, ms=3.5)
-        ax.plot(rows["sigma_env"][~clean], rows["cv2_ratio"][~clean], "o", mfc="white", mec=color, ms=3.5)
-    reversals = mechanism[mechanism["floor_free_reversal"].astype(bool)]
-    ax.plot(reversals["sigma_env"], reversals["cv2_ratio"], "o", mfc="none", mec="#c51b7d", mew=1.6, ms=9,
-            lw=0, label="floor-free reversal (95% interval above one)")
+    totals, driver = second_order_total_driver(trajectory, equilibrium)
+    scale = n_species * equilibrium
+    ax_total.plot(steps[1:], totals[window][:-1] / scale, color="black", lw=1.2, label="simulated total")
+    ax_total.plot(steps[1:], driver[window][:-1] / scale, color="#d95f02", lw=1.1, ls="--",
+                  label="change in squared species departure")
+    ax_total.axhline(0.0, color="0.45", lw=0.8)
+    ax_total.set_ylabel("Total departure,\n" + r"$\Delta N_{\mathrm{tot}}/N_{\mathrm{tot}}^\ast$", fontsize=9)
+    ax_total.set_xlabel("Time step (shared exposure)", fontsize=9)
+    ax_total.tick_params(labelsize=8.5)
+    ax_total.legend(fontsize=7.5, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 0.98), ncol=2)
+
+    ax = ax_order
+    for frame, marker, size in ((mechanism, "o", 4.5), (ordering, "D", 4.5)):
+        x = frame["small_noise_coefficient"] * frame["sigma_env"] ** 2
+        for n, rows in frame.assign(x=x).groupby("n_species"):
+            color = RICHNESS_COLORS[int(cast(int, n))]
+            clean = rows["floor_replicate_max"].eq(0.0)
+            ax.loglog(rows["x"][clean], rows["cv2_ratio"][clean], marker, color=color, ms=size, lw=0)
+            ax.loglog(rows["x"][~clean], rows["cv2_ratio"][~clean], marker, mfc="white", mec=color, ms=size, lw=0)
+    lims = np.array([3e-3, 120.0])
+    ax.loglog(lims, lims, ":", color="0.3", lw=1.1, label=r"small-noise prediction, $R=c\,\sigma_{\mathrm{env}}^2$")
     ax.axhline(1.0, color="0.45", lw=0.9, ls="--")
-    ax.set(xscale="log", yscale="log", xlabel=r"Environmental innovation SD, $\sigma_{\mathrm{env}}$",
-           ylabel=r"Shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio")
-    ax.set_xticks([0.1, 0.2, 0.5, 1.0])
-    ax.set_xticklabels(["0.1", "0.2", "0.5", "1"])
+    for n, color in RICHNESS_COLORS.items():
+        ax.plot([], [], "o", color=color, label=f"S = {n}")
+    ax.plot([], [], "o", color="0.4", label="mechanism grids")
+    ax.plot([], [], "D", color="0.4", label="ordering-test grids")
+    ax.plot([], [], "o", mfc="white", mec="0.4", label="floor contact")
+    ax.set(xlim=tuple(lims), ylim=(3e-3, 4.0),
+           xlabel=r"Small-noise prediction, $c\,\sigma_{\mathrm{env}}^2$",
+           ylabel=r"Simulated shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio, $R$")
     ax.tick_params(labelsize=8.5)
-    ax.legend(fontsize=8, frameon=False, loc="lower right")
-    scalar = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
-    colorbar = fig.colorbar(scalar, ax=ax, pad=0.01)
-    colorbar.set_label(r"$\log_{10}$ small-noise coefficient", fontsize=8.5)
-    for label, axis in zip(["A", "B"], axes):
+    ax.legend(fontsize=7.5, frameon=False, loc="lower right", ncol=2)
+    for label, axis in zip(["A", "B", "C"], (ax_species, ax_total, ax_order)):
         _add_panel_label(axis, label)
     fig.savefig(out_png, dpi=300)
     if out_pdf is not None:
@@ -1793,19 +1956,36 @@ def make_production_fig7_mechanism_reversal(
 def write_production_fig7_mechanism_reversal(
     *,
     mechanism_paths: Sequence[Path],
+    ordering_paths: Sequence[Path],
+    predictions_path: Path,
     longwindow_paths: Sequence[Path],
     out_png: Path,
     out_pdf: Path | None = None,
     summary_out: Path | None = None,
     longwindow_out: Path | None = None,
+    ordering_out: Path | None = None,
+    criteria_out: Path | None = None,
+    trajectory_out: Path | None = None,
 ) -> None:
-    """Load the mechanism and long-window grids and write Figure 3 plus its summaries."""
-    mechanism = pd.concat(
+    """Load the mechanism, ordering-test and long-window grids; write Figure 3 and its summaries."""
+    mechanism = summarize_mechanism_grids(pd.concat(
         [_load_required_parquet(path, label="sigma mechanism") for path in mechanism_paths], ignore_index=True
+    ))
+    ordering_rows = pd.concat(
+        [_load_required_parquet(path, label="ordering test") for path in ordering_paths], ignore_index=True
     )
-    make_production_fig7_mechanism_reversal(
-        summarize_mechanism_grids(mechanism), out_png, out_pdf=out_pdf, summary_out=summary_out
+    ordering, criteria = summarize_ordering_test(
+        summarize_mechanism_grids(ordering_rows), json.loads(predictions_path.read_text())
     )
+    make_production_fig7_mechanism_reversal(mechanism, ordering, out_png, out_pdf=out_pdf)
+    if summary_out is not None:
+        mechanism.to_csv(summary_out, index=False)
+    if ordering_out is not None:
+        ordering.drop(columns=["calibration_repeat"]).to_csv(ordering_out, index=False)
+    if criteria_out is not None:
+        criteria.to_csv(criteria_out, index=False)
+    if trajectory_out is not None:
+        summarize_mechanism_trajectories().to_csv(trajectory_out, index=False)
     if longwindow_out is not None:
         longwindow = pd.concat(
             [_load_required_parquet(path, label="long-window reversal") for path in longwindow_paths],

@@ -1,0 +1,57 @@
+{
+  "spec_version": 1,
+  "run_id": "ordering-test-alpha020-v1",
+  "title": "Out-of-sample test of ordering by the small-noise coefficient, alpha_inter=0.2",
+  "purpose": "Test whether, within a richness level, the shared-to-independent ratio of mean squared CV in balanced (mixed, equal-K, r0=1) communities is predicted beyond the small-noise regime by monotone interpolation in x = c * sigma_env^2, where c is the second-order small-noise coefficient, using new competition and autocorrelation values.",
+  "rationale": [
+    "In the three sigma_mechanism grids, the floor-free ratios were perfectly rank-ordered by x within each richness level (Spearman 1.0, 1.0, 0.999 for S = 2, 4, 8). This pattern was noticed after those grids ran, so it is tested here on new alpha_inter and phi values.",
+    "Predictions for every cell were computed before running and are stored in analysis/prespecified/ordering_predictions_2026-10-19.json, with the reference curve taken from analysis/reports/fig7_mechanism_reversal_summary.csv.",
+    "S = 12 is outside the reference richness levels and tests a directional prediction only."
+  ],
+  "manifest": {
+    "reps_per_scenario": 1000,
+    "replicates_per_shard": 100,
+    "steps": 600,
+    "burn": 300,
+    "r0": 1.0,
+    "K": 100.0,
+    "alpha_intra": 1.0,
+    "floor": 1e-09,
+    "max_exp": 50.0,
+    "alpha_inter": 0.2,
+    "base_seed": 2026101910,
+    "phi_vals": [
+      0.2,
+      0.6
+    ],
+    "sigma_vals": [
+      0.2,
+      0.35,
+      0.5,
+      0.7,
+      1.0
+    ],
+    "rho_vals": [
+      0.0,
+      1.0
+    ],
+    "species_vals": [
+      4,
+      8,
+      12
+    ],
+    "slope_modes": [
+      "mixed"
+    ]
+  },
+  "expected": {
+    "scenario_count": 60,
+    "shard_count": 600,
+    "expected_rows": 60000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the manifest with 1000 replicates per scenario.",
+    "Floor occupancy is reported for every cell; cells with any retained floor contact are flagged and excluded from the accuracy criterion, not dropped.",
+    "Prespecified criteria are stated in analysis/prespecified/ordering_predictions_2026-10-19.json."
+  ]
+}

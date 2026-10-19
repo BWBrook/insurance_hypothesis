@@ -406,3 +406,28 @@ def test_summarize_mechanism_grids_flags_eligibility_calibration_and_reversal() 
     persistent = summary.loc[0.6]
     assert not bool(persistent["small_noise_eligible"])
     assert bool(persistent["floor_free_reversal"])
+
+
+def test_summarize_mechanism_grids_rejects_pooled_runs() -> None:
+    rows = [
+        {
+            "run_id": run_id,
+            "replicate": replicate,
+            "slope_mode": "mixed",
+            "alpha_inter": 0.6,
+            "n_species": 8,
+            "phi": 0.4,
+            "sigma_env": 0.5,
+            "rho_eff": rho_eff,
+            "cv_total": 0.2 + 0.001 * replicate,
+            "mean_extinction_freq": 0.0,
+        }
+        for run_id in ["run-a", "run-b"]
+        for rho_eff in [0.0, 0.999999]
+        for replicate in range(3)
+    ]
+    with pytest.raises(ValueError, match="different run_id"):
+        summarize_mechanism_grids(pd.DataFrame.from_records(rows))
+    same_run = [{**row, "run_id": "run-a"} for row in rows]
+    with pytest.raises(ValueError, match="repeats replicate indices"):
+        summarize_mechanism_grids(pd.DataFrame.from_records(same_run))

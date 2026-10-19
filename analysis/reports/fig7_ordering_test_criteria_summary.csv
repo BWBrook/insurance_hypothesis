@@ -1,0 +1,4 @@
+criterion,rule,evaluable_cells,passing_cells,fraction,threshold,passed
+C1_accuracy,floor-free S = 4 and 8 cells within 10% of the interpolated prediction,35,35,1.0,0.9,True
+C2_reversal_call,floor-free S = 8 cells on the predicted side of one,17,17,1.0,1.0,True
+C3_richness_direction,floor-free S = 12 cells above the eight-species curve at the same x,15,14,0.9333333333333333,0.8,True

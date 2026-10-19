@@ -50,6 +50,10 @@ PRODUCTION_INPUTS = {
         for tag in ("010", "030", "060")
     },
     **{
+        f"ordering_test_{tag}": Path(f"data/sim/production/ordering_test_alpha{tag}_v1/summaries.parquet")
+        for tag in ("020", "045")
+    },
+    **{
         f"longwindow_{tag}": Path(
             f"data/sim/production/longwindow_reversal_{tag}_v1/summaries.parquet"
         )
@@ -157,15 +161,21 @@ def main() -> None:
         boundary_path=PRODUCTION_INPUTS["boundary_by_sigma"],
         core_path=PRODUCTION_INPUTS["fig1_core"],
         highsigma_path=PRODUCTION_INPUTS["fig1_highsigma"],
+        mechanism_path=PRODUCTION_INPUTS["sigma_mechanism_030"],
         out_png=REPORTS / "fig6_amplitude_boundary.png",
         out_pdf=REPORTS / "fig6_amplitude_boundary.pdf",
         summary_out=REPORTS / "fig6_amplitude_boundary_summary.csv",
         replication_out=REPORTS / "fig6_amplitude_boundary_replication_summary.csv",
+        richness_out=REPORTS / "fig6_amplitude_boundary_richness_summary.csv",
     )
     write_production_fig7_mechanism_reversal(
         mechanism_paths=[
             path for key, path in PRODUCTION_INPUTS.items() if key.startswith("sigma_mechanism_")
         ],
+        ordering_paths=[
+            path for key, path in PRODUCTION_INPUTS.items() if key.startswith("ordering_test_")
+        ],
+        predictions_path=Path("analysis/prespecified/ordering_predictions_2026-10-19.json"),
         longwindow_paths=[
             path for key, path in PRODUCTION_INPUTS.items() if key.startswith("longwindow_")
         ],
@@ -173,6 +183,9 @@ def main() -> None:
         out_pdf=REPORTS / "fig7_mechanism_reversal.pdf",
         summary_out=REPORTS / "fig7_mechanism_reversal_summary.csv",
         longwindow_out=REPORTS / "fig7_mechanism_reversal_longwindow_summary.csv",
+        ordering_out=REPORTS / "fig7_ordering_test_summary.csv",
+        criteria_out=REPORTS / "fig7_ordering_test_criteria_summary.csv",
+        trajectory_out=REPORTS / "fig7_mechanism_trajectory_summary.csv",
     )
     write_production_figS9_boundary_by_sigma(
         boundary_path=PRODUCTION_INPUTS["boundary_by_sigma"],

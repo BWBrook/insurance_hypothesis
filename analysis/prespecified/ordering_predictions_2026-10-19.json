@@ -1,0 +1,574 @@
+{
+ "written_utc": "2026-10-19T00:28:17+00:00",
+ "reference_curve": {
+  "source": "analysis/reports/fig7_mechanism_reversal_summary.csv",
+  "cells": "floor-free cells (floor_replicate_max == 0) of the three sigma_mechanism grids, by richness",
+  "method": "linear interpolation of log R on log x, x = c * sigma_env^2; no extrapolation beyond the reference x-range"
+ },
+ "criteria": {
+  "C1_accuracy": "Among S = 4 and S = 8 cells with a prediction and no retained floor contact at either endpoint, at least 90% have |R_obs / R_pred - 1| <= 0.10. Basis: leave-one-out interpolation error in the reference cells was at most 7.3% (S = 4) and 4.2% (S = 8).",
+  "C2_reversal_call": "Every S = 8 cell with a call of reversal or no_reversal and no retained floor contact has its observed R on the predicted side of one. Calls are reversal if R_pred > 1.05, no_reversal if R_pred < 0.95, otherwise too_close (not scored).",
+  "C3_richness_direction": "Among S = 12 cells with an S = 8 reference value and no retained floor contact, at least 80% have R_obs > R_ref_S8, i.e. richer communities sit above the eight-species curve at the same x.",
+  "reporting": "All cells are reported, including floor-contact and out-of-range cells. A failed criterion is reported as a failure and narrows the claim; there is no parameter expansion."
+ },
+ "cells": [
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 0.914495,
+   "x": 0.03658,
+   "R_pred": 0.03586
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 0.914495,
+   "x": 0.112026,
+   "R_pred": 0.10434
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 0.914495,
+   "x": 0.228624,
+   "R_pred": 0.19795
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 0.914495,
+   "x": 0.448102,
+   "R_pred": 0.34474
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 0.914495,
+   "x": 0.914495,
+   "R_pred": 0.58402
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 1.511716,
+   "x": 0.060469,
+   "R_pred": 0.05788
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 1.511716,
+   "x": 0.185185,
+   "R_pred": 0.16589
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 1.511716,
+   "x": 0.377929,
+   "R_pred": 0.3025
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 1.511716,
+   "x": 0.740741,
+   "R_pred": 0.50345
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 1.511716,
+   "x": 1.511716,
+   "R_pred": 0.73684
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 2.0541,
+   "x": 0.082164,
+   "R_pred": 0.07963,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 2.0541,
+   "x": 0.251627,
+   "R_pred": 0.23052,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 2.0541,
+   "x": 0.513525,
+   "R_pred": 0.43758,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 2.0541,
+   "x": 1.006509,
+   "R_pred": 0.74274,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 2.0541,
+   "x": 2.0541,
+   "R_pred": 1.15502,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 4.285714,
+   "x": 0.171429,
+   "R_pred": 0.16214,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 4.285714,
+   "x": 0.525,
+   "R_pred": 0.44666,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 4.285714,
+   "x": 1.071429,
+   "R_pred": 0.77059,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 4.285714,
+   "x": 2.1,
+   "R_pred": 1.17243,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 4.285714,
+   "x": 4.285714,
+   "R_pred": 1.52757,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 3.738822,
+   "x": 0.149553,
+   "R_ref_S8": 0.14467
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 3.738822,
+   "x": 0.458006,
+   "R_ref_S8": 0.39346
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 3.738822,
+   "x": 0.934705,
+   "R_ref_S8": 0.71106
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 3.738822,
+   "x": 1.832023,
+   "R_ref_S8": 1.06893
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 3.738822,
+   "x": 3.738822,
+   "R_ref_S8": 1.46938
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 8.929913,
+   "x": 0.357197,
+   "R_ref_S8": 0.31506
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 8.929913,
+   "x": 1.093914,
+   "R_ref_S8": 0.78007
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 8.929913,
+   "x": 2.232478,
+   "R_ref_S8": 1.21065
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 8.929913,
+   "x": 4.375657,
+   "R_ref_S8": 1.53662
+  },
+  {
+   "alpha_inter": 0.2,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 8.929913,
+   "x": 8.929913,
+   "R_ref_S8": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 1.874485,
+   "x": 0.074979,
+   "R_pred": 0.07151
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 1.874485,
+   "x": 0.229624,
+   "R_pred": 0.19826
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 1.874485,
+   "x": 0.468621,
+   "R_pred": 0.35877
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 1.874485,
+   "x": 0.918498,
+   "R_pred": 0.58558
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 1.874485,
+   "x": 1.874485,
+   "R_pred": 0.82628
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 4.602361,
+   "x": 0.184094,
+   "R_pred": 0.16501
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 4.602361,
+   "x": 0.563789,
+   "R_pred": 0.41448
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 4.602361,
+   "x": 1.15059,
+   "R_pred": 0.64146
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 4.602361,
+   "x": 2.255157,
+   "R_pred": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 4,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 4.602361,
+   "x": 4.602361,
+   "R_pred": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 5.069825,
+   "x": 0.202793,
+   "R_pred": 0.18856,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 5.069825,
+   "x": 0.621054,
+   "R_pred": 0.50658,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 5.069825,
+   "x": 1.267456,
+   "R_pred": 0.8515,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 5.069825,
+   "x": 2.484214,
+   "R_pred": 1.27129,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 5.069825,
+   "x": 5.069825,
+   "R_pred": 1.59513,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 15.061737,
+   "x": 0.602469,
+   "R_pred": 0.49277,
+   "reversal_call": "no_reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 15.061737,
+   "x": 1.845063,
+   "R_pred": 1.07408,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 15.061737,
+   "x": 3.765434,
+   "R_pred": 1.47235,
+   "reversal_call": "reversal"
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 15.061737,
+   "x": 7.380251,
+   "R_pred": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 8,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 15.061737,
+   "x": 15.061737,
+   "R_pred": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.2,
+   "c": 10.004654,
+   "x": 0.400186,
+   "R_ref_S8": 0.34793
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.35,
+   "c": 10.004654,
+   "x": 1.22557,
+   "R_ref_S8": 0.82812
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.5,
+   "c": 10.004654,
+   "x": 2.501163,
+   "R_ref_S8": 1.27525
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 0.7,
+   "c": 10.004654,
+   "x": 4.90228,
+   "R_ref_S8": 1.58193
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.2,
+   "sigma_env": 1.0,
+   "c": 10.004654,
+   "x": 10.004654,
+   "R_ref_S8": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.2,
+   "c": 32.308842,
+   "x": 1.292354,
+   "R_ref_S8": 0.86533
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.35,
+   "c": 32.308842,
+   "x": 3.957833,
+   "R_ref_S8": 1.49337
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.5,
+   "c": 32.308842,
+   "x": 8.077211,
+   "R_ref_S8": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 0.7,
+   "c": 32.308842,
+   "x": 15.831333,
+   "R_ref_S8": null
+  },
+  {
+   "alpha_inter": 0.45,
+   "S": 12,
+   "phi": 0.6,
+   "sigma_env": 1.0,
+   "c": 32.308842,
+   "x": 32.308842,
+   "R_ref_S8": null
+  }
+ ]
+}
