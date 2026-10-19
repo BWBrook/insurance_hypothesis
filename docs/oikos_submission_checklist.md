@@ -51,6 +51,47 @@ The September archive remains available as the previous checkpoint.
 - Use of LLM tools for literature search, content, code, or analysis must be
   disclosed in a specific AI-use statement at the end of the main text.
 
+## Mechanism and ordering-test revision: 2026-10-19
+
+- New evidence: a prespecified out-of-sample test of ordering by the small-noise
+  coefficient (`analysis/prespecified/ordering_predictions_2026-10-19.json`,
+  SHA-256 `0e12545f…d74d65`; grids `ordering_test_alpha{020,045}_v1`, 120
+  scenarios, 120,000 rows). All three criteria passed (35/35, 17/17, 14/15);
+  13 further floor-free reversals, including two at alpha 0.2 and a doubling of
+  mean squared CV at twelve species. Single- and 20-trajectory diagnostics show
+  total abundance following the second-order driver.
+- Main Fig. 2A now adds balanced two- and eight-species curves at the default
+  competition and autocorrelation; the eight-species curve crosses one. Main
+  Fig. 3 is redrawn: A–B mechanism trajectory, C ratio against c·sigma² for all
+  168 setting-by-amplitude cells. New Table S6; Tables 1, S1 and S2 extended.
+- The abstract has 280 words. The main PDF has 26 pages with the Introduction
+  on page 2; the Supporting information has 24 pages. Five verified references
+  were added (Adler et al. 2018, Houlahan et al. 2007, Ruel and Ayres 1999,
+  Vasseur and Yodzis 2004, Vasseur et al. 2014), and four existing bibliography
+  entries are now cited (Doak et al. 1998, Thibaut and Connolly 2013, Valencia
+  et al. 2020, Kunze et al. 2026).
+- An independent scientific audit of the new claims (separate agent, raw-row
+  recomputation) returned SUPPORTED WITH CORRECTIONS; all corrections were
+  applied: the ordering test is described as testing x = c·sigma² as a
+  calibrated axis, not the leading-order formula; level-versus-change wording
+  of the identity; the S = 8 threshold statement; Bonferroni over 60 test
+  comparisons; the relative nature of the richness effect; ensemble rather than
+  single-trajectory driver statistics.
+- The source checkout passes 46 tests and Pyright. All outputs other than the
+  Fig. 2 and Fig. 3 images are byte-identical to the 18 October outputs; four
+  summary CSVs are new; regeneration is byte-stable.
+- All six sequential document profiles pass; the golden contract passes; both
+  anonymous DOCX files are sanitized and manifests refreshed; both anonymous
+  PDFs pass `qpdf --check` and text/metadata identity scans.
+- Anonymous computational archive:
+  `~/papers/de_identified_repos/insurance_hypothesis_2026-10-19/ih_package.zip`,
+  SHA-256 `a32b9f511f18a2f67cc92839ac3b6b72223d287aac08e5557a3b7b39c7c74796`,
+  113,402,635 bytes, 99 entries. A clean extraction passes the supplied
+  checksums, 42 tests, Pyright, `run_all.py`, the guard diagnostic, all 51
+  expected-output hashes and validation of all 18 grids (1,738 scenarios,
+  1,733,000 rows). The archive now exceeds 100 MB; confirm the portal limit or
+  host it as an anonymous repository link.
+
 ## October scientific and editorial revision: 2026-10-18
 
 - The title is “Shared environments can destabilise communities with balanced

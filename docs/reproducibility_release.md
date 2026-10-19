@@ -15,28 +15,28 @@ is not a ratio of mean `cv_total` values. The mixed-versus-matched-aligned sign
 contrast is reported separately. Monte Carlo uncertainty comes from
 independently seeded simulated trajectories, with scenario as the treatment
 unit and replicate as the Monte Carlo unit. The simulation process, complete
-simulated abundance trajectories, sixteen versioned production grids, and
+simulated abundance trajectories, eighteen versioned production grids, and
 effective-correlation handling are fixed by the active code path.
 
 ## Current anonymous review package
 
 The allowlisted package is sufficient for double-anonymous computational review.
-It contains the model and analysis code, locked Python environment, 41
-collected tests in a clean extraction, sixteen complete specs, and sixteen
+It contains the model and analysis code, locked Python environment, 42
+collected tests in a clean extraction, eighteen complete specs, and eighteen
 compact production summaries. Fresh manifests generated from those specs can
-validate all 1,618 scenarios and 1,613,000 replicate rows. The seven original
+validate all 1,738 scenarios and 1,733,000 replicate rows. The seven original
 production summaries remain part of this protected set; the added grids are
-`boundary_by_sigma_v1`, three `sigma_mechanism_alpha*_v1` grids, and five
-`longwindow_reversal_*_v1` grids.
+`boundary_by_sigma_v1`, three `sigma_mechanism_alpha*_v1` grids, five
+`longwindow_reversal_*_v1` grids, and two `ordering_test_alpha*_v1` grids.
 
-The full source checkout currently collects 45 routine tests; the archive
-collects 41 because it excludes the repository-only submission-helper tests.
+The full source checkout currently collects 46 routine tests; the archive
+collects 42 because it excludes the repository-only submission-helper tests.
 
 The saved summaries drive 12 manuscript figures (three main and nine
-Supporting Information figures), 15 figure-summary CSVs, and two
+Supporting Information figures), 19 figure-summary CSVs, and two
 variance-decomposition CSVs through `analysis/run_all.py`. The package's
-expected-output checksum file contains those 41 outputs plus six retained
-numerical-guard reports, for 47 expected outputs in total.
+expected-output checksum file contains those 45 outputs plus six retained
+numerical-guard reports, for 51 expected outputs in total.
 
 The separate numerical-guard script retains the original three prespecified
 scenarios with 30 replicates each and seed 12345. Its new reversal block covers
@@ -54,10 +54,13 @@ the exact reconstruction. Table S3 is emitted by `analysis/run_all.py`. Table
 S4 records the prespecified mechanism predictions and eligibility results from
 `analysis/prespecified/` and the three mechanism grids. Table S5 records the
 five long-window reversal checks and is backed by the retained long-window
-summary emitted by `analysis/run_all.py`.
+summary emitted by `analysis/run_all.py`. Table S6 records the prespecified ordering test; its
+predictions and criteria are in `analysis/prespecified/`, and its per-cell results
+and criterion scoring are emitted as `fig7_ordering_test_summary.csv` and
+`fig7_ordering_test_criteria_summary.csv`.
 
 The package records two checksum layers: `SHA256SUMS.txt` verifies all files
-supplied for review, while `EXPECTED_OUTPUT_SHA256SUMS.txt` records the 47
+supplied for review, while `EXPECTED_OUTPUT_SHA256SUMS.txt` records the 51
 analysis and numerical-guard outputs expected from the locked release
 environment. Exact byte equality across operating systems or different
 numerical and graphics libraries is not guaranteed; scientific equivalence
@@ -105,10 +108,10 @@ when one exists. No preprint or public archive has been released in this tranche
 At the frozen author-approved paper or preprint commit:
 
 1. validate every saved parquet against a manifest freshly generated from each
-   of the sixteen corresponding specs;
+   of the eighteen corresponding specs;
 2. verify the supplied-file checksums, tests, and Pyright in a clean extraction;
 3. run `analysis/run_all.py` and the separate numerical-guard diagnostic;
-4. compare all 47 expected-output hashes, numerical summaries, and rendered
+4. compare all 51 expected-output hashes, numerical summaries, and rendered
    figures with the frozen release references;
 5. reconstruct Tables S1 and S2 from the parquet files and confirm agreement
    with that manuscript version; confirm the mechanism and long-window Table S4

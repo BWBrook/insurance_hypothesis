@@ -1413,7 +1413,7 @@ references:
   language: en
   page: e70299
   source: Crossref
-  title: Species Interactions Determine the Importance of Response Diversity for Community Stability to Pulse Disturbances
+  title: Species interactions determine the importance of response diversity for community stability to pulse disturbances
   type: article-journal
   URL: https://doi.org/10.1111/ele.70299
   volume: '29'
@@ -1460,4 +1460,188 @@ references:
   type: article-journal
   URL: https://doi.org/10.1007/s00442-026-05868-8
   volume: '208'
+
+- id: houlahan2007CompensatoryDynamicsAre
+  accessed:
+    - year: 2026
+      month: 10
+      day: 19
+  author:
+    - family: Houlahan
+      given: J. E.
+    - family: Currie
+      given: D. J.
+    - family: Cottenie
+      given: K.
+    - family: Cumming
+      given: G. S.
+    - family: Ernest
+      given: S. K. M.
+    - family: Findlay
+      given: C. S.
+    - family: Fuhlendorf
+      given: S. D.
+    - family: Gaedke
+      given: U.
+    - family: Legendre
+      given: P.
+    - family: Magnuson
+      given: J. J.
+    - family: McArdle
+      given: B. H.
+    - family: Muldavin
+      given: E. H.
+    - family: Noble
+      given: D.
+    - family: Russell
+      given: R.
+    - family: Stevens
+      given: R. D.
+    - family: Willis
+      given: T. J.
+    - family: Woiwod
+      given: I. P.
+    - family: Wondzell
+      given: S. M.
+  citation-key: houlahan2007CompensatoryDynamicsAre
+  container-title: "Proceedings of the National Academy of Sciences"
+  container-title-short: "Proc. Natl. Acad. Sci. U.S.A."
+  DOI: 10.1073/pnas.0603798104
+  issue: '9'
+  issued:
+    - year: 2007
+  language: en
+  page: 3273–3277
+  source: DOI.org (Crossref)
+  title: "Compensatory dynamics are rare in natural ecological communities"
+  type: article-journal
+  URL: https://doi.org/10.1073/pnas.0603798104
+  volume: '104'
+
+- id: adler2018CompetitionCoexistencePlant
+  accessed:
+    - year: 2026
+      month: 10
+      day: 19
+  author:
+    - family: Adler
+      given: Peter B.
+    - family: Smull
+      given: Danielle
+    - family: Beard
+      given: Karen H.
+    - family: Choi
+      given: Ryan T.
+    - family: Furniss
+      given: Tucker
+    - family: Kulmatiski
+      given: Andrew
+    - family: Meiners
+      given: Joan M.
+    - family: Tredennick
+      given: Andrew T.
+    - family: Veblen
+      given: Kari E.
+  citation-key: adler2018CompetitionCoexistencePlant
+  container-title: "Ecology Letters"
+  container-title-short: "Ecol Lett"
+  DOI: 10.1111/ele.13098
+  issue: '9'
+  issued:
+    - year: 2018
+  language: en
+  page: 1319–1329
+  source: DOI.org (Crossref)
+  title: "Competition and coexistence in plant communities: intraspecific competition is stronger than interspecific competition"
+  type: article-journal
+  URL: https://doi.org/10.1111/ele.13098
+  volume: '21'
+
+- id: vasseur2004ColorEnvironmentalNoise
+  accessed:
+    - year: 2026
+      month: 10
+      day: 19
+  author:
+    - family: Vasseur
+      given: David A.
+    - family: Yodzis
+      given: Peter
+  citation-key: vasseur2004ColorEnvironmentalNoise
+  container-title: "Ecology"
+  container-title-short: "Ecology"
+  DOI: 10.1890/02-3122
+  issue: '4'
+  issued:
+    - year: 2004
+  language: en
+  page: 1146–1152
+  source: DOI.org (Crossref)
+  title: "The color of environmental noise"
+  type: article-journal
+  URL: https://doi.org/10.1890/02-3122
+  volume: '85'
+
+- id: vasseur2014IncreasedTemperatureVariation
+  accessed:
+    - year: 2026
+      month: 10
+      day: 19
+  author:
+    - family: Vasseur
+      given: David A.
+    - family: DeLong
+      given: John P.
+    - family: Gilbert
+      given: Benjamin
+    - family: Greig
+      given: Hamish S.
+    - family: Harley
+      given: Christopher D. G.
+    - family: McCann
+      given: Kevin S.
+    - family: Savage
+      given: Van
+    - family: Tunney
+      given: Tyler D.
+    - family: O'Connor
+      given: Mary I.
+  citation-key: vasseur2014IncreasedTemperatureVariation
+  container-title: "Proceedings of the Royal Society B: Biological Sciences"
+  container-title-short: "Proc. R. Soc. B"
+  DOI: 10.1098/rspb.2013.2612
+  issue: '1779'
+  issued:
+    - year: 2014
+  language: en
+  page: 20132612
+  source: DOI.org (Crossref)
+  title: "Increased temperature variation poses a greater risk to species than climate warming"
+  type: article-journal
+  URL: https://doi.org/10.1098/rspb.2013.2612
+  volume: '281'
+- id: ruel1999JensensInequalityPredicts
+  accessed:
+    - year: 2026
+      month: 10
+      day: 19
+  author:
+    - family: Ruel
+      given: Jonathan J.
+    - family: Ayres
+      given: Matthew P.
+  citation-key: ruel1999JensensInequalityPredicts
+  container-title: "Trends in Ecology & Evolution"
+  container-title-short: "Trends Ecol Evol"
+  DOI: 10.1016/S0169-5347(99)01664-X
+  issue: '9'
+  issued:
+    - year: 1999
+  language: en
+  page: 361–366
+  source: DOI.org (Crossref)
+  title: "Jensen's inequality predicts effects of environmental variation"
+  type: article-journal
+  URL: https://doi.org/10.1016/S0169-5347(99)01664-X
+  volume: '14'
 ...

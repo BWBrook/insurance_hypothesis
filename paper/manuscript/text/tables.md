@@ -12,10 +12,11 @@ Simulation contrasts and the questions they address. Defaults are $r_0=1$, $K_i=
 | Growth rate (Fig. 1C) | Mixed and matched aligned endpoints at $r_0\in\{0.25,0.5,1,1.5\}$ | Does the sign contrast persist under different population feedback? |
 | Fluctuation size (Fig. 2) | Repeat the 14 composition treatments at innovation SD 0.1, 0.2, 0.3, 0.5, 0.7, 1 and 1.3 | How does fluctuation size change the benefit of shared exposure and the composition boundary? |
 | Mechanism and reversal (Fig. 3) | Balanced responses; $S\in\{2,4,8\}$, $\alpha\in\{0.1,0.3,0.6\}$, $\phi\in\{0,0.4,0.8\}$ and innovation SD 0.1, 0.2, 0.5 and 1 | Does the second-order prediction transfer across community settings, and can shared exposure become destabilising? |
+| Ordering test (Fig. 3C) | Balanced responses; $S\in\{4,8,12\}$, $\alpha\in\{0.2,0.45\}$, $\phi\in\{0.2,0.6\}$ and innovation SD 0.2 to 1; predictions recorded before simulation | Does the small-noise coefficient predict where shared exposure becomes destabilising? |
 | Longer-window follow-up | The same five reversal settings; 500 replicates per exposure condition, 6000 steps with 3000 discarded | Do the reversals persist with longer burn-in and observation windows? |
 
 ### Table S1
-Production run inventory for main and production-backed supplementary figures. Rows are replicate-level scenario summaries from validated, specification-defined runs. R1–R11 use 1000 replicates of 600 steps per scenario; R12–R16 use 500 replicates of 6000 steps. Short labels are used here and in Table S2; exact production IDs are listed below the table.
+Production run inventory for main and production-backed supplementary figures. Rows are replicate-level scenario summaries from validated, specification-defined runs. R1–R11 and R17–R18 use 1000 replicates of 600 steps per scenario; R12–R16 use 500 replicates of 6000 steps. Short labels are used here and in Table S2; exact production IDs are listed below the table.
 
 | Run | Design / figures | Grid | Effort |
 | --- | --- | --- | --- |
@@ -29,6 +30,7 @@ Production run inventory for main and production-backed supplementary figures. R
 | R8 | Figs. 2 and S9; boundary across fluctuation size | $S=4$; $\sigma_{\mathrm{env}}$: 0.1, 0.2, 0.3, 0.5, 0.7, 1 and 1.3; requested $\rho_{\mathrm{env}}\in\{0,1\}$; 14 rotation and unequal-$K_i$ treatments | 196 scenarios; 196000 rows |
 | R9–R11 | Fig. 3 and Table S4; balanced mixed slopes; $\alpha_{\mathrm{inter}}$ 0.1, 0.3 and 0.6 respectively | $S\in\{2,4,8\}$; $\phi\in\{0,0.4,0.8\}$; $\sigma_{\mathrm{env}}\in\{0.1,0.2,0.5,1\}$; requested $\rho_{\mathrm{env}}\in\{0,1\}$ | 72 scenarios; 72000 rows each |
 | R12–R16 | Table S5; long-window check of the five balanced-community reversals | $S=8$; one reversal setting each; requested $\rho_{\mathrm{env}}\in\{0,1\}$; 6000 steps with 3000 burn-in | 2 scenarios; 1000 rows each |
+| R17–R18 | Fig. 3C and Table S6; prespecified ordering test; balanced mixed slopes; $\alpha_{\mathrm{inter}}$ 0.2 and 0.45 respectively | $S\in\{4,8,12\}$; $\phi\in\{0.2,0.6\}$; $\sigma_{\mathrm{env}}\in\{0.2,0.35,0.5,0.7,1\}$; requested $\rho_{\mathrm{env}}\in\{0,1\}$ | 60 scenarios; 60000 rows each |
 
 Exact production run IDs:
 
@@ -48,9 +50,11 @@ Exact production run IDs:
 - R14: `longwindow-reversal-a030-phi040-sig100-v1`
 - R15: `longwindow-reversal-a060-phi000-sig100-v1`
 - R16: `longwindow-reversal-a060-phi080-sig020-v1`
+- R17: `ordering-test-alpha020-v1`
+- R18: `ordering-test-alpha045-v1`
 
 ### Table S2
-Production floor-occupancy summary. Values are post-burn-in frequencies of abundance at the numerical floor, with scenario means averaged over 1000 replicates for R1–R11 and 500 for R12–R16. They are stress diagnostics rather than probabilities of irreversible biological extinction. Stress-region rows are retained for transparency but interpreted separately from the low-stress core inference regime.
+Production floor-occupancy summary. Values are post-burn-in frequencies of abundance at the numerical floor, with scenario means averaged over 1000 replicates for R1–R11 and R17–R18 and 500 for R12–R16. They are stress diagnostics rather than probabilities of irreversible biological extinction. Stress-region rows are retained for transparency but interpreted separately from the low-stress core inference regime.
 
 | Production source | Maximum scenario-mean floor frequency | Maximum replicate floor frequency | Location of maximum scenario mean | Interpretation |
 | --- | ---: | ---: | --- | --- |
@@ -66,6 +70,8 @@ Production floor-occupancy summary. Values are post-burn-in frequencies of abund
 | Fig. 3 mechanism grid, $\alpha_{\mathrm{inter}}=0.3$ (R10) | 0.0105 | 0.0967 | $S=8$, $\phi=0.8$, $\sigma_{\mathrm{env}}=1$, $\rho_{\mathrm{eff}}\approx1$ | Contact at $\phi=0.8$ with $\sigma_{\mathrm{env}}\ge0.5$; all small-fluctuation test cells are floor-free |
 | Fig. 3 mechanism grid, $\alpha_{\mathrm{inter}}=0.6$ (R11) | 0.0343 | 0.2017 | $S=2$, $\phi=0.8$, $\sigma_{\mathrm{env}}=1$, $\rho_{\mathrm{eff}}\approx1$ | Contact at $\sigma_{\mathrm{env}}\ge0.5$ in persistent settings; reversal cells counted only where floor-free |
 | Fig. 3 long-window checks (R12–R16) | <0.00001 | 0.0003 | $S=8$, $\alpha_{\mathrm{inter}}=0.6$, $\phi=0.8$, $\sigma_{\mathrm{env}}=0.2$, $\rho_{\mathrm{eff}}\approx1$ | Four of five settings floor-free; one replicate touched the floor in the fifth |
+| Fig. 3C ordering test, $\alpha_{\mathrm{inter}}=0.2$ (R17) | 0.00003 | 0.0056 | $S=12$, $\phi=0.6$, $\sigma_{\mathrm{env}}=1$, $\rho_{\mathrm{eff}}\approx1$ | Contact only at $\phi=0.6$, $\sigma_{\mathrm{env}}=1$ with $S=8$ and 12 |
+| Fig. 3C ordering test, $\alpha_{\mathrm{inter}}=0.45$ (R18) | 0.0027 | 0.0461 | $S=12$, $\phi=0.6$, $\sigma_{\mathrm{env}}=1$, $\rho_{\mathrm{eff}}\approx1$ | Contact in seven of 30 settings, all at large $c\,\sigma_{\mathrm{env}}^2$; excluded from the prespecified criteria |
 
 ### Table S3
 Variance decomposition for selected mixed-response production scenarios from the Fig. S7 assembly grid at $\sigma_{\mathrm{env}}=0.5$. The aggregate covariance term is $\operatorname{Var}(N_{\mathrm{tot}})-\sum_i\operatorname{Var}(N_i)$, equivalent to $2\sum_{i<j}\operatorname{Cov}(N_i,N_j)$. Full scenario-level values are written to `variance_decomposition_fig2_mixed_summary.csv` in `analysis/reports/`.
@@ -125,3 +131,21 @@ Balanced-community reversals and their robustness checks. Each row is a setting 
 | 0.6 | 0 | 1 | 5.79 | 1.649 (1.612–1.687) | 1.654 (1.638–1.670) | 0.0000 |
 | 0.6 | 0.4 | 0.5 | 14.56 | 1.458 (1.429–1.488) | 1.457 (1.444–1.470) | 0.0000 |
 | 0.6 | 0.8 | 0.2 | 84.71 | 1.465 (1.430–1.501) | 1.453 (1.436–1.469) | 0.0003 |
+
+### Table S6
+Prespecified test of ordering by the small-noise coefficient. Entries are simulated ratios of mean $\mathrm{CV}_{\mathrm{tot}}^2$ under near-perfect versus independent exposure in perfectly balanced communities (equal $K$, $r_0=1$, 1000 replicates per exposure condition). In parentheses: for $S=4$ and 8, the ratio predicted before simulation by linear interpolation of $\log R$ on $\log(c\,\sigma_{\mathrm{env}}^2)$ along the floor-free mechanism-grid cells of the same richness; for $S=12$, the eight-species reference value at the same $c\,\sigma_{\mathrm{env}}^2$. A dash marks a value outside the reference range, for which no prediction was made; † marks retained floor contact. The predictions, criteria and their hash are in `analysis/prespecified/` of the reproducibility package. All criteria were met: 35 of 35 floor-free four- and eight-species cells within 10% of prediction (largest error 4.6%); 17 of 17 floor-free eight-species cells on the predicted side of one; 14 of 15 floor-free twelve-species cells above the eight-species curve.
+
+| $\alpha_{\mathrm{inter}}$ | $S$ | $\phi$ | $c$ | $\sigma_{\mathrm{env}}=0.2$ | 0.35 | 0.5 | 0.7 | 1 |
+| ---: | ---: | ---: | ---: | --- | --- | --- | --- | --- |
+| 0.2 | 4 | 0.2 | 0.91 | 0.036 (0.036) | 0.105 (0.104) | 0.199 (0.198) | 0.349 (0.345) | 0.574 (0.584) |
+| 0.2 | 4 | 0.6 | 1.51 | 0.058 (0.058) | 0.162 (0.166) | 0.294 (0.302) | 0.491 (0.503) | 0.754 (0.737) |
+| 0.2 | 8 | 0.2 | 2.05 | 0.079 (0.080) | 0.230 (0.231) | 0.432 (0.438) | 0.731 (0.743) | 1.150 (1.155) |
+| 0.2 | 8 | 0.6 | 4.29 | 0.164 (0.162) | 0.439 (0.447) | 0.735 (0.771) | 1.123 (1.172) | 1.537† (1.528) |
+| 0.2 | 12 | 0.2 | 3.74 | 0.144 (0.145) | 0.408 (0.393) | 0.758 (0.711) | 1.223 (1.069) | 1.875 (1.469) |
+| 0.2 | 12 | 0.6 | 8.93 | 0.333 (0.315) | 0.838 (0.780) | 1.373 (1.211) | 1.927 (1.537) | 2.370† (—) |
+| 0.45 | 4 | 0.2 | 1.87 | 0.072 (0.072) | 0.202 (0.198) | 0.357 (0.359) | 0.569 (0.586) | 0.831 (0.826) |
+| 0.45 | 4 | 0.6 | 4.60 | 0.164 (0.165) | 0.405 (0.414) | 0.628 (0.641) | 0.861 (—) | 1.015† (—) |
+| 0.45 | 8 | 0.2 | 5.07 | 0.188 (0.189) | 0.496 (0.507) | 0.853 (0.852) | 1.277 (1.271) | 1.612 (1.595) |
+| 0.45 | 8 | 0.6 | 15.06 | 0.490 (0.493) | 1.077 (1.074) | 1.493 (1.472) | 1.713† (—) | 1.729† (—) |
+| 0.45 | 12 | 0.2 | 10.00 | 0.360 (0.348) | 0.918 (0.828) | 1.482 (1.275) | 2.030 (1.582) | 2.386† (—) |
+| 0.45 | 12 | 0.6 | 32.31 | 0.984 (0.865) | 1.886 (1.493) | 2.360† (—) | 2.506† (—) | 2.307† (—) |
