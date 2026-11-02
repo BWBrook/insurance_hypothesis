@@ -1,5 +1,7 @@
 # Insurance hypothesis simulation
 
+> **Status:** developed in the open as a working record. This is work in progress: contents may change, and nothing here is peer-reviewed unless stated.
+
 This repository contains the simulation, analysis, and manuscript sources for a
 theoretical ecology study of biodiversity insurance. Species follow a
 competitive stochastic Ricker model and experience a correlated multivariate
