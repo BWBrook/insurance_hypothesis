@@ -69,6 +69,66 @@ def equicorrelated_forcing_ratio(
     return float(high / low)
 
 
+def contrast_mode_eigenvalue(
+    *,
+    r0: float,
+    alpha_intra: float,
+    alpha_inter: float,
+    n_species: int,
+) -> float:
+    """Return the equal-K Jacobian eigenvalue shared by all vectors orthogonal to 1."""
+    if n_species < 2:
+        raise ValueError("A contrast mode requires at least two species.")
+    denominator = float(alpha_intra) + float(alpha_inter) * (n_species - 1)
+    return float(1.0 - float(r0) * (float(alpha_intra) - float(alpha_inter)) / denominator)
+
+
+def balanced_small_noise_coefficient(
+    *,
+    response_slopes: Sequence[float] | np.ndarray,
+    alpha_intra: float,
+    alpha_inter: float,
+    phi: float,
+) -> float:
+    """Return c in R ~ c * sigma_env^2 for a balanced equal-K community at r0 = 1.
+
+    R is the ratio of mean squared CV of total abundance under perfect versus
+    independent exposure correlation. At r0 = 1 the common mode has no direct
+    carryover, the first-order total cancels under shared exposure, and the
+    leading residual is the variance of the second-order driver
+    (||x1'||^2 - ||x1||^2) / 2n, giving c = sum(b^2) / [(1 - ld^2)(1 - ld*phi)^2].
+    """
+    slopes = np.asarray(response_slopes, dtype=float)
+    if slopes.ndim != 1 or slopes.size < 2:
+        raise ValueError("response_slopes must be a vector with at least two species.")
+    if not np.isclose(slopes.sum(), 0.0, atol=1e-9):
+        raise ValueError("The coefficient applies only to balanced slopes summing to zero.")
+    if not -1.0 < phi < 1.0:
+        raise ValueError("phi must lie strictly between -1 and 1.")
+    lambda_d = contrast_mode_eigenvalue(
+        r0=1.0, alpha_intra=alpha_intra, alpha_inter=alpha_inter, n_species=slopes.size
+    )
+    if not -1.0 < lambda_d < 1.0:
+        raise ValueError("The contrast mode must be locally stable.")
+    return float(slopes @ slopes / ((1.0 - lambda_d**2) * (1.0 - lambda_d * phi) ** 2))
+
+
+def second_order_total_driver(
+    trajectory: np.ndarray, equilibrium: float
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return total departures X(t+1) and the driver (||x(t+1)||^2 - ||x(t)||^2) / 2n.
+
+    For an equal-K community at r0 = 1 the second-order identity makes the driver the
+    leading total-abundance departure whenever first-order inputs cancel in the total.
+    """
+    departures = np.asarray(trajectory, dtype=float) - float(equilibrium)
+    if departures.ndim != 2 or departures.shape[0] < 2:
+        raise ValueError("trajectory must be a (time, species) array with at least two steps.")
+    totals = departures.sum(axis=1)
+    squared = (departures**2).sum(axis=1)
+    return totals[1:], (squared[1:] - squared[:-1]) / (2.0 * float(equilibrium))
+
+
 def summarize_variance_decomposition(
     df: pd.DataFrame,
     *,

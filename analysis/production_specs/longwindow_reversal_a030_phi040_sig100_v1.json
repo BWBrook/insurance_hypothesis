@@ -1,0 +1,47 @@
+{
+  "spec_version": 1,
+  "run_id": "longwindow-reversal-a030_phi040_sig100-v1",
+  "title": "Long-window check of a balanced-community reversal (alpha_inter=0.3, S=8, phi=0.4, sigma_env=1.0)",
+  "purpose": "Bounded robustness check that the floor-free reversal R>1 found in the sigma_mechanism grids survives a 6000-step trajectory with 3000 burn-in. Not a search for new reversal cells.",
+  "rationale": [
+    "Prespecified in correspondence discussion 89 before running: success is R>1 with the 95% Monte Carlo lower bound above 1.",
+    "500 replicates per scenario were fixed before running.",
+    "Floor occupancy is recorded from the production rows; clipping coverage comes from the retained guard diagnostic."
+  ],
+  "manifest": {
+    "reps_per_scenario": 500,
+    "replicates_per_shard": 100,
+    "steps": 6000,
+    "burn": 3000,
+    "r0": 1.0,
+    "K": 100.0,
+    "alpha_intra": 1.0,
+    "phi": 0.4,
+    "alpha_inter": 0.3,
+    "floor": 1e-09,
+    "max_exp": 50.0,
+    "base_seed": 2026101842,
+    "sigma_vals": [
+      1.0
+    ],
+    "rho_vals": [
+      0.0,
+      1.0
+    ],
+    "species_vals": [
+      8
+    ],
+    "slope_modes": [
+      "mixed"
+    ]
+  },
+  "expected": {
+    "scenario_count": 2,
+    "shard_count": 10,
+    "expected_rows": 1000
+  },
+  "acceptance_checks": [
+    "The combined parquet validates against the manifest.",
+    "Prespecified success: R>1 with 95% MC lower bound above 1."
+  ]
+}

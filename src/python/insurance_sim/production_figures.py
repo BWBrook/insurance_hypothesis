@@ -2,21 +2,27 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 import json
 from pathlib import Path
+from typing import cast
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
+from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 
 from .diagnostics import (
+    balanced_small_noise_coefficient,
+    contrast_mode_eigenvalue,
     deterministic_equilibrium,
     equicorrelated_forcing_ratio,
+    second_order_total_driver,
     weighted_alignment_index,
 )
+from .model import generate_environment, simulate_ricker, slopes_for_mode
 
 
 def load_fig1_production_runs(core_path: Path, highsigma_path: Path) -> pd.DataFrame:
@@ -178,6 +184,9 @@ def summarize_mixed_heatmap_supplement(
     )
     out = pd.DataFrame(summary)
     out["metric"] = metric
+    if metric == "phi_ldm":
+        zero_noise = np.asarray(out["sigma_env"], dtype=float) == 0.0
+        out.loc[zero_noise, ["metric_mean", "metric_sd"]] = np.nan
     order = np.lexsort(
         (
             np.asarray(out["rho_eff"], dtype=float),
@@ -217,6 +226,8 @@ def make_mixed_heatmap_supplement(
 
     vmin = float(np.nanmin([np.nanmin(table.values) for table in tables.values()]))
     vmax = float(np.nanmax([np.nanmax(table.values) for table in tables.values()]))
+    cmap = plt.get_cmap("viridis").copy()
+    cmap.set_bad("#d9d9d9")
 
     fig, axes = plt.subplots(
         1,
@@ -233,7 +244,7 @@ def make_mixed_heatmap_supplement(
             table.values,
             origin="lower",
             aspect="auto",
-            cmap="viridis",
+            cmap=cmap,
             vmin=vmin,
             vmax=vmax,
         )
@@ -719,7 +730,7 @@ def make_production_fig3_synchrony(
     labels = {"mixed": "mixed responses", "positive": "aligned responses"}
     markers = {2: "o", 4: "s", 8: "^"}
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.5), constrained_layout=True)
+    fig, axes = plt.subplots(3, 1, figsize=(6.4, 9.0), constrained_layout=True)
 
     for ax, slope_mode, panel_label in zip(axes[:2], ["mixed", "positive"], ["A", "B"]):
         mode = pd.DataFrame(summary[summary["slope_mode"].eq(slope_mode)].copy())
@@ -745,7 +756,8 @@ def make_production_fig3_synchrony(
             xlim=(-0.02, 1.02),
             ylim=(-1.02, 1.02),
         )
-        ax.legend(fontsize=8, frameon=False)
+        ax.tick_params(labelsize=8.5)
+        ax.legend(fontsize=8.5, frameon=False)
         _add_panel_label(ax, panel_label)
 
     ax = axes[2]
@@ -786,7 +798,8 @@ def make_production_fig3_synchrony(
         ylabel=r"$\Delta$ log-growth correlation",
         xlim=(-0.02, 1.02),
     )
-    ax.legend(fontsize=8, frameon=False)
+    ax.tick_params(labelsize=8.5)
+    ax.legend(fontsize=8.5, frameon=False)
     _add_panel_label(ax, "C")
 
     fig.savefig(out_png, dpi=300)
@@ -1090,7 +1103,7 @@ def make_production_fig4_weighted_boundary(
 
     colors = {"mixed": "#1f77b4", "positive_matched": "#d95f02"}
     labels = {"mixed": "balanced mixed", "positive_matched": "aligned, matched magnitude"}
-    fig, axes = plt.subplots(1, 3, figsize=(13.6, 4.55), constrained_layout=True)
+    fig, axes = plt.subplots(3, 1, figsize=(6.4, 9.0), constrained_layout=True)
 
     matched = pd.DataFrame(
         matched_summary[matched_summary["slope_mode"].isin(colors)].copy()
@@ -1115,7 +1128,8 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"Mean $\mathrm{CV}_{\mathrm{tot}}$",
         xlim=(-0.02, 1.02),
     )
-    axes[0].legend(fontsize=7.0, frameon=False, loc="upper left")
+    axes[0].tick_params(labelsize=8.5)
+    axes[0].legend(fontsize=8.5, frameon=False, loc="upper left")
 
     response_path = pd.DataFrame(
         boundary_summary[boundary_summary["treatment_path"].eq("alignment")].copy()
@@ -1159,7 +1173,47 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
         xlim=(-0.02, 0.84),
     )
-    axes[1].legend(fontsize=7.1, frameon=False, loc="upper left")
+    axes[1].tick_params(labelsize=8.5)
+    axes[1].legend(fontsize=8.5, frameon=False, loc="upper left")
+
+    inset = axes[1].inset_axes([0.53, 0.08, 0.44, 0.43])
+    inset.plot(analytic_x, 4.0 * analytic_x, color="0.3", ls=":", lw=1.1)
+    for path, color, marker in [
+        (response_path, "#6a3d9a", "o"),
+        (dominance_path, "#1b9e77", "s"),
+    ]:
+        y = np.asarray(path["cv2_ratio"], dtype=float)
+        yerr = np.vstack(
+            [
+                y - np.asarray(path["cv2_ratio_ci_low"], dtype=float),
+                np.asarray(path["cv2_ratio_ci_high"], dtype=float) - y,
+            ]
+        )
+        inset.errorbar(
+            path["alignment_index"],
+            y,
+            yerr=yerr,
+            color=color,
+            marker=marker,
+            lw=1.0,
+            ms=3.5,
+            capsize=1.5,
+        )
+    inset.axhline(1.0, color="0.45", lw=0.7, ls="--")
+    inset.axvline(0.25, color="0.45", lw=0.7, ls="--")
+    inset.set(
+        xlim=(0.20, 0.28),
+        ylim=(0.90, 1.15),
+        xticks=[0.20, 0.24, 0.28],
+        yticks=[0.9, 1.0, 1.1],
+    )
+    inset.tick_params(labelsize=8.5, pad=1)
+    inset.text(
+        0.03, 0.96, "Near-boundary reversal", transform=inset.transAxes,
+        fontsize=8.5, ha="left", va="top",
+    )
+    inset.set_facecolor("white")
+    axes[1].indicate_inset_zoom(inset, edgecolor="0.25", linewidth=0.8)
 
     r0_rows = pd.DataFrame(
         boundary_summary[
@@ -1196,7 +1250,8 @@ def make_production_fig4_weighted_boundary(
         ylabel=r"High/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio",
         xticks=[0.25, 0.5, 1.0, 1.5],
     )
-    axes[2].legend(fontsize=7.4, frameon=False, loc="upper right")
+    axes[2].tick_params(labelsize=8.5)
+    axes[2].legend(fontsize=8.5, frameon=False, loc="center right")
 
     for label, ax in zip(["A", "B", "C"], axes):
         _add_panel_label(ax, label)
@@ -1347,4 +1402,671 @@ def write_production_fig5_persistence(
         out_png,
         out_pdf=out_pdf,
         summary_out=summary_out,
+    )
+
+
+HIGH_RHO_THRESHOLD = 0.99
+
+
+def _iter_groups(df: pd.DataFrame, keys: list[str]) -> Iterator[tuple[tuple[float, ...], pd.DataFrame]]:
+    """Yield numeric group keys as floats with each group as a DataFrame."""
+    for key, group in df.groupby(keys, observed=True):
+        values = key if isinstance(key, tuple) else (key,)
+        yield tuple(float(cast(float, value)) for value in values), pd.DataFrame(group)
+BALANCED_TREATMENT_ID = "alignment-q000"
+MATCHED_ALIGNED_TREATMENT_ID = "alignment-q1000"
+CALIBRATION_SETTING = (0.3, 4, 0.4)
+
+
+def _endpoint_ratio(cv_high: np.ndarray, cv_low: np.ndarray) -> tuple[float, float, float]:
+    """Return a ratio of mean squared CV with a delta-method 95% interval on the log scale."""
+    high = np.square(np.asarray(cv_high, dtype=float))
+    low = np.square(np.asarray(cv_low, dtype=float))
+    if high.size < 2 or low.size < 2:
+        raise ValueError("Each endpoint needs at least two replicates.")
+    mean_high = float(high.mean())
+    mean_low = float(low.mean())
+    if mean_high <= 0 or mean_low <= 0:
+        raise ValueError("Endpoint mean squared CV must be positive.")
+    ratio = mean_high / mean_low
+    se_log = float(
+        np.sqrt(
+            high.var(ddof=1) / (high.size * mean_high**2)
+            + low.var(ddof=1) / (low.size * mean_low**2)
+        )
+    )
+    return ratio, float(ratio * np.exp(-1.96 * se_log)), float(ratio * np.exp(1.96 * se_log))
+
+
+def _correlation_endpoints(block: pd.DataFrame, label: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    low = pd.DataFrame(block[np.isclose(block["rho_eff"], 0.0, atol=1e-12)])
+    high = pd.DataFrame(block[block["rho_eff"] > HIGH_RHO_THRESHOLD])
+    if low.empty or high.empty:
+        raise ValueError(f"{label} needs rho=0 and near-perfect correlation endpoints.")
+    return low, high
+
+
+def _require_single_mechanism_setting(
+    group: pd.DataFrame, low: pd.DataFrame, high: pd.DataFrame, slopes: np.ndarray, label: str
+) -> None:
+    """Reject pooled inputs that the r0 = 1, equal-K, balanced-slope coefficient cannot describe."""
+    for column in ("run_id", "r0", "n_steps", "burn_in", "alpha_intra", "K_json", "b_slopes_json"):
+        if column in group.columns and group[column].nunique(dropna=False) > 1:
+            raise ValueError(f"{label} pools rows with different {column} values.")
+    if high["rho_eff"].nunique() > 1:
+        raise ValueError(f"{label} has more than one near-perfect correlation endpoint.")
+    if len(low) != len(high):
+        raise ValueError(f"{label} has unequal endpoint replicate counts.")
+    if "replicate" in group.columns and (
+        low["replicate"].duplicated().any() or high["replicate"].duplicated().any()
+    ):
+        raise ValueError(f"{label} repeats replicate indices within an endpoint.")
+    if "r0" in group.columns and not np.allclose(group["r0"].to_numpy(dtype=float), 1.0):
+        raise ValueError(f"{label} needs r0 = 1 for the small-noise coefficient.")
+    if "K_json" in group.columns:
+        K = np.atleast_1d(np.asarray(json.loads(str(group["K_json"].iloc[0])), dtype=float))
+        if not np.allclose(K, K[0]):
+            raise ValueError(f"{label} needs equal carrying capacities.")
+    if "b_slopes_json" in group.columns:
+        stored = np.asarray(json.loads(str(group["b_slopes_json"].iloc[0])), dtype=float)
+        if stored.shape != slopes.shape or not np.allclose(stored, slopes):
+            raise ValueError(f"{label} slopes differ from the balanced mixed slopes.")
+
+
+def summarize_endpoint_ratio_by_sigma(df: pd.DataFrame, *, slope_mode: str) -> pd.DataFrame:
+    """Shared-to-independent ratio of mean squared CV for one slope mode at each sigma_env."""
+    block = pd.DataFrame(df[df["slope_mode"].eq(slope_mode) & (df["sigma_env"] > 0)])
+    records: list[dict[str, float | int]] = []
+    for (sigma_env,), group in _iter_groups(block, ["sigma_env"]):
+        low, high = _correlation_endpoints(group, f"sigma_env={sigma_env}")
+        ratio, ci_low, ci_high = _endpoint_ratio(high["cv_total"].to_numpy(), low["cv_total"].to_numpy())
+        endpoints = pd.concat([low, high])
+        records.append(
+            {
+                "sigma_env": float(sigma_env),
+                "cv2_ratio": ratio,
+                "cv2_ratio_ci_low": ci_low,
+                "cv2_ratio_ci_high": ci_high,
+                "floor_replicate_max": float(endpoints["mean_extinction_freq"].max()),
+                "replicates_per_endpoint": int(min(len(low), len(high))),
+            }
+        )
+    return pd.DataFrame.from_records(records)
+
+
+def summarize_boundary_by_sigma(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply the weighted-boundary summary separately at each sigma_env."""
+    if "sigma_env" not in df.columns:
+        raise ValueError("Missing required column: sigma_env")
+    blocks: list[pd.DataFrame] = []
+    for (sigma_env,), group in _iter_groups(df, ["sigma_env"]):
+        summary = summarize_fig4_weighted_boundary(group)
+        replicate_max = {
+            str(treatment_id): float(cast(float, value))
+            for treatment_id, value in group.groupby("treatment_id", observed=True)["mean_extinction_freq"]
+            .max()
+            .items()
+        }
+        summary.insert(0, "sigma_env", sigma_env)
+        summary["floor_replicate_max"] = [replicate_max[str(tid)] for tid in summary["treatment_id"]]
+        blocks.append(summary)
+    out = pd.concat(blocks, ignore_index=True)
+    return out.sort_values(["sigma_env", "treatment_path", "treatment_level"]).reset_index(drop=True)
+
+
+def summarize_sign_contrast_by_sigma(df: pd.DataFrame) -> pd.DataFrame:
+    """Compare matched aligned with balanced mixed slopes directly at each sigma_env."""
+    records: list[dict[str, float]] = []
+    for (sigma_env,), group in _iter_groups(df, ["sigma_env"]):
+        mixed_low, mixed_high = _correlation_endpoints(
+            pd.DataFrame(group[group["treatment_id"].eq(BALANCED_TREATMENT_ID)]), "balanced mixed"
+        )
+        matched_low, matched_high = _correlation_endpoints(
+            pd.DataFrame(group[group["treatment_id"].eq(MATCHED_ALIGNED_TREATMENT_ID)]),
+            "matched aligned",
+        )
+        shared, shared_low, shared_high = _endpoint_ratio(
+            matched_high["cv_total"].to_numpy(), mixed_high["cv_total"].to_numpy()
+        )
+        independent, ind_low, ind_high = _endpoint_ratio(
+            matched_low["cv_total"].to_numpy(), mixed_low["cv_total"].to_numpy()
+        )
+        mixed_ratio, mixed_ci_low, mixed_ci_high = _endpoint_ratio(
+            mixed_high["cv_total"].to_numpy(), mixed_low["cv_total"].to_numpy()
+        )
+        matched_ratio, matched_ci_low, matched_ci_high = _endpoint_ratio(
+            matched_high["cv_total"].to_numpy(), matched_low["cv_total"].to_numpy()
+        )
+        records.append(
+            {
+                "sigma_env": sigma_env,
+                "balanced_shared_over_independent": mixed_ratio,
+                "balanced_ci_low": mixed_ci_low,
+                "balanced_ci_high": mixed_ci_high,
+                "matched_shared_over_independent": matched_ratio,
+                "matched_ci_low": matched_ci_low,
+                "matched_ci_high": matched_ci_high,
+                "shared_matched_over_balanced": shared,
+                "shared_matched_over_balanced_ci_low": shared_low,
+                "shared_matched_over_balanced_ci_high": shared_high,
+                "independent_matched_over_balanced": independent,
+                "independent_matched_over_balanced_ci_low": ind_low,
+                "independent_matched_over_balanced_ci_high": ind_high,
+            }
+        )
+    return pd.DataFrame.from_records(records)
+
+
+def summarize_mechanism_grids(df: pd.DataFrame, *, alpha_intra: float = 1.0) -> pd.DataFrame:
+    """Balanced shared-to-independent ratios with the small-noise second-order prediction."""
+    required = {"slope_mode", "alpha_inter", "n_species", "phi", "sigma_env", "rho_eff", "cv_total"}
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required mechanism columns: {', '.join(missing)}")
+    if not bool(df["slope_mode"].eq("mixed").all()):
+        raise ValueError("The mechanism summary applies to balanced mixed slopes only.")
+    keys = ["alpha_inter", "n_species", "phi", "sigma_env"]
+    records: list[dict[str, float | int | bool]] = []
+    for (alpha_inter, n_species, phi, sigma_env), group in _iter_groups(df, keys):
+        label = f"setting alpha={alpha_inter}, S={n_species:g}, phi={phi}, sigma={sigma_env}"
+        low, high = _correlation_endpoints(group, label)
+        slopes = slopes_for_mode("mixed", int(n_species))
+        _require_single_mechanism_setting(group, low, high, slopes, label)
+        ratio, ci_low, ci_high = _endpoint_ratio(high["cv_total"].to_numpy(), low["cv_total"].to_numpy())
+        coefficient = balanced_small_noise_coefficient(
+            response_slopes=slopes, alpha_intra=alpha_intra, alpha_inter=float(alpha_inter), phi=float(phi)
+        )
+        endpoints = pd.concat([low, high])
+        floor_max = float(endpoints["mean_extinction_freq"].max())
+        setting = (round(float(alpha_inter), 6), int(n_species), round(float(phi), 6))
+        records.append(
+            {
+                "alpha_inter": float(alpha_inter),
+                "n_species": int(n_species),
+                "phi": float(phi),
+                "sigma_env": float(sigma_env),
+                "lambda_d": contrast_mode_eigenvalue(
+                    r0=1.0, alpha_intra=alpha_intra, alpha_inter=float(alpha_inter), n_species=int(n_species)
+                ),
+                "small_noise_coefficient": coefficient,
+                "predicted_ratio": coefficient * float(sigma_env) ** 2,
+                "cv2_ratio": ratio,
+                "cv2_ratio_ci_low": ci_low,
+                "cv2_ratio_ci_high": ci_high,
+                "floor_replicate_max": floor_max,
+                "small_noise_eligible": bool(coefficient * 0.01 < 0.1),
+                "calibration_repeat": bool(setting == CALIBRATION_SETTING),
+                "floor_free_reversal": bool(floor_max == 0.0 and ci_low > 1.0),
+                "n_steps": int(group["n_steps"].iloc[0]) if "n_steps" in group.columns else -1,
+                "burn_in": int(group["burn_in"].iloc[0]) if "burn_in" in group.columns else -1,
+                "replicates_per_endpoint": int(min(len(low), len(high))),
+            }
+        )
+    return pd.DataFrame.from_records(records).sort_values(keys).reset_index(drop=True)
+
+
+def _interpolated_crossing(alignment: np.ndarray, ratio: np.ndarray) -> tuple[float, float, float]:
+    """Linear interpolation of the first crossing of ratio = 1 along increasing alignment."""
+    order = np.argsort(alignment)
+    x = np.asarray(alignment, dtype=float)[order]
+    y = np.asarray(ratio, dtype=float)[order]
+    for i in range(len(x) - 1):
+        if (y[i] - 1.0) * (y[i + 1] - 1.0) <= 0 and y[i] != y[i + 1]:
+            crossing = x[i] + (1.0 - y[i]) * (x[i + 1] - x[i]) / (y[i + 1] - y[i])
+            return float(crossing), float(x[i]), float(x[i + 1])
+    return float("nan"), float("nan"), float("nan")
+
+
+def summarize_boundary_crossings(boundary_by_sigma: pd.DataFrame) -> pd.DataFrame:
+    """Interpolated A at which the ratio crosses one, with the bracketing tested compositions."""
+    records: list[dict[str, float | str]] = []
+    for (sigma_env,), group in _iter_groups(boundary_by_sigma, ["sigma_env"]):
+        balanced = group[group["treatment_id"].eq(BALANCED_TREATMENT_ID)]
+        paths = {
+            "rotation": group[group["treatment_path"].eq("alignment")],
+            "unequal_K": pd.concat([balanced, group[group["treatment_path"].eq("dominance")]]),
+        }
+        for path, rows in paths.items():
+            crossing, lower, upper = _interpolated_crossing(
+                rows["alignment_index"].to_numpy(), rows["cv2_ratio"].to_numpy()
+            )
+            records.append(
+                {
+                    "sigma_env": sigma_env,
+                    "path": path,
+                    "interpolated_crossing_A": crossing,
+                    "bracket_lower_A": lower,
+                    "bracket_upper_A": upper,
+                }
+            )
+    return pd.DataFrame.from_records(records)
+
+
+def make_production_fig6_amplitude_boundary(
+    sign_summary: pd.DataFrame,
+    boundary_by_sigma: pd.DataFrame,
+    replication: pd.DataFrame,
+    richness: pd.DataFrame,
+    out_png: Path,
+    *,
+    onset_coefficient: float,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    replication_out: Path | None = None,
+    richness_out: Path | None = None,
+) -> None:
+    """Write main Figure 2: shared-exposure benefit across fluctuation size."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        sign_summary.to_csv(summary_out, index=False)
+    if replication_out is not None:
+        replication.to_csv(replication_out, index=False)
+    if richness_out is not None:
+        richness.to_csv(richness_out, index=False)
+
+    fig, axes = plt.subplots(2, 1, figsize=(6.4, 7.2), constrained_layout=True)
+    ax = axes[0]
+    rep = replication[replication["sigma_env"] <= boundary_by_sigma["sigma_env"].max() + 1e-9]
+    ax.plot(rep["sigma_env"], rep["cv2_ratio"], "o", mfc="none", mec="0.6", ms=4.5, lw=0,
+            label="balanced, S = 4, independent grid")
+    for n_species, rows in richness.groupby("n_species"):
+        color = RICHNESS_COLORS[int(cast(int, n_species))]
+        rows = rows.sort_values("sigma_env")
+        y = rows["cv2_ratio"]
+        yerr = np.vstack([y - rows["cv2_ratio_ci_low"], rows["cv2_ratio_ci_high"] - y])
+        ax.errorbar(rows["sigma_env"], y, yerr=yerr, color=color, marker="o", lw=1.8, ms=5.0, capsize=2.0,
+                    label=f"balanced, S = {int(cast(int, n_species))}")
+    series = [
+        ("balanced", RICHNESS_COLORS[4], "o", "balanced, S = 4"),
+        ("matched", "0.25", "s", "aligned, S = 4, matched magnitude"),
+    ]
+    for key, color, marker, label in series:
+        y = sign_summary[f"{key}_shared_over_independent"]
+        yerr = np.vstack([y - sign_summary[f"{key}_ci_low"], sign_summary[f"{key}_ci_high"] - y])
+        ax.errorbar(sign_summary["sigma_env"], y, yerr=yerr, color=color, marker=marker, lw=1.8,
+                    ms=5.0, capsize=2.0, label=label)
+    limits = boundary_by_sigma[boundary_by_sigma["sigma_env"].eq(boundary_by_sigma["sigma_env"].min())]
+    for treatment_id, color in [(BALANCED_TREATMENT_ID, RICHNESS_COLORS[4]), (MATCHED_ALIGNED_TREATMENT_ID, "0.25")]:
+        limit_rows = pd.DataFrame(limits[limits["treatment_id"] == treatment_id])
+        limit = float(limit_rows["predicted_forcing_ratio"].iloc[0])
+        ax.plot([0.0], [limit], marker=">", color=color, ms=8, clip_on=False, lw=0)
+    sigma_grid = np.linspace(0.0, 0.6, 100)
+    ax.plot(sigma_grid, onset_coefficient * sigma_grid**2, color=RICHNESS_COLORS[4], ls="--", lw=1.1,
+            label=rf"S = 4 second-order onset, ${onset_coefficient:.2f}\,\sigma_{{\mathrm{{env}}}}^2$")
+    ax.axhline(1.0, color="0.45", lw=0.9, ls=":")
+    ax.set(xlabel=r"Environmental innovation SD, $\sigma_{\mathrm{env}}$",
+           ylabel=r"Shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio", xlim=(0.0, 1.35), ylim=(0.0, 3.4))
+    ax.tick_params(labelsize=8.5)
+    handles, labels = ax.get_legend_handles_labels()
+    order = sorted(range(len(labels)), key=lambda i: (labels[i].startswith(("aligned", "S = 4 second")), labels[i]))
+    ax.legend([handles[i] for i in order], [labels[i] for i in order], fontsize=7.5, frameon=False,
+              loc="lower left", bbox_to_anchor=(0.01, 0.38))
+
+    ax = axes[1]
+    rotation = pd.DataFrame(boundary_by_sigma[boundary_by_sigma["treatment_path"] == "alignment"])
+    cmap = plt.get_cmap("plasma")
+    shown = [0.1, 0.5, 1.3]
+    for i, sigma_env in enumerate(shown):
+        rows = pd.DataFrame(rotation[np.isclose(rotation["sigma_env"], sigma_env)]).sort_values("alignment_index")
+        if rows.empty:
+            continue
+        color = cmap(0.1 + 0.75 * i / (len(shown) - 1))
+        y = rows["cv2_ratio"]
+        yerr = np.vstack([y - rows["cv2_ratio_ci_low"], rows["cv2_ratio_ci_high"] - y])
+        ax.errorbar(rows["alignment_index"], y, yerr=yerr, color=color, lw=1.5, capsize=1.5, marker="none")
+        clean = rows["floor_replicate_max"].eq(0.0)
+        ax.plot(rows["alignment_index"][clean], y[clean], "o", color=color, ms=4.5,
+                label=rf"$\sigma_{{\mathrm{{env}}}}={sigma_env:g}$")
+        ax.plot(rows["alignment_index"][~clean], y[~clean], "o", mfc="white", mec=color, ms=4.5)
+    rho_high = float(rotation["rho_high"].iloc[0])
+    a_grid = np.linspace(0.0, 0.82, 50)
+    ax.plot(a_grid, (1.0 - rho_high) + rho_high * 4.0 * a_grid, ":", color="0.3", lw=1.3, label="first-order benchmark")
+    ax.axhline(1.0, color="0.45", lw=0.9, ls="--")
+    ax.axvline(0.25, color="0.45", lw=0.9, ls="--")
+    ax.set(xlabel=r"Abundance-weighted alignment, $A$",
+           ylabel=r"Shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio")
+    ax.tick_params(labelsize=8.5)
+    ax.legend(fontsize=8, frameon=False, loc="upper left")
+    for label, axis in zip(["A", "B"], axes):
+        _add_panel_label(axis, label)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_fig6_amplitude_boundary(
+    *,
+    boundary_path: Path,
+    core_path: Path,
+    highsigma_path: Path,
+    mechanism_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    replication_out: Path | None = None,
+    richness_out: Path | None = None,
+) -> None:
+    """Load the boundary-by-sigma, R1/R2 replication and alpha 0.3 mechanism grids and write Figure 2."""
+    boundary = _load_required_parquet(boundary_path, label="boundary-by-sigma")
+    replication_frame = load_fig1_production_runs(core_path, highsigma_path)
+    mechanism = summarize_mechanism_grids(_load_required_parquet(mechanism_path, label="sigma mechanism"))
+    richness = pd.DataFrame(mechanism[
+        np.isclose(mechanism["alpha_inter"], 0.3) & np.isclose(mechanism["phi"], 0.4)
+        & mechanism["n_species"].isin([2, 8])
+    ]).drop(columns=["calibration_repeat"]).reset_index(drop=True)
+    onset = balanced_small_noise_coefficient(
+        response_slopes=slopes_for_mode("mixed", 4), alpha_intra=1.0, alpha_inter=0.3, phi=0.4
+    )
+    make_production_fig6_amplitude_boundary(
+        summarize_sign_contrast_by_sigma(boundary),
+        summarize_boundary_by_sigma(boundary),
+        summarize_endpoint_ratio_by_sigma(replication_frame, slope_mode="mixed"),
+        richness,
+        out_png,
+        onset_coefficient=onset,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+        replication_out=replication_out,
+        richness_out=richness_out,
+    )
+
+
+TRAJECTORY_SEED = 2026101920
+TRAJECTORY_STEPS = 3300
+TRAJECTORY_BURN_IN = 300
+TRAJECTORY_ENSEMBLE = 20
+TRAJECTORY_EXAMPLE = (8, 0.6, 0.4, 0.5)
+TRAJECTORY_SETTINGS = ((4, 0.3, 0.4, 0.1), (4, 0.3, 0.4, 0.5), (8, 0.6, 0.4, 0.1), (8, 0.6, 0.4, 0.5))
+RICHNESS_COLORS = {2: "#66a61e", 4: "#7570b3", 8: "#d95f02", 12: "#e7298a"}
+
+
+def simulate_balanced_trajectory(
+    *, n_species: int, alpha_inter: float, phi: float, sigma_env: float, rho: float, seed: int
+) -> tuple[np.ndarray, float, np.ndarray]:
+    """Retained trajectory of an equal-K balanced community at r0 = 1, its equilibrium and slopes."""
+    slopes = slopes_for_mode("mixed", n_species)
+    env = generate_environment(
+        n_steps=TRAJECTORY_STEPS, n_species=n_species, phi=phi, sigma_env=sigma_env, rho=rho,
+        rng=np.random.default_rng(seed),
+    )
+    equilibrium = float(
+        deterministic_equilibrium(r0=1.0, K=[100.0] * n_species, alpha_intra=1.0, alpha_inter=alpha_inter)[0]
+    )
+    trajectory = simulate_ricker(
+        env, r0=1.0, K=100.0, b_slopes=slopes, alpha_intra=1.0, alpha_inter=alpha_inter
+    )
+    return trajectory[TRAJECTORY_BURN_IN:], equilibrium, slopes
+
+
+def summarize_mechanism_trajectories(n_trajectories: int = TRAJECTORY_ENSEMBLE) -> pd.DataFrame:
+    """How closely total departures follow the second-order driver, across replicate long trajectories."""
+    records: list[dict[str, float | int | str]] = []
+    for index, (n_species, alpha_inter, phi, sigma_env) in enumerate(TRAJECTORY_SETTINGS):
+        stats: dict[str, dict[str, np.ndarray]] = {}
+        for exposure, rho in (("shared", 1.0), ("independent", 0.0)):
+            corr, slope, sd_driver = [], [], []
+            for replicate in range(n_trajectories):
+                trajectory, equilibrium, _ = simulate_balanced_trajectory(
+                    n_species=n_species, alpha_inter=alpha_inter, phi=phi, sigma_env=sigma_env, rho=rho,
+                    seed=TRAJECTORY_SEED + 1000 * (index + 1) + replicate,
+                )
+                totals, driver = second_order_total_driver(trajectory, equilibrium)
+                corr.append(float(np.corrcoef(totals, driver)[0, 1]))
+                slope.append(float(np.polyfit(driver, totals, 1)[0]))
+                sd_driver.append(float(driver.std()))
+            stats[exposure] = {"corr": np.array(corr), "slope": np.array(slope), "sd": np.array(sd_driver)}
+        sd_ratio = stats["shared"]["sd"] / stats["independent"]["sd"]
+        for exposure, values in stats.items():
+            record: dict[str, float | int | str] = {
+                "n_species": n_species,
+                "alpha_inter": alpha_inter,
+                "phi": phi,
+                "sigma_env": sigma_env,
+                "exposure": exposure,
+                "trajectories": n_trajectories,
+                "retained_steps": TRAJECTORY_STEPS - TRAJECTORY_BURN_IN,
+                "corr_total_driver_mean": float(values["corr"].mean()),
+                "corr_total_driver_min": float(values["corr"].min()),
+                "corr_total_driver_max": float(values["corr"].max()),
+                "slope_total_on_driver_mean": float(values["slope"].mean()),
+                "sd_driver_mean": float(values["sd"].mean()),
+            }
+            if exposure == "shared":
+                record["driver_sd_shared_over_independent_mean"] = float(sd_ratio.mean())
+                record["driver_sd_shared_over_independent_min"] = float(sd_ratio.min())
+                record["driver_sd_shared_over_independent_max"] = float(sd_ratio.max())
+            records.append(record)
+    return pd.DataFrame.from_records(records)
+
+
+def summarize_ordering_test(ordering: pd.DataFrame, predictions: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Score the prespecified ordering predictions against the simulated test cells."""
+    keys = ["alpha_inter", "n_species", "phi", "sigma_env"]
+    cells = pd.DataFrame.from_records(predictions["cells"]).rename(columns={"S": "n_species"})
+    for frame in (cells, ordering):
+        frame["_key"] = list(zip(*(frame[key].astype(float).round(6) for key in keys)))
+    columns = ["_key", "x", "R_pred", "reversal_call", "R_ref_S8"]
+    merged = ordering.merge(cells[[c for c in columns if c in cells.columns]], on="_key", how="left",
+                            validate="one_to_one")
+    if len(merged) != len(cells) or bool(merged["x"].isna().any()):
+        raise ValueError("Ordering-test cells do not match the prespecified prediction cells.")
+    merged = pd.DataFrame(merged.drop(columns="_key"))
+    clean = merged["floor_replicate_max"].eq(0.0)
+    richness = pd.Series(merged["n_species"].astype(int), index=merged.index)
+    merged["relative_error"] = merged["cv2_ratio"] / merged["R_pred"] - 1.0
+    merged["within_10pct"] = merged["relative_error"].abs().le(0.10).where(merged["R_pred"].notna())
+    observed_side = np.where(merged["cv2_ratio"] > 1.0, "reversal", "no_reversal")
+    scored_call = merged["reversal_call"].isin(["reversal", "no_reversal"])
+    merged["call_correct"] = pd.Series(observed_side == merged["reversal_call"], index=merged.index).where(scored_call)
+    merged["above_S8_curve"] = (merged["cv2_ratio"] > merged["R_ref_S8"]).where(merged["R_ref_S8"].notna())
+
+    def score(name: str, flag: str, mask: pd.Series, threshold: float, rule: str) -> dict[str, float | int | str | bool]:
+        values = merged.loc[mask & clean & merged[flag].notna(), flag].astype(bool)
+        fraction = float(values.mean()) if len(values) else float("nan")
+        return {"criterion": name, "rule": rule, "evaluable_cells": int(len(values)),
+                "passing_cells": int(values.sum()), "fraction": fraction, "threshold": threshold,
+                "passed": bool(len(values) > 0 and fraction >= threshold)}
+
+    criteria = pd.DataFrame.from_records([
+        score("C1_accuracy", "within_10pct", richness.isin([4, 8]), 0.9,
+              "floor-free S = 4 and 8 cells within 10% of the interpolated prediction"),
+        score("C2_reversal_call", "call_correct", richness.eq(8), 1.0,
+              "floor-free S = 8 cells on the predicted side of one"),
+        score("C3_richness_direction", "above_S8_curve", richness.eq(12), 0.8,
+              "floor-free S = 12 cells above the eight-species curve at the same x"),
+    ])
+    return merged.sort_values(keys).reset_index(drop=True), criteria
+
+
+def make_production_fig7_mechanism_reversal(
+    mechanism: pd.DataFrame,
+    ordering: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+) -> None:
+    """Write main Figure 3: the second-order mechanism in a trajectory, and R against c*sigma^2."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    fig = plt.figure(figsize=(6.4, 8.8), constrained_layout=True)
+    grid = fig.add_gridspec(3, 1, height_ratios=[1.0, 1.0, 2.5])
+    ax_species = fig.add_subplot(grid[0])
+    ax_total = fig.add_subplot(grid[1], sharex=ax_species)
+    ax_order = fig.add_subplot(grid[2])
+
+    n_species, alpha_inter, phi, sigma_env = TRAJECTORY_EXAMPLE
+    trajectory, equilibrium, slopes = simulate_balanced_trajectory(
+        n_species=n_species, alpha_inter=alpha_inter, phi=phi, sigma_env=sigma_env, rho=1.0,
+        seed=TRAJECTORY_SEED + TRAJECTORY_SETTINGS.index(TRAJECTORY_EXAMPLE),
+    )
+    window = slice(0, 81)
+    steps = np.arange(trajectory.shape[0])[window]
+    slope_norm = Normalize(vmin=-0.5, vmax=0.5)
+    slope_cmap = plt.get_cmap("coolwarm")
+    for i, slope in enumerate(slopes):
+        ax_species.plot(steps, (trajectory[window, i] - equilibrium) / equilibrium, color=slope_cmap(slope_norm(slope)),
+                        lw=1.0)
+    ax_species.axhline(0.0, color="0.45", lw=0.8)
+    ax_species.set_ylabel("Species departure,\n" + r"$(N_i-N^\ast)/N^\ast$", fontsize=9)
+    ax_species.tick_params(labelsize=8.5, labelbottom=False)
+    ax_species.plot([], [], color=slope_cmap(slope_norm(0.5)), label="favoured by high exposure")
+    ax_species.plot([], [], color=slope_cmap(slope_norm(-0.5)), label="favoured by low exposure")
+    ax_species.legend(fontsize=7.5, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 0.98), ncol=2)
+
+    totals, driver = second_order_total_driver(trajectory, equilibrium)
+    scale = n_species * equilibrium
+    ax_total.plot(steps[1:], totals[window][:-1] / scale, color="black", lw=1.2, label="simulated total")
+    ax_total.plot(steps[1:], driver[window][:-1] / scale, color="#d95f02", lw=1.1, ls="--",
+                  label="change in squared species departure")
+    ax_total.axhline(0.0, color="0.45", lw=0.8)
+    ax_total.set_ylabel("Total departure,\n" + r"$\Delta N_{\mathrm{tot}}/N_{\mathrm{tot}}^\ast$", fontsize=9)
+    ax_total.set_xlabel("Time step (shared exposure)", fontsize=9)
+    ax_total.tick_params(labelsize=8.5)
+    ax_total.legend(fontsize=7.5, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 0.98), ncol=2)
+
+    ax = ax_order
+    for frame, marker, size in ((mechanism, "o", 4.5), (ordering, "D", 4.5)):
+        x = frame["small_noise_coefficient"] * frame["sigma_env"] ** 2
+        for n, rows in frame.assign(x=x).groupby("n_species"):
+            color = RICHNESS_COLORS[int(cast(int, n))]
+            clean = rows["floor_replicate_max"].eq(0.0)
+            ax.loglog(rows["x"][clean], rows["cv2_ratio"][clean], marker, color=color, ms=size, lw=0)
+            ax.loglog(rows["x"][~clean], rows["cv2_ratio"][~clean], marker, mfc="white", mec=color, ms=size, lw=0)
+    lims = np.array([3e-3, 120.0])
+    ax.loglog(lims, lims, ":", color="0.3", lw=1.1, label=r"small-noise prediction, $R=c\,\sigma_{\mathrm{env}}^2$")
+    ax.axhline(1.0, color="0.45", lw=0.9, ls="--")
+    for n, color in RICHNESS_COLORS.items():
+        ax.plot([], [], "o", color=color, label=f"S = {n}")
+    ax.plot([], [], "o", color="0.4", label="mechanism grids")
+    ax.plot([], [], "D", color="0.4", label="ordering-test grids")
+    ax.plot([], [], "o", mfc="white", mec="0.4", label="floor contact")
+    ax.set(xlim=tuple(lims), ylim=(3e-3, 4.0),
+           xlabel=r"Small-noise prediction, $c\,\sigma_{\mathrm{env}}^2$",
+           ylabel=r"Simulated shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio, $R$")
+    ax.tick_params(labelsize=8.5)
+    ax.legend(fontsize=7.5, frameon=False, loc="lower right", ncol=2)
+    for label, axis in zip(["A", "B", "C"], (ax_species, ax_total, ax_order)):
+        _add_panel_label(axis, label)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_fig7_mechanism_reversal(
+    *,
+    mechanism_paths: Sequence[Path],
+    ordering_paths: Sequence[Path],
+    predictions_path: Path,
+    longwindow_paths: Sequence[Path],
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    longwindow_out: Path | None = None,
+    ordering_out: Path | None = None,
+    criteria_out: Path | None = None,
+    trajectory_out: Path | None = None,
+) -> None:
+    """Load the mechanism, ordering-test and long-window grids; write Figure 3 and its summaries."""
+    mechanism = summarize_mechanism_grids(pd.concat(
+        [_load_required_parquet(path, label="sigma mechanism") for path in mechanism_paths], ignore_index=True
+    ))
+    ordering_rows = pd.concat(
+        [_load_required_parquet(path, label="ordering test") for path in ordering_paths], ignore_index=True
+    )
+    ordering, criteria = summarize_ordering_test(
+        summarize_mechanism_grids(ordering_rows), json.loads(predictions_path.read_text())
+    )
+    make_production_fig7_mechanism_reversal(mechanism, ordering, out_png, out_pdf=out_pdf)
+    if summary_out is not None:
+        mechanism.to_csv(summary_out, index=False)
+    if ordering_out is not None:
+        ordering.drop(columns=["calibration_repeat"]).to_csv(ordering_out, index=False)
+    if criteria_out is not None:
+        criteria.to_csv(criteria_out, index=False)
+    if trajectory_out is not None:
+        summarize_mechanism_trajectories().to_csv(trajectory_out, index=False)
+    if longwindow_out is not None:
+        longwindow = pd.concat(
+            [_load_required_parquet(path, label="long-window reversal") for path in longwindow_paths],
+            ignore_index=True,
+        )
+        summarize_mechanism_grids(longwindow).to_csv(longwindow_out, index=False)
+
+
+def make_production_figS9_boundary_by_sigma(
+    boundary_by_sigma: pd.DataFrame,
+    crossings: pd.DataFrame,
+    out_png: Path,
+    *,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    crossings_out: Path | None = None,
+) -> None:
+    """Write Figure S9: both boundary paths at every sigma_env and interpolated crossings."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    if summary_out is not None:
+        boundary_by_sigma.to_csv(summary_out, index=False)
+    if crossings_out is not None:
+        crossings.to_csv(crossings_out, index=False)
+    fig, axes = plt.subplots(3, 1, figsize=(6.4, 10.0), constrained_layout=True)
+    sigmas = sorted(boundary_by_sigma["sigma_env"].unique())
+    cmap = plt.get_cmap("viridis")
+    balanced = boundary_by_sigma[boundary_by_sigma["treatment_id"].eq(BALANCED_TREATMENT_ID)]
+    panels = [
+        (axes[0], boundary_by_sigma[boundary_by_sigma["treatment_path"].eq("alignment")], 0.82),
+        (axes[1], pd.concat([balanced, boundary_by_sigma[boundary_by_sigma["treatment_path"].eq("dominance")]]), 0.27),
+    ]
+    rho_high = float(boundary_by_sigma["rho_high"].iloc[0])
+    for ax, rows, a_max in panels:
+        for i, sigma_env in enumerate(sigmas):
+            color = cmap(i / max(len(sigmas) - 1, 1))
+            block = rows[np.isclose(rows["sigma_env"], sigma_env)].sort_values("alignment_index")
+            ax.plot(block["alignment_index"], block["cv2_ratio"], "-", color=color, lw=1.2,
+                    label=rf"$\sigma_{{\mathrm{{env}}}}={sigma_env:g}$")
+            clean = block["floor_replicate_max"].eq(0.0)
+            ax.plot(block["alignment_index"][clean], block["cv2_ratio"][clean], "o", color=color, ms=3.5)
+            ax.plot(block["alignment_index"][~clean], block["cv2_ratio"][~clean], "o", mfc="white", mec=color, ms=3.5)
+        a_grid = np.linspace(0.0, a_max, 50)
+        ax.plot(a_grid, (1.0 - rho_high) + rho_high * 4.0 * a_grid, ":", color="0.3", lw=1.2, label="first-order benchmark")
+        ax.axhline(1.0, color="0.45", lw=0.9, ls="--")
+        ax.axvline(0.25, color="0.45", lw=0.9, ls="--")
+        ax.set(xlabel=r"Abundance-weighted alignment, $A$",
+               ylabel=r"Shared/independent $\mathrm{CV}_{\mathrm{tot}}^2$ ratio")
+        ax.tick_params(labelsize=8.5)
+    axes[0].legend(fontsize=7.5, frameon=False, loc="upper left", ncol=2)
+    ax = axes[2]
+    for path, marker, label in [("rotation", "o", "rotation path"), ("unequal_K", "s", "unequal-K path")]:
+        rows = crossings[crossings["path"].eq(path)]
+        ax.plot(rows["sigma_env"], rows["interpolated_crossing_A"], marker + "-", ms=5, label=label)
+    ax.axhline(0.25, color="0.45", lw=0.9, ls="--")
+    ax.set(xlabel=r"Environmental innovation SD, $\sigma_{\mathrm{env}}$",
+           ylabel="A at which the ratio crosses one\n(linear interpolation)")
+    ax.tick_params(labelsize=8.5)
+    ax.legend(fontsize=8, frameon=False, loc="lower left")
+    for label, axis in zip(["A", "B", "C"], axes):
+        _add_panel_label(axis, label)
+    fig.savefig(out_png, dpi=300)
+    if out_pdf is not None:
+        fig.savefig(out_pdf)
+    plt.close(fig)
+
+
+def write_production_figS9_boundary_by_sigma(
+    *,
+    boundary_path: Path,
+    out_png: Path,
+    out_pdf: Path | None = None,
+    summary_out: Path | None = None,
+    crossings_out: Path | None = None,
+) -> None:
+    """Load the boundary-by-sigma grid and write Figure S9 with its summaries."""
+    boundary = summarize_boundary_by_sigma(_load_required_parquet(boundary_path, label="boundary-by-sigma"))
+    make_production_figS9_boundary_by_sigma(
+        boundary,
+        summarize_boundary_crossings(boundary),
+        out_png,
+        out_pdf=out_pdf,
+        summary_out=summary_out,
+        crossings_out=crossings_out,
     )

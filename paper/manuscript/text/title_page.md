@@ -1,4 +1,4 @@
-# Abundance-weighted responses and nonlinear limits to community buffering under correlated environments
+# Shared environments can destabilise communities with balanced opposing responses
 
 <div id="authors"></div>
 
@@ -8,7 +8,7 @@ Research paper.
 
 ## Running Title
 
-Weighted response balance and insurance.
+When shared environments destabilise.
 
 ## Required Submission Statements
 
@@ -30,7 +30,7 @@ No empirical data, field sampling, live-animal work, or human participants were 
 
 ### Author Contributions
 
-Barry W. Brook: conceptualisation, model design, simulation design, software, formal analysis, visualisation, writing - original draft, and writing - review and editing.
+Barry W. Brook: conceptualisation, scientific framing, model and study design, interpretation, and writing - review and editing. OpenAI Codex and Anthropic Claude contributed to derivation, software, simulation and analysis, literature checking, visualisation, scientific audit, and writing, as specified in the manuscript's Artificial intelligence statement.
 
 ### Acknowledgements
 

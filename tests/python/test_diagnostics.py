@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from insurance_sim.diagnostics import (
+    balanced_small_noise_coefficient,
+    contrast_mode_eigenvalue,
     deterministic_equilibrium,
     equicorrelated_forcing_ratio,
     select_variance_decomposition_rows,
@@ -73,3 +78,32 @@ def test_weighted_alignment_recovers_balanced_and_aligned_benchmarks() -> None:
         rho_low=0.0,
         rho_high=0.999999,
     ) == pytest.approx(3.1999978)
+
+
+PRESPECIFIED = Path(__file__).resolve().parents[2] / "analysis/prespecified/sigma_mechanism_predictions_2026-10-18.json"
+
+
+def test_balanced_small_noise_coefficient_reproduces_prespecified_predictions() -> None:
+    predictions = json.loads(PRESPECIFIED.read_text(encoding="utf-8"))
+    assert len(predictions) == 27
+    for cell in predictions.values():
+        slopes = np.linspace(-0.5, 0.5, int(cell["S"]))
+        coefficient = balanced_small_noise_coefficient(
+            response_slopes=slopes, alpha_intra=1.0, alpha_inter=cell["alpha_inter"], phi=cell["phi"]
+        )
+        lambda_d = contrast_mode_eigenvalue(
+            r0=1.0, alpha_intra=1.0, alpha_inter=cell["alpha_inter"], n_species=int(cell["S"])
+        )
+        assert coefficient == pytest.approx(cell["kappa"], abs=5e-4)
+        assert lambda_d == pytest.approx(cell["lambda_d"], abs=5e-5)
+    focal = balanced_small_noise_coefficient(
+        response_slopes=np.linspace(-0.5, 0.5, 4), alpha_intra=1.0, alpha_inter=0.3, phi=0.4
+    )
+    assert focal == pytest.approx(1.654647456652, rel=1e-10)
+
+
+def test_balanced_small_noise_coefficient_rejects_unbalanced_slopes() -> None:
+    with pytest.raises(ValueError, match="balanced"):
+        balanced_small_noise_coefficient(
+            response_slopes=np.abs(np.linspace(-0.5, 0.5, 4)), alpha_intra=1.0, alpha_inter=0.3, phi=0.4
+        )

@@ -1,209 +1,181 @@
-# Oikos final-revision plan
+# Oikos submission workflow
 
-## Scientific objective
+Barry W. Brook (sole author) and Claude work through these steps in order,
+from the PI's read to the Oikos submission. Codex is not on this tranche
+(board thread 89 is paused) unless Barry reopens it, or Claude asks him to
+and he agrees. Git history holds the earlier plans; the scientific record of
+the October rework is in `docs/decisions.md`, the three
+`docs/oikos_*_review_2026-10-1*.md` audits and `docs/oikos_submission_checklist.md`.
 
-Test when environmental variability is buffered at the community level because
-species respond asynchronously. The implemented stochastic Ricker model compares
-mixed response directions with aligned responses under correlated AR(1)
-environmental forcing.
+Each step names who acts, what is produced and what closes it. A **one-way**
+step is outward-facing and irreversible, and needs Barry's explicit go-ahead.
 
-The submission claim is relative and conditional: mixed response directions can
-reduce temporal variability of total community abundance relative to aligned
-responses under the examined design. Richness, persistence, and synchrony
-patterns are supporting structure, not independent causal effects isolated by a
-factorial experiment.
+## Starting state (23 October 2026)
 
-## Current tranche: final author-read revision, 11 September 2026
+- Branch `claude/oikos-editorial-checkpoint` at `f261c24`, pushed to the
+  private remote; `main` is behind at `d0fc7e1`.
+- Main PDF (26 pp.) and Supporting information (24 pp.):
+  `build/oikos_submission_aug_2026/insurance_hypothesis_blinded_main.pdf` and
+  `..._supplementary_info.pdf`. All six document profiles, the golden contract,
+  DOCX sanitisation and the identity scans pass.
+- Anonymous computational package:
+  `~/papers/de_identified_repos/insurance_hypothesis_2026-10-19/ih_package.zip`
+  (SHA-256 `a32b9f51…c74796`, 113 MB). It is unaffected by later edits to the
+  manuscript.
+- The makedoc SI-divider fix sits on makedoc branch `claude/standalone-si-divider`
+  (`4cd4809`) and is not yet merged.
+- No preprint, public repository, archive or submission exists.
 
-The PI approved the corrections in
-`docs/oikos_astra_response_to_fable_2026-09-11.md` and requested commit and push
-before a full author read. Fable's clearer treatment names and exposition are
-retained. The final synthesis reports both the substantial balanced-endpoint
-departure and the near-threshold direction reversal, limits the second-order
-argument to its checked local scope, and repairs the growth metric and
-correlation-clipping descriptions. No production science or accepted display
-has changed. Historical Stage 3/4 descriptions below retain their original
-figure numbers.
+## Journal facts checked on 23 October 2026
 
-The cover letter and submission statements follow the same claims. The release
-audit also replaces an obsolete, unreproducible-in-the-current-package
-200-replicate diagnostic citation with the retained three-scenario diagnostic.
-This is a correction to evidence provenance, not a new simulation result.
+From the NSO author guidelines (nso-journals.org/author-guidelines) and the NSO
+publishing policy (nordicsocietyoikos.org/publishing-policy):
 
-Completed acceptance gate: all six manuscript profiles, PDF visual checks,
-anonymous DOCX sanitization and manifests, 39 repository tests and Pyright,
-51 unchanged protected hashes, and clean extraction of the minimal code/data
-package (35 tests; all 32 regenerated output hashes matched). The package must
-separate regeneration from saved summaries, full production reruns, and
-numerical diagnostics. It remains anonymous for review; public release metadata,
-licensing, and the Zenodo DOI belong after the author's final read and release
-decision. See `docs/oikos_submission_checklist.md` for the completed gate and
-artifact locations. The PI prefers a preprint before submission; Oikos permits
-this while requiring anonymous review files.
+- The abstract is limited to 300 words (currently 261). No Research Paper word
+  limit is stated, and first submissions need not be reformatted.
+- The main text must be anonymous. Data and code are required at first
+  submission but need not be public. They can go in an "additional file for
+  review but not for publication" or behind an anonymous repository link.
+- **Each supporting-information file is capped at 50 MB.** The 113 MB package
+  therefore needs splitting or an anonymous link (step 6).
+- Publication requires a persistent identifier for data and code; a GitHub
+  link alone does not qualify, and Zenodo is recommended.
+- Preprints are allowed before submission, and the submitted version may be
+  posted at any time.
+- An AI-use statement goes at the end of the main text. AI tools cannot be
+  authors.
+- Entered in the submission form: data availability, significance, conflict of
+  interest, ethics, funding and acknowledgements. CRediT roles are required
+  only at revision.
+- Authors must check the PDF that ScholarOne generates before submitting.
 
-The next human step is a full manuscript and cover-letter read. Any resulting
-edits will receive a bounded consistency check before the final pre-submission
-commit. No journal submission or public archival deposit is authorized now.
+## Steps
 
-## Locked evidence base
+### 1. Barry's read — Barry
 
-Seven validated production grids contain 1,196,000 replicate summaries in
-total:
+Two sittings are suggested:
+- **Sitting 1:** title, abstract, Figs 1–3 and their captions, Introduction and
+  Discussion. Is the argument clear, the contribution pitched right, and does it
+  sound like you?
+- **Sitting 2:** Methods, Results, Table 1 and the Supporting information. Can
+  you defend every assumption and interpretation?
 
-| Grid | Rows | Primary use |
-| --- | ---: | --- |
-| `fig1_s4_highres_v1` | 570,000 | Core mixed-versus-aligned response surface |
-| `fig1_s4_highsigma_v1` | 180,000 | Labelled high-variance stress extension |
-| `fig2_richness_mixed_v1` | 210,000 | Richness display, S1/S2, variance decomposition |
-| `fig3_synchrony_v1` | 66,000 | Imposed-versus-realised synchrony and species-CV diagnostic |
-| `fig5_persistence_mixed_v1` | 64,000 | Fixed-innovation persistence sensitivity |
-| `figs3_positive_matched_control_v1` | 66,000 | Magnitude-matched response-sign control |
-| `fig4_weighted_balance_r0_v1` | 40,000 | Weighted-balance boundary and `r0` sensitivity |
+Mark problems rather than solving them. "Overstated", "lost here" or "why does
+this matter" is enough. Use one format: an annotated PDF, a tracked DOCX or
+page-and-line notes. Points that need your judgement in particular:
+- **AI statement:** does it describe the division of labour accurately? First
+  person singular is correct for a sole author, provided you are content with
+  that voice given the AI roles the statement discloses.
+- **Discussion claims:** the plausibility and empirical-signature paragraphs
+  are the main interpretive claims the paper makes beyond the model.
+- **Title:** "Shared environments can destabilise communities with balanced
+  opposing responses".
 
-The present numerical summaries and display items are protected. Any future
-simulation analysis must use a new, versioned spec and output directory.
+Closed when your notes are returned.
 
-## External-review response boundary
+### 2. Integrate the read — Claude, then a short check by Barry
 
-The 2026-08-09 external review found no fatal scientific or computational defect.
-Its highest-value recommendations are accepted:
+Claude applies the edits in the canonical source and checks affected claims
+against the results. Captions, tables, the SI and the cover letter are kept
+consistent, and the documents are rebuilt and verified. Claude returns a short
+account of the substantive changes and any choices left to you.
 
-1. promote the magnitude-matched positive control in the evidential hierarchy;
-2. express the first-order mechanism as an abundance-weighted covariance
-   criterion, with its assumptions explicit;
-3. clarify that environmental exposures share a common orientation;
-4. test the special `r0 = 1`/equal-abundance boundary with a compact sensitivity;
-5. replace the former descriptive Figure 4 with a more diagnostic display; and
-6. narrow richness and fixed-innovation persistence claims to the implemented
-   compound designs.
+Two fixes go in this pass:
+- **Author contributions:** NSO forbids listing AI as authors. Name only you
+  under Author contributions, and keep the AI roles in the AI statement.
+- **Statement placeholders:** fill the funding and acknowledgements text from
+  step 3.
 
-The revision will not automatically expand to fixed-stationary-variance AR(1)
-experiments, alternative covariance structures, alternative density dependence,
-or broad richness factorials. Those are deferred unless the bounded revision
-fails to support an honest focused claim.
+Stopping rule: correctness, clarity, attribution and claims must be resolved.
+A possible extension becomes new analysis only if your read exposes a concrete
+gap in the evidence.
 
-## Four-stage action plan
+Closed when you approve the changed passages, the abstract and the conclusion.
 
-- [x] **Stage 1 — checkpoint the reviewed state.** Create a signed recovery
-  commit; validate all six datasets; record hashes for the production summaries,
-  locked displays, and external report; run the baseline test/type gate.
-- [x] **Stage 2 — remove structural legacy without changing science.** Consolidate
-  the runner and simulation recurrence; use specs as the only production-creation
-  interface; remove superseded scripts, duplicate figure copies, historical
-  ledgers, obsolete drafts, and redundant tests; verify numerical and rendered
-  equivalence; commit; pause for PI review.
-- [x] **Stage 3 — bounded scientific revision.** Prespecify and run the smallest
-  response-balance/abundance-weight/`r0` sensitivity that tests the reviewer's
-  central boundary conditions. Promote the existing magnitude-matched control,
-  replace Figure 4, and revise the manuscript's mechanism and claim hierarchy.
-  Verify claim-specific invariants and pause for PI review.
-- [x] **Stage 4 — release and submission gate.** Run the full code/data/display
-  checks, sequential manuscript profiles, identity sanitization, visual review,
-  anonymous package rebuild, and submission checklist. Resolve only the remaining
-  PI-supplied submission facts, then prepare the final handoff.
+### 3. Administrative facts — Barry, one batch, any time before step 5
 
-## Stage 2 acceptance criteria
+- Funding bodies and grant numbers, or "no specific funding".
+- Acknowledgements, or none.
+- Affiliation, email and ORCID as they should appear on the title page and
+  preprint.
+- Conflict-of-interest wording (currently "No competing interests are declared").
+- Approval of the AI-use statement (from step 1).
 
-- one spec-driven full-simulation route and one production-summary-to-display
-  route remain;
-- model and numerical-diagnostic simulation paths share one recurrence;
-- all six production parquet SHA-256 values and validation row counts are
-  unchanged;
-- every regenerated numerical summary is identical to the Stage 1 baseline;
-- PNG hashes and rasterized PDF pages are identical to the Stage 1 baseline;
-- the reduced tests, type check, retained shell helpers, and anonymous package
-  workflow pass; and
-- the repository documents only current interfaces and unresolved decisions.
+Closed when `docs/questions_for_human.md` is empty.
 
-## Stage 3 prespecification
+### 4. Release decisions — Barry, with Claude's recommendations
 
-One new production grid, `fig4_weighted_balance_r0_v1`, will contain 40
-scenarios and 40,000 replicate summaries. It is deliberately limited to
-`S = 4`, innovation SD `sigma_env = 0.5`, `phi = 0.4`, requested exposure
-correlations `rho_env = 0` and `1`, 600 steps, 300 burn-in steps, and 1000
-replicates per scenario. All environmental axes have the same physical
-orientation. The comparison quantity is the ratio of mean squared community CV
-at effective correlation near one to that at zero.
+- **Preprint server and order.** Recommendation: EcoEvoRxiv under CC BY 4.0,
+  posted before the Oikos submission so that the cover letter can cite it.
+  Posting at submission is the alternative.
+- **Public code and data.** Recommendation: make this repository public after
+  merging to `main`, so the full history is visible. Archive the computational
+  release on Zenodo (code plus the 18 production summaries), with the GitHub
+  repository linked from the Zenodo record.
+- **Licences.** Recommendation: MIT for code, CC BY 4.0 for the simulated data
+  summaries and documentation.
+- **Correspondence record.** Optionally publish the Claude–Codex correspondence
+  (discussion 89) with the release, as an example of transparent human–AI
+  research. Claude would export and redact anything private first.
 
-The grid has three prespecified components:
+Closed when the four choices are recorded in `docs/decisions.md`.
 
-1. **Response alignment:** rotate the balanced mixed vector continuously towards
-   its magnitude-matched aligned counterpart at nine equally spaced positions,
-   preserving its Euclidean norm exactly and keeping equal `K_i = 100` and
-   `r0 = 1`.
-2. **Abundance weighting:** keep the balanced mixed response vector and `r0 = 1`
-   while varying carrying capacities along five positive skew levels. Their sum
-   remains 400, so deterministic total abundance remains constant; the final
-   level crosses the first-order alignment boundary while retaining a positive
-   interior equilibrium.
-3. **Dynamical memory:** repeat the balanced mixed and magnitude-matched aligned
-   endpoints at `r0 = 0.25, 0.5, 1.0, 1.5`, with equal carrying capacities.
+### 5. Prepare the public release — Claude; Barry approves
 
-The first-order benchmark uses `a_i = N_i* b_i`, where `N_i*` is the positive
-deterministic equilibrium, and
+- Merge `claude/oikos-editorial-checkpoint` into `main` by pull request, and
+  merge the makedoc fix branch in the makedoc repository.
+- Add `LICENSE` files, `CITATION.cff` and Zenodo metadata (`.zenodo.json`).
+  Update the README for a public audience, and rerun the full release gate.
+- **Barry:** reserve the Zenodo DOI in a draft record. This needs your
+  account; the DOI is registered only when the record is published.
+- **One-way, Barry's go-ahead:** make the repository public and publish the
+  Zenodo record.
 
-`A = (sum(a_i))^2 / (S sum(a_i^2))`.
+Closed when the DOI resolves and the archive replays from a clean download.
 
-For the equicorrelated exposure design, the predicted high/independent forcing-
-variance ratio is `(1-rho_eff) + rho_eff S A`, and the predicted sign boundary is
-`A = 1/S = 0.25`. The new Figure 4 will compare that benchmark with nonlinear
-simulation, then show whether the matched-sign reversal persists across `r0`.
+### 6. Review files for Oikos — Claude
 
-Stage 3 passes if the production output validates; response norms and scenario
-metadata match the specification; every deterministic equilibrium is positive;
-the abundance-weight path holds deterministic total abundance constant; the
-balanced and aligned high/independent CV-squared ratios remain respectively
-below and above one at every tested `r0`; the alignment-gradient reversal occurs
-near the analytical boundary; and floor occupancy is absent or explicitly
-reported. A failed scientific check changes the claim rather than being tuned
-away with a broader sweep.
+- **Anonymous review package.** Recommendation: split it into parts of at most
+  50 MB (code, specifications and small summaries, plus two data-only parts),
+  each with checksums and reassembly instructions. This avoids any account and
+  any link that could break or identify you. The alternative is an anonymised
+  view-only link (OSF or figshare private link), which needs your account.
+  Replay the reassembled split package from a clean extraction.
+- **Submission files.** Anonymous main PDF, SI PDF, separate title page, cover
+  letter disclosing the preprint, and copy-ready text for the form statements
+  (data availability with the Zenodo DOI, significance, conflict of interest,
+  ethics, funding, acknowledgements).
 
-## Stage 3 outcome
+Closed when every file passes the identity scans and the checklist is current.
 
-The new grid completed all 40 scenarios and 40,000 replicate summaries, bringing
-the active evidence base to seven production grids and 1,196,000 rows. All
-prespecified checks passed. The response-vector norm varied by less than
-$8\times10^{-13}$ along the rotation; all deterministic equilibria were positive;
-and deterministic total abundance along the carrying-capacity path was constant
-at 210.53 to numerical precision.
+### 7. Preprint — Claude prepares; Barry posts (one-way)
 
-At the balanced endpoint, the high-correlation to independent-exposure ratio was
-$R_{\mathrm{CV}^2}=0.320$ (95% Monte Carlo interval 0.315--0.325), whereas the
-magnitude-matched aligned endpoint gave 2.992 (2.965--3.019). The response and
-abundance-weight paths both crossed one near the analytical boundary
-$A=1/S=0.25$. Balanced ratios remained below one and aligned ratios above one at
-every tested $r_0$. Floor contact was absent except for negligible occupancy in
-the most uneven abundance-weight treatment. Figure 4 and the manuscript now use
-these results, and obsolete Figure 4 association outputs are retired.
+- Claude builds an author-identified PDF from the same source, with the SI
+  appended, author details, declarations and the Zenodo DOI. Claude also
+  writes a copy-paste sheet: title, plain-text abstract, keywords, author
+  metadata and links.
+- **Barry** posts it to the chosen server, then sends Claude the URL and DOI.
+  Claude checks the posted files and adds reciprocal links to Zenodo and
+  GitHub.
 
-## Stage 4 outcome
+### 8. Oikos submission — Barry submits (one-way); Claude checks
 
-The final release gate passed on 2026-08-10. All seven production summaries
-validated at 1,196 scenarios and 1,196,000 replicate rows; 39 repository tests,
-Pyright, numerical guards, and the canonical display workflow passed. Consecutive
-full display regenerations produced identical PDF hashes, and all PNG plus
-rasterized-PDF comparisons matched the PI-approved Stage 3 suite.
+- Submit as a Research Paper. The form will ask for suggested or excluded
+  reviewers if the portal requires them: Claude researches candidates, and you
+  judge conflicts.
+- Before the final click, download the PDF that ScholarOne generates. Claude
+  checks it for missing material, equation rendering, file order and anonymity.
+- After submitting, send Claude the confirmation and manuscript ID. Claude tags
+  the submitted commit, archives the receipt and records the exact submitted
+  file hashes in the checklist.
 
-All six manuscript profiles passed their current makedoc checks. The anonymous
-main PDF is 28 pages with a 230-word abstract and the Introduction on page 2; its
-golden contract, identity sanitization, and page-by-page PDF/DOCX inspection
-passed, as did the 9-page Supporting information. A live check of the Oikos/NSO
-guidance prompted one narrow compliance correction: the main text now refers to
-the separate file only as “Supporting information”. A simulation-appropriate
-equity, diversity and inclusion response was also added to the submission-form
-statements.
+## Status
 
-The rebuilt anonymous package contains all seven specs and compact summaries.
-From inside that package, 35 reviewer-facing tests, Pyright, and regeneration of
-nine figures and 11 tabular summaries passed; the clean zip also passed archive,
-path, and identity checks. The only remaining submission tasks are the
-author-supplied facts recorded in `docs/questions_for_human.md`. An optional
-anonymous cold-review bundle and cover note were also prepared for one final Pro
-review without expanding the scientific scope.
-
-## Stopping rule
-
-Each stage receives one focused implementation pass and one repair/verification
-pass. Stop and return to the PI when its acceptance criteria are met. Further
-polish, speculative generality, or repeated checks without new decision-relevant
-evidence belongs to a later tranche, not the current one.
+- [ ] 1. Barry's read
+- [ ] 2. Integration
+- [ ] 3. Administrative facts
+- [ ] 4. Release decisions
+- [ ] 5. Public release
+- [ ] 6. Review files
+- [ ] 7. Preprint
+- [ ] 8. Submission

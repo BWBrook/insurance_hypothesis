@@ -37,5 +37,6 @@ build/
 !analysis/reports/fig*.pdf
 !analysis/reports/fig*_summary.csv
 !analysis/reports/numerical_guard_rates_summary.csv
+!analysis/reports/numerical_guard_reversal_rates_summary.csv
 !analysis/reports/variance_decomposition_fig2_mixed_summary.csv
 !analysis/reports/variance_decomposition_fig2_mixed_selected_summary.csv
